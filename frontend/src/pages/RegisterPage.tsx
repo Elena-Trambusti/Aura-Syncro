@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <BrandLogo size="lg" className="mx-auto mb-4" />
+          <BrandLogo size="lg" className="mx-auto mb-4 shadow-sm border border-amber-200" />
           <h1 className="text-3xl font-bold text-slate-900">{BRAND.name}</h1>
           <p className="text-slate-500 mt-2 text-sm">{t('auth.registerSubtitle')}</p>
         </div>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-slate-500 mt-4">
             {t('auth.hasAccount')}{' '}
-            <Link to="/login" className="font-medium text-sky-600 hover:text-sky-700 hover:underline">
+            <Link to="/login" className="font-medium text-amber-600 hover:text-amber-700 hover:underline">
               {t('auth.login')}
             </Link>
           </p>

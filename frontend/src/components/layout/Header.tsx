@@ -49,9 +49,9 @@ export default function Header() {
 
         <div className="flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center border border-sky-200 bg-sky-50 shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center border border-amber-300 bg-amber-50 shrink-0"
           >
-            <span className="text-xs font-bold text-sky-600">
+            <span className="text-xs font-bold text-amber-600">
               {user ? getInitials(user.name) : 'U'}
             </span>
           </div>

@@ -8,7 +8,7 @@ import { LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
 import { cn } from '../../lib/utils'
 import { useAuth } from '../../contexts/AuthContext'
 import { getTenantTheme } from '../../lib/tenantTheme'
-import { BRAND, isLegacyGold } from '../../lib/brand'
+import { BRAND } from '../../lib/brand'
 import BrandLogo from '../brand/BrandLogo'
 import { useDashboardLayout } from './DashboardLayout'
 
@@ -87,15 +87,8 @@ export default function Sidebar() {
             {restaurant?.logoUrl ? (
               <img src={restaurant.logoUrl} alt={restaurant.name} className="w-8 h-8 rounded-lg object-cover shrink-0" />
             ) : (
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-sky-300/40"
-                style={{
-                  background: isLegacyGold(restaurant?.colorTheme)
-                    ? BRAND.logoGradient
-                    : theme.color,
-                }}
-              >
-                <UtensilsCrossed className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: theme.color }}>
+                <UtensilsCrossed className="w-4 h-4 text-slate-900" />
               </div>
             )}
             <p className="text-xs font-medium text-slate-200 truncate">{restaurant?.name || t('common.restaurant')}</p>

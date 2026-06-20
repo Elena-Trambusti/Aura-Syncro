@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { BRAND } from '../../lib/brand'
+import { BRAND_LOGO_GRADIENT } from '../../lib/brand'
 
 const SIZES = {
   sm: { box: 'w-8 h-8 rounded-lg', icon: 'w-4 h-4' },
@@ -19,11 +19,11 @@ export default function BrandLogo({ size = 'md', className }: BrandLogoProps) {
   const s = SIZES[size]
   return (
     <div
-      className={cn('flex items-center justify-center shrink-0 shadow-sm border border-sky-300/40', s.box, className)}
-      style={{ background: BRAND.logoGradient }}
+      className={cn('flex items-center justify-center shrink-0 shadow-sm', s.box, className)}
+      style={{ background: BRAND_LOGO_GRADIENT }}
       aria-hidden
     >
-      <Sparkles className={cn(s.icon, 'text-white')} />
+      <Sparkles className={cn(s.icon, 'text-slate-900')} />
     </div>
   )
 }
