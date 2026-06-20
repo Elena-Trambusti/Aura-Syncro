@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,8 @@ import { formatCurrency } from '../lib/utils'
 import { TrendingUp, TrendingDown, FileText, PieChart, BarChart2, Download } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, PieChart as RechartsPie, Pie, Legend } from 'recharts'
 import { downloadCSV } from '../lib/export'
+import { useFiscalRegime } from '../contexts/AuthContext'
+import { tRegime } from '../lib/fiscalRegime'
 
 interface PLSummary {
   revenue: number; subtotal: number; tax: number; totalDiscount: number; orders: number
@@ -23,6 +25,7 @@ const PIE_COLORS = ['#c9a227', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ef4
 
 export default function ReportsPage() {
   const { t } = useTranslation()
+  const fiscal = useFiscalRegime()
   const now = new Date()
   const [selectedYear, setSelectedYear] = useState(now.getFullYear())
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1)
@@ -79,7 +82,7 @@ export default function ReportsPage() {
             to="/report/fiscal"
             className="flex items-center gap-1.5 px-3 py-2 bg-amber-950/30 border border-orange-200 rounded-xl text-sm font-medium text-amber-400 hover:bg-amber-950/40 transition-colors"
           >
-            📄 Report Fiscal ES
+            📄 {t('reportFiscal.linkLabel')}
           </Link>
           <select value={selectedYear} onChange={e => setSelectedYear(+e.target.value)} className="glass-input rounded-xl px-3 py-2 text-sm">
             {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map(y => <option key={y} value={y}>{y}</option>)}
@@ -142,7 +145,7 @@ export default function ReportsPage() {
               <div className="space-y-3">
                 {[
                   { label: 'Fatturato lordo', value: s?.revenue || 0, positive: true },
-                  { label: 'Di cui IVA', value: s?.tax || 0, positive: false, sub: true },
+                  { label: tRegime(t, fiscal.taxRegion, 'table.tax'), value: s?.tax || 0, positive: false, sub: true },
                   { label: 'Sconti applicati', value: -(s?.totalDiscount || 0), positive: false, sub: true },
                   { label: 'Food Cost stimato', value: -(s?.estimatedFoodCost || 0), positive: false },
                   { label: 'Costo personale', value: -(s?.laborCost || 0), positive: false },

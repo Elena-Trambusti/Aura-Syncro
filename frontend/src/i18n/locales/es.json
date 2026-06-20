@@ -98,7 +98,13 @@
     "yourName": "Tu nombre",
     "yourNamePlaceholder": "Mario Rossi",
     "phonePlaceholder": "+34 612 345 678",
-    "passwordMinLength": "Mínimo 6 caracteres"
+    "passwordMinLength": "Mínimo 6 caracteres",
+    "country": "País del restaurante",
+    "countryIT": "Italia",
+    "countryES": "España",
+    "taxRegion": "Región fiscal",
+    "taxRegionCanarias": "Islas Canarias (IGIC)",
+    "taxRegionPeninsula": "España peninsular (IVA)"
   },
   "status": {
     "order": {
@@ -229,7 +235,16 @@
     "restaurantId": "ID Restaurante",
     "slug": "Slug (URL)",
     "database": "Base de datos",
-    "appVersion": "Versión App"
+    "appVersion": "Versión App",
+    "fiscalTitle": "Fiscalidad y régimen",
+    "fiscalDesc": "País, tipo impositivo e identificador fiscal del restaurante",
+    "country": "País",
+    "taxRegion": "Región fiscal",
+    "taxRate": "Tipo impositivo (%)",
+    "taxId": "Identificador fiscal (P.IVA / NIF)",
+    "taxRegionIT_MAIN": "Italia",
+    "taxRegionES_CANARIAS": "Canarias (IGIC)",
+    "taxRegionES_PENINSULA": "España peninsular (IVA)"
   },
   "reservations": {
     "title": "Reservas",
@@ -291,10 +306,6 @@
     "subtitle": "Análisis financiero y food cost"
   },
   "reportFiscal": {
-    "title": "Libro de Registro Fiscal",
-    "regimeLabel": "Normativa Canarias",
-    "breadcrumb": "Informe → Fiscal · {{regime}}",
-    "subtitle": "Exportación legal de propinas y facturación · Split {{taxName}} / Propina voluntaria",
     "exportPdf": "Exportar PDF para Inspección",
     "exporting": "Generando documento...",
     "filterPeriod": "Filtro de periodo",
@@ -305,50 +316,100 @@
     "to": "Hasta",
     "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
     "transactionsMeta": "{{count}} transacciones · {{period}}",
-    "taxIdMeta": " · NIF/CIF: {{taxId}}",
     "loading": "Cargando datos fiscales...",
     "loadError": "Error al cargar los datos fiscales",
     "emptyTitle": "No hay transacciones pagadas en este periodo",
     "emptyHint": "Seleccione otro rango de fechas o registre pagos con propina",
-    "cards": {
-      "netRevenue": {
-        "label": "Total Facturado Neto",
-        "sub": "Sujeto a impuestos (IGIC)"
-      },
-      "tips": {
-        "label": "Total Propinas Personal",
-        "sub": "Exento de IGIC · Canarias"
-      },
-      "reconciliation": {
-        "label": "Conciliación Bancaria POS",
-        "sub": "Total cobrado en TPV"
-      }
-    },
-    "table": {
-      "date": "Fecha",
-      "orderId": "ID Comanda",
-      "taxableBase": "Base Imponible",
-      "tax": "IGIC",
-      "restaurantTotal": "Total Restaurante",
-      "tip": "Propina",
-      "collectedTotal": "Total Cobrado"
-    },
-    "pdf": {
-      "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
-      "taxId": "NIF/CIF",
-      "taxIdPending": "Pendiente de configuración",
-      "address": "Domicilio",
-      "period": "Periodo",
-      "generated": "Generado",
-      "summaryNet": "Total Facturado Neto (Sujeto a Impuestos)",
-      "summaryTips": "Total Propinas Personal (Exento de IGIC)",
-      "summaryReconciliation": "Total Conciliación Bancaria POS",
-      "footer": "Documento generado automáticamente · {{count}} transacciones · Propinas exentas de IGIC (normativa Canarias).",
-      "filenamePrefix": "libro-registro"
-    },
     "noData": "No hay datos para el período seleccionado",
     "pdfGenerated": "PDF generado correctamente",
-    "pdfError": "Error al generar el PDF. Inténtelo de nuevo."
+    "pdfError": "Error al generar el PDF. Inténtelo de nuevo.",
+    "linkLabel": "Informe Fiscal",
+    "byRegime": {
+      "IT_MAIN": {
+        "title": "Libro Registro Fiscal",
+        "regimeLabel": "Informe Fiscal Italia",
+        "breadcrumb": "Informe → Fiscal · {{regime}}",
+        "subtitle": "Exportación legal de propinas y facturación · Split {{taxName}} / Propina voluntaria",
+        "taxIdMeta": " · P.IVA: {{taxId}}",
+        "tipExemptNote": "*Propina voluntaria exenta de IVA",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a IVA" },
+          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IVA · Italia" },
+          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+        },
+        "table": {
+          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IVA",
+          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+        },
+        "pdf": {
+          "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
+          "taxId": "P.IVA", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
+          "period": "Periodo", "generated": "Generado",
+          "summaryNet": "Total Facturado Neto (Sujeto a IVA)",
+          "summaryTips": "Total Propinas Personal (Exento de IVA)",
+          "summaryReconciliation": "Total Conciliación Bancaria POS",
+          "footer": "Documento generado automáticamente · {{count}} transacciones · Propinas exentas de IVA (normativa italiana).",
+          "filenamePrefix": "libro-registro"
+        }
+      },
+      "ES_CANARIAS": {
+        "title": "Libro de Registro Fiscal",
+        "regimeLabel": "Normativa Canarias",
+        "breadcrumb": "Informe → Fiscal · {{regime}}",
+        "subtitle": "Exportación legal de propinas y facturación · Split {{taxName}} / Propina voluntaria",
+        "taxIdMeta": " · NIF/CIF: {{taxId}}",
+        "tipExemptNote": "*Propina voluntaria exenta de IGIC",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a impuestos (IGIC)" },
+          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IGIC · Canarias" },
+          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+        },
+        "table": {
+          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IGIC",
+          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+        },
+        "pdf": {
+          "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
+          "taxId": "NIF/CIF", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
+          "period": "Periodo", "generated": "Generado",
+          "summaryNet": "Total Facturado Neto (Sujeto a Impuestos)",
+          "summaryTips": "Total Propinas Personal (Exento de IGIC)",
+          "summaryReconciliation": "Total Conciliación Bancaria POS",
+          "footer": "Documento generado automáticamente · {{count}} transacciones · Propinas exentas de IGIC (normativa Canarias).",
+          "filenamePrefix": "libro-registro"
+        }
+      },
+      "ES_PENINSULA": {
+        "title": "Libro de Registro Fiscal",
+        "regimeLabel": "Normativa España Península",
+        "breadcrumb": "Informe → Fiscal · {{regime}}",
+        "subtitle": "Exportación legal de propinas y facturación · Split {{taxName}} / Propina voluntaria",
+        "taxIdMeta": " · NIF/CIF: {{taxId}}",
+        "tipExemptNote": "*Propina voluntaria exenta de IVA",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a IVA" },
+          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IVA · España" },
+          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+        },
+        "table": {
+          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IVA",
+          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+        },
+        "pdf": {
+          "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
+          "taxId": "NIF/CIF", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
+          "period": "Periodo", "generated": "Generado",
+          "summaryNet": "Total Facturado Neto (Sujeto a IVA)",
+          "summaryTips": "Total Propinas Personal (Exento de IVA)",
+          "summaryReconciliation": "Total Conciliación Bancaria POS",
+          "footer": "Documento generado automáticamente · {{count}} transacciones · Propinas exentas de IVA (normativa española).",
+          "filenamePrefix": "libro-registro"
+        }
+      }
+    }
   },
   "payments": {
     "title": "Pagos Digitales",

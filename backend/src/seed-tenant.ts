@@ -42,7 +42,14 @@ async function main() {
         colorTheme: DEFAULT_COLOR,
         address: 'Via Roma 1, Milano',
         email: 'info@labellaitalia.it',
-        settings: { create: { taxId: 'B12345678' } },
+        settings: {
+          create: {
+            countryCode: 'IT',
+            taxRegion: 'IT_MAIN',
+            defaultLocale: 'it',
+            taxId: 'IT12345678901',
+          },
+        },
       },
     })
   }

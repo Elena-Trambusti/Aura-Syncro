@@ -2,8 +2,10 @@ import { Router, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { z } from 'zod'
+import { CountryCode, TaxRegion } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { restaurantPayload } from '../lib/tenant'
+import { settingsForRegistration } from '../lib/taxEngine'
 
 export const authRouter = Router()
 
@@ -18,7 +20,19 @@ const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   phone: z.string().optional(),
+  countryCode: z.nativeEnum(CountryCode).default('IT'),
+  taxRegion: z.nativeEnum(TaxRegion).optional(),
 })
+
+async function findUserWithRestaurant(userId: string, restaurantId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: { restaurant: { include: { settings: true } } },
+  }).then(user => {
+    if (!user || user.restaurantId !== restaurantId) return null
+    return user
+  })
+}
 
 authRouter.post('/register', async (req: Request, res: Response): Promise<void> => {
   const result = registerSchema.safeParse(req.body)
@@ -26,7 +40,7 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
     res.status(400).json({ error: 'Dati non validi', details: result.error.flatten() })
     return
   }
-  const { restaurantName, name, email, password, phone } = result.data
+  const { restaurantName, name, email, password, phone, countryCode, taxRegion } = result.data
 
   const existingUser = await prisma.user.findFirst({ where: { email } })
   if (existingUser) {
@@ -39,13 +53,19 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
     .replace(/(^-|-$)/g, '') + '-' + Date.now()
 
   const hashedPassword = await bcrypt.hash(password, 12)
+  const fiscalSettings = settingsForRegistration(countryCode, taxRegion)
 
   const restaurant = await prisma.restaurant.create({
     data: {
       name: restaurantName,
       slug,
       colorTheme: '#c9a227',
-      settings: { create: {} },
+      timezone: fiscalSettings.taxRegion === 'ES_CANARIAS'
+        ? 'Atlantic/Canary'
+        : fiscalSettings.taxRegion === 'ES_PENINSULA'
+          ? 'Europe/Madrid'
+          : 'Europe/Rome',
+      settings: { create: fiscalSettings },
       users: {
         create: {
           name,
@@ -56,14 +76,14 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
         },
       },
     },
-    include: { users: true },
+    include: { users: true, settings: true },
   })
 
   const user = restaurant.users[0]
   const token = jwt.sign(
     { userId: user.id, restaurantId: restaurant.id, role: user.role },
     process.env.JWT_SECRET!,
-    { expiresIn: '7d' }
+    { expiresIn: '7d' },
   )
 
   res.status(201).json({
@@ -83,7 +103,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
 
   const user = await prisma.user.findFirst({
     where: { email, active: true },
-    include: { restaurant: true },
+    include: { restaurant: { include: { settings: true } } },
   })
 
   if (!user) {
@@ -100,7 +120,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
   const token = jwt.sign(
     { userId: user.id, restaurantId: user.restaurantId, role: user.role },
     process.env.JWT_SECRET!,
-    { expiresIn: '7d' }
+    { expiresIn: '7d' },
   )
 
   res.json({
@@ -118,12 +138,13 @@ authRouter.get('/me', async (req: Request, res: Response): Promise<void> => {
   }
   try {
     const token = authHeader.split(' ')[1]
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; restaurantId: string; role: string }
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-      include: { restaurant: true },
-    })
-    if (!user || user.restaurantId !== payload.restaurantId) {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string
+      restaurantId: string
+      role: string
+    }
+    const user = await findUserWithRestaurant(payload.userId, payload.restaurantId)
+    if (!user) {
       res.status(404).json({ error: 'Utente non trovato' })
       return
     }

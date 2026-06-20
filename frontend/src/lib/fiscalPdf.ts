@@ -6,7 +6,7 @@ export interface FiscalRow {
   fecha: string | Date | null
   orderId: string
   baseImponible: number
-  igic: number
+  tax: number
   revenueAmount: number
   tipAmount: number
   total: number
@@ -81,7 +81,7 @@ export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabel
       r.fecha ? toDateStr(r.fecha, locale) : '—',
       r.orderId.slice(-6).toUpperCase(),
       fmtEur(r.baseImponible, locale),
-      fmtEur(r.igic, locale),
+      fmtEur(r.tax, locale),
       fmtEur(r.revenueAmount, locale),
       fmtEur(r.tipAmount, locale),
       fmtEur(r.total, locale),

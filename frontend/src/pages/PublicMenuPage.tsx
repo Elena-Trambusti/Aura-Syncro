@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
+import { computeCartTax, type FiscalRegime } from '../lib/fiscalRegime'
 import {
   ShoppingCart, Plus, Minus, X, ChefHat, Search,
   AlertCircle, CheckCircle2, Send, CreditCard,
@@ -44,7 +45,12 @@ export default function PublicMenuPage() {
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   const { data, isLoading, error } = useQuery<{
-    restaurant: { name: string; logo?: string; description?: string }
+    restaurant: {
+      name: string
+      logo?: string
+      description?: string
+      fiscal?: FiscalRegime
+    }
     categories: Category[]
   }>({
     queryKey: ['public-menu', slug],
@@ -101,6 +107,9 @@ export default function PublicMenuPage() {
 
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0)
   const cartTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+  const taxRate = data?.restaurant.fiscal?.taxRate ?? 10
+  const taxName = data?.restaurant.fiscal?.taxName ?? 'IVA'
+  const { tax: cartTax, total: cartGrandTotal } = computeCartTax(cartTotal, taxRate)
 
   const allItems = data?.categories.flatMap(c => c.items) || []
   const filteredItems = search
@@ -363,10 +372,10 @@ export default function PublicMenuPage() {
                   <span>Subtotale</span><span>{formatCurrency(cartTotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-600">
-                  <span>IVA (10%)</span><span>{formatCurrency(cartTotal * 0.1)}</span>
+                  <span>{taxName} ({taxRate}%)</span><span>{formatCurrency(cartTax)}</span>
                 </div>
                 <div className="flex justify-between text-base font-black text-slate-800 pt-2 border-t border-slate-200">
-                  <span>Totale</span><span>{formatCurrency(cartTotal * 1.1)}</span>
+                  <span>Totale</span><span>{formatCurrency(cartGrandTotal)}</span>
                 </div>
               </div>
 

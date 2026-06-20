@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import type { CountryCode, TaxRegion } from '../lib/fiscalRegime'
 import { BRAND } from '../lib/brand'
 import { ui } from '../lib/ui'
 import BrandLogo from '../components/brand/BrandLogo'
@@ -18,6 +19,8 @@ export default function RegisterPage() {
     email: '',
     password: '',
     phone: '',
+    countryCode: 'IT' as CountryCode,
+    taxRegion: 'IT_MAIN' as TaxRegion,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +38,14 @@ export default function RegisterPage() {
   }
 
   const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }))
+
+  const onCountryChange = (countryCode: CountryCode) => {
+    setForm(f => ({
+      ...f,
+      countryCode,
+      taxRegion: countryCode === 'ES' ? 'ES_CANARIAS' : 'IT_MAIN',
+    }))
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 relative">
@@ -55,6 +66,30 @@ export default function RegisterPage() {
               <label className={ui.label}>{t('auth.restaurantName')}</label>
               <input type="text" value={form.restaurantName} onChange={e => update('restaurantName', e.target.value)} className={ui.input} placeholder={t('auth.restaurantNamePlaceholder')} required />
             </div>
+            <div>
+              <label className={ui.label}>{t('auth.country')}</label>
+              <select
+                value={form.countryCode}
+                onChange={e => onCountryChange(e.target.value as CountryCode)}
+                className={ui.input}
+              >
+                <option value="IT">{t('auth.countryIT')}</option>
+                <option value="ES">{t('auth.countryES')}</option>
+              </select>
+            </div>
+            {form.countryCode === 'ES' && (
+              <div>
+                <label className={ui.label}>{t('auth.taxRegion')}</label>
+                <select
+                  value={form.taxRegion}
+                  onChange={e => update('taxRegion', e.target.value)}
+                  className={ui.input}
+                >
+                  <option value="ES_CANARIAS">{t('auth.taxRegionCanarias')}</option>
+                  <option value="ES_PENINSULA">{t('auth.taxRegionPeninsula')}</option>
+                </select>
+              </div>
+            )}
             <div>
               <label className={ui.label}>{t('auth.yourName')}</label>
               <input type="text" value={form.name} onChange={e => update('name', e.target.value)} className={ui.input} placeholder={t('auth.yourNamePlaceholder')} required />

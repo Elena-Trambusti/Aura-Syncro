@@ -1,36 +1,98 @@
-import { useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
+import type { CountryCode, TaxRegion } from '../lib/fiscalRegime'
 import { Save, QrCode, ExternalLink, MonitorCheck } from 'lucide-react'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import toast from 'react-hot-toast'
 
+interface RestaurantSettings {
+  countryCode?: CountryCode
+  taxRegion?: TaxRegion
+  taxRate?: number
+  taxId?: string | null
+  defaultLocale?: string
+}
+
+interface RestaurantData {
+  id: string
+  slug: string
+  name: string
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  description?: string | null
+  settings?: RestaurantSettings | null
+}
+
 export default function SettingsPage() {
   const { t } = useTranslation()
-  const { restaurant } = useAuth()
+  const { restaurant, refreshRestaurant } = useAuth()
   const queryClient = useQueryClient()
 
-  const { data: restaurantData } = useQuery({
+  const { data: restaurantData } = useQuery<RestaurantData>({
     queryKey: ['restaurant'],
     queryFn: () => api.get('/restaurant').then(r => r.data),
   })
 
   const [form, setForm] = useState({
-    name: restaurant?.name || '',
+    name: '',
     address: '',
     phone: '',
     email: '',
     description: '',
+    countryCode: 'IT' as CountryCode,
+    taxRegion: 'IT_MAIN' as TaxRegion,
+    taxRate: 10,
+    taxId: '',
   })
 
-  const update = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+  useEffect(() => {
+    if (!restaurantData) return
+    setForm({
+      name: restaurantData.name || restaurant?.name || '',
+      address: restaurantData.address || '',
+      phone: restaurantData.phone || '',
+      email: restaurantData.email || '',
+      description: restaurantData.description || '',
+      countryCode: restaurantData.settings?.countryCode || 'IT',
+      taxRegion: restaurantData.settings?.taxRegion || 'IT_MAIN',
+      taxRate: restaurantData.settings?.taxRate ?? 10,
+      taxId: restaurantData.settings?.taxId || '',
+    })
+  }, [restaurantData, restaurant?.name])
+
+  const update = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }))
+
+  const onCountryChange = (countryCode: CountryCode) => {
+    setForm(f => ({
+      ...f,
+      countryCode,
+      taxRegion: countryCode === 'ES'
+        ? (f.taxRegion.startsWith('ES_') ? f.taxRegion : 'ES_CANARIAS')
+        : 'IT_MAIN',
+    }))
+  }
 
   const save = useMutation({
-    mutationFn: (data: typeof form) => api.put('/restaurant', data),
-    onSuccess: () => {
+    mutationFn: (data: typeof form) => api.put('/restaurant', {
+      name: data.name,
+      address: data.address,
+      phone: data.phone,
+      email: data.email,
+      description: data.description,
+      settings: {
+        countryCode: data.countryCode,
+        taxRegion: data.taxRegion,
+        taxRate: data.taxRate,
+        taxId: data.taxId || null,
+      },
+    }),
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['restaurant'] })
+      await refreshRestaurant()
       toast.success(t('settings.saved'))
     },
   })
@@ -46,14 +108,67 @@ export default function SettingsPage() {
         <p className="aura-page-subtitle">{t('settings.subtitle')}</p>
       </div>
 
-      {/* Lingua */}
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-1">{t('common.language')}</h2>
         <p className="text-sm text-slate-500 mb-4">{t('common.languageDescription')}</p>
         <LanguageSwitcher />
       </div>
 
-      {/* Info ristorante */}
+      <div className="glass-card p-6">
+        <h2 className="text-base font-semibold text-slate-900 mb-1">{t('settings.fiscalTitle')}</h2>
+        <p className="text-sm text-slate-500 mb-4">{t('settings.fiscalDesc')}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.country')}</label>
+            <select
+              value={form.countryCode}
+              onChange={e => onCountryChange(e.target.value as CountryCode)}
+              className="w-full px-4 py-2.5 saas-input"
+            >
+              <option value="IT">{t('auth.countryIT')}</option>
+              <option value="ES">{t('auth.countryES')}</option>
+            </select>
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxRegion')}</label>
+            <select
+              value={form.taxRegion}
+              onChange={e => update('taxRegion', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            >
+              {form.countryCode === 'IT' ? (
+                <option value="IT_MAIN">{t('settings.taxRegionIT_MAIN')}</option>
+              ) : (
+                <>
+                  <option value="ES_CANARIAS">{t('settings.taxRegionES_CANARIAS')}</option>
+                  <option value="ES_PENINSULA">{t('settings.taxRegionES_PENINSULA')}</option>
+                </>
+              )}
+            </select>
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxRate')}</label>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={0.1}
+              value={form.taxRate}
+              onChange={e => update('taxRate', parseFloat(e.target.value) || 0)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxId')}</label>
+            <input
+              value={form.taxId}
+              onChange={e => update('taxId', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-4">{t('settings.restaurantInfo')}</h2>
         <div className="space-y-4">
@@ -93,7 +208,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* QR Code Menu */}
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.qrMenu')}</h2>
         <p className="text-sm text-slate-500 mb-4">{t('settings.qrMenuDesc')}</p>
@@ -122,7 +236,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Kitchen Display */}
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.kds')}</h2>
         <p className="text-sm text-slate-500 mb-4">{t('settings.kdsDesc')}</p>
@@ -138,14 +251,14 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Info account */}
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-3">{t('settings.accountInfo')}</h2>
         <div className="space-y-2">
           {[
             { label: t('settings.restaurantId'), value: restaurantData?.id || '—' },
             { label: t('settings.slug'), value: restaurantData?.slug || '—' },
-            { label: t('settings.database'), value: 'SQLite (locale)' },
+            { label: t('settings.country'), value: form.countryCode },
+            { label: t('settings.taxRegion'), value: form.taxRegion },
             { label: t('settings.appVersion'), value: '1.0.0 MVP' },
           ].map(row => (
             <div key={row.label} className="flex justify-between py-1.5 border-b border-stone-800/40">

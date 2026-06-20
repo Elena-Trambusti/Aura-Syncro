@@ -14,6 +14,7 @@
     "db:push": "npx prisma db push",
     "db:seed": "tsx src/seed.ts",
     "db:seed-tenant": "tsx src/seed-tenant.ts",
+    "test": "tsx --test src/lib/taxEngine.test.ts",
     "db:studio": "npx prisma studio"
   },
   "dependencies": {

@@ -9,6 +9,7 @@ import {
   paidOrdersWhere,
 } from '../lib/dates'
 import { resolveOrderTotal, resolveRevenueAmount, resolveTipAmount } from '../lib/fiscalAmounts'
+import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
 
 export const reportsRouter = Router()
 
@@ -275,7 +276,7 @@ reportsRouter.get('/yearly', async (req: AuthRequest, res: Response): Promise<vo
   res.json({ year: y, months, totalRevenue: Math.round(totalRevenue * 100) / 100, bestMonth })
 })
 
-// ── Report fiscal (propinas + facturación — normativa ES) ─────────────────────
+// ── Report fiscal (multi-nazione: IVA / IGIC) ─────────────────────────────────
 
 reportsRouter.get('/fiscal', async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
@@ -295,17 +296,12 @@ reportsRouter.get('/fiscal', async (req: AuthRequest, res: Response): Promise<vo
     fetchPaidOrdersInPeriod(restaurantId, range.start, range.end),
   ])
 
-  console.log('[fiscal] orders found:', orders.length, {
-    restaurantId,
-    start: range.start.toISOString(),
-    end: range.end.toISOString(),
-    query: req.query,
-  })
-
   if (!restaurant) {
     res.status(404).json({ error: 'Ristorante non trovato' })
     return
   }
+
+  const fiscal = buildFiscalConfig(restaurant.settings)
 
   const rows = orders.map(o => {
     const revenueAmount = resolveRevenueAmount(o)
@@ -315,7 +311,7 @@ reportsRouter.get('/fiscal', async (req: AuthRequest, res: Response): Promise<vo
       fecha: effectivePaidAt(o.paidAt, o.createdAt),
       orderId: o.id,
       baseImponible: Math.round(o.subtotal * 100) / 100,
-      igic: Math.round(o.tax * 100) / 100,
+      tax: Math.round(o.tax * 100) / 100,
       revenueAmount: Math.round(revenueAmount * 100) / 100,
       tipAmount: Math.round(tipAmount * 100) / 100,
       total: Math.round(total * 100) / 100,
@@ -332,11 +328,12 @@ reportsRouter.get('/fiscal', async (req: AuthRequest, res: Response): Promise<vo
   )
 
   res.json({
+    fiscalRegime: fiscalConfigPayload(fiscal, restaurant.settings?.taxId),
     restaurant: {
       name: restaurant.name,
       address: restaurant.address,
       email: restaurant.email,
-      taxId: restaurant.settings?.taxId || process.env.RESTAURANT_TAX_ID || null,
+      taxId: restaurant.settings?.taxId || null,
     },
     period: { mode, start: range.start.toISOString(), end: range.end.toISOString() },
     rows,

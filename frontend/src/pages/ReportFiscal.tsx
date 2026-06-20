@@ -6,6 +6,8 @@ import { formatCurrency, cn, toLocalDateInput } from '../lib/utils'
 import { generateFiscalPdf, type FiscalReportData } from '../lib/fiscalPdf'
 import { buildFiscalPdfLabels } from '../lib/fiscalLabels'
 import { getIntlLocale } from '../i18n'
+import { useFiscalRegime } from '../contexts/AuthContext'
+import { tRegime, type FiscalRegime, type TaxRegion } from '../lib/fiscalRegime'
 import {
   FileDown, CalendarRange, Loader2, Receipt, Coins, Wallet,
   Sparkles, AlertCircle, Hash,
@@ -16,6 +18,7 @@ type FilterMode = 'day' | 'month' | 'range'
 
 interface FiscalApiResponse extends FiscalReportData {
   period: { mode: string; start: string; end: string }
+  fiscalRegime?: FiscalRegime
 }
 
 const glassPanel = 'glass-card'
@@ -28,6 +31,7 @@ const inputClass = cn(
 
 export default function ReportFiscal() {
   const { t, i18n } = useTranslation()
+  const authRegime = useFiscalRegime()
   const now = new Date()
   const [mode, setMode] = useState<FilterMode>('month')
   const [dayDate, setDayDate] = useState(() => toLocalDateInput())
@@ -38,6 +42,14 @@ export default function ReportFiscal() {
   const [isExporting, setIsExporting] = useState(false)
 
   const intlLocale = getIntlLocale()
+
+  const { data, isLoading, isFetching, isError } = useQuery<FiscalApiResponse>({
+    queryKey: ['reports', 'fiscal', mode, dayDate, year, month, rangeFrom, rangeTo],
+    queryFn: () => api.get(`/reports/fiscal?${queryParams(mode, dayDate, year, month, rangeFrom, rangeTo)}`).then(r => r.data),
+  })
+
+  const taxRegion: TaxRegion = data?.fiscalRegime?.taxRegion ?? authRegime.taxRegion
+  const taxName = data?.fiscalRegime?.taxName ?? authRegime.taxName
 
   const months = useMemo(
     () => t('reportFiscal.months', { returnObjects: true }) as string[],
@@ -57,8 +69,8 @@ export default function ReportFiscal() {
     () => [
       {
         key: 'facturado',
-        label: t('reportFiscal.cards.netRevenue.label'),
-        sub: t('reportFiscal.cards.netRevenue.sub'),
+        label: tRegime(t, taxRegion, 'cards.netRevenue.label'),
+        sub: tRegime(t, taxRegion, 'cards.netRevenue.sub'),
         icon: Receipt,
         gradient: 'from-blue-500/20 to-indigo-500/10',
         iconColor: 'text-blue-600',
@@ -66,8 +78,8 @@ export default function ReportFiscal() {
       },
       {
         key: 'propinas',
-        label: t('reportFiscal.cards.tips.label'),
-        sub: t('reportFiscal.cards.tips.sub'),
+        label: tRegime(t, taxRegion, 'cards.tips.label'),
+        sub: tRegime(t, taxRegion, 'cards.tips.sub'),
         icon: Coins,
         gradient: 'from-amber-500/20 to-orange-500/10',
         iconColor: 'text-amber-600',
@@ -75,40 +87,29 @@ export default function ReportFiscal() {
       },
       {
         key: 'conciliacion',
-        label: t('reportFiscal.cards.reconciliation.label'),
-        sub: t('reportFiscal.cards.reconciliation.sub'),
+        label: tRegime(t, taxRegion, 'cards.reconciliation.label'),
+        sub: tRegime(t, taxRegion, 'cards.reconciliation.sub'),
         icon: Wallet,
         gradient: 'from-emerald-500/20 to-teal-500/10',
         iconColor: 'text-emerald-600',
         ring: 'ring-emerald-500/20',
       },
     ],
-    [t, i18n.language],
+    [t, taxRegion],
   )
 
   const tableHeaders = useMemo(
     () => [
-      t('reportFiscal.table.date'),
-      t('reportFiscal.table.orderId'),
-      t('reportFiscal.table.taxableBase'),
-      t('reportFiscal.table.tax'),
-      t('reportFiscal.table.restaurantTotal'),
-      t('reportFiscal.table.tip'),
-      t('reportFiscal.table.collectedTotal'),
+      tRegime(t, taxRegion, 'table.date'),
+      tRegime(t, taxRegion, 'table.orderId'),
+      tRegime(t, taxRegion, 'table.taxableBase'),
+      tRegime(t, taxRegion, 'table.tax'),
+      tRegime(t, taxRegion, 'table.restaurantTotal'),
+      tRegime(t, taxRegion, 'table.tip'),
+      tRegime(t, taxRegion, 'table.collectedTotal'),
     ],
-    [t, i18n.language],
+    [t, taxRegion],
   )
-
-  const queryParams = () => {
-    if (mode === 'day') return `mode=day&date=${dayDate}`
-    if (mode === 'month') return `year=${year}&month=${month}`
-    return `mode=range&from=${rangeFrom}&to=${rangeTo}`
-  }
-
-  const { data, isLoading, isFetching, isError } = useQuery<FiscalApiResponse>({
-    queryKey: ['reports', 'fiscal', mode, dayDate, year, month, rangeFrom, rangeTo],
-    queryFn: () => api.get(`/reports/fiscal?${queryParams()}`).then(r => r.data),
-  })
 
   const fmtDate = (d: string | Date) =>
     new Intl.DateTimeFormat(intlLocale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(d))
@@ -139,7 +140,7 @@ export default function ReportFiscal() {
             fecha: r.fecha ? (typeof r.fecha === 'string' ? r.fecha : new Date(r.fecha).toISOString()) : null,
           })),
         },
-        buildFiscalPdfLabels(t),
+        buildFiscalPdfLabels(t, taxRegion),
       )
       toast.success(t('reportFiscal.pdfGenerated'), {
         icon: '📄',
@@ -163,6 +164,8 @@ export default function ReportFiscal() {
       (data.period.start !== data.period.end ? ` — ${fmtDate(data.period.end)}` : '')
     : ''
 
+  const regimeLabel = tRegime(t, taxRegion, 'regimeLabel')
+
   return (
     <div className="relative min-h-full -m-6 p-6">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -176,15 +179,15 @@ export default function ReportFiscal() {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-amber-400/80">
               <Sparkles className="h-4 w-4" />
-              {t('reportFiscal.breadcrumb', { regime: t('reportFiscal.regimeLabel') })}
+              {tRegime(t, taxRegion, 'breadcrumb', { regime: regimeLabel })}
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
               <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
-                {t('reportFiscal.title')}
+                {tRegime(t, taxRegion, 'title')}
               </span>
             </h1>
             <p className="max-w-xl text-sm text-slate-500/90">
-              {t('reportFiscal.subtitle', { taxName: t('reportFiscal.table.tax') })}
+              {tRegime(t, taxRegion, 'subtitle', { taxName })}
             </p>
           </div>
 
@@ -317,7 +320,7 @@ export default function ReportFiscal() {
           {data && (
             <p className="text-xs text-stone-500">
               {t('reportFiscal.transactionsMeta', { count: data.summary.transactionCount, period: periodMeta })}
-              {data.restaurant.taxId && t('reportFiscal.taxIdMeta', { taxId: data.restaurant.taxId })}
+              {data.restaurant.taxId && tRegime(t, taxRegion, 'taxIdMeta', { taxId: data.restaurant.taxId })}
             </p>
           )}
         </div>
@@ -385,7 +388,7 @@ export default function ReportFiscal() {
                                 {row.orderId.slice(-6).toUpperCase()}
                               </span>
                               <span className="text-slate-500">{formatCurrency(row.baseImponible)}</span>
-                              <span className="text-slate-500">{formatCurrency(row.igic)}</span>
+                              <span className="text-slate-500">{formatCurrency(row.tax)}</span>
                               <span className="font-semibold text-slate-900">{formatCurrency(row.revenueAmount)}</span>
                               <span className="font-medium text-amber-600">{formatCurrency(row.tipAmount)}</span>
                               <span className="font-bold text-amber-400">{formatCurrency(row.total)}</span>
@@ -403,4 +406,17 @@ export default function ReportFiscal() {
       </div>
     </div>
   )
+}
+
+function queryParams(
+  mode: FilterMode,
+  dayDate: string,
+  year: number,
+  month: number,
+  rangeFrom: string,
+  rangeTo: string,
+) {
+  if (mode === 'day') return `mode=day&date=${dayDate}`
+  if (mode === 'month') return `year=${year}&month=${month}`
+  return `mode=range&from=${rangeFrom}&to=${rangeTo}`
 }

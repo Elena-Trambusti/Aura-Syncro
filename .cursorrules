@@ -1,0 +1,116 @@
+# Aura Syncro — Regole di Sviluppo
+
+Sei l'assistente AI per lo sviluppo di **Aura Syncro**, una piattaforma SaaS Premium per la gestione avanzata di ristoranti di fascia medio-alta.
+
+---
+
+## Obiettivi di Business e Target
+
+- Il software si posiziona in una fascia **Premium**: **500€** di setup iniziale (servizio chiavi in mano) e **199€/mese** di abbonamento.
+- **Target**: Ristoranti strutturati (50+ coperti), che necessitano di ottimizzazione dei processi, gestione tavoli veloce, AI predittiva per il magazzino, CRM e reportistica fiscale rigorosa.
+- La **qualità del codice**, le **performance** (zero lag durante il servizio) e l'**affidabilità** sono priorità assolute.
+
+---
+
+## Stack Tecnologico e Infrastruttura
+
+- **Frontend**: React + Vite (deploy su **Vercel**).
+- **Backend**: API REST collegate a un database gestito tramite **Prisma** (deploy su **DigitalOcean**).
+- **Styling**: **Tailwind CSS**.
+- **Iconografia**: Usa il simbolo del **Fulmine** (`Zap` / Lightning) come logo principale (favicon e icona sidebar).
+
+---
+
+## Architettura Multi-Regione e Fiscale (CRITICO)
+
+- La piattaforma è **multitenant** e supporta contemporaneamente ristoranti in **Italia** e in **Spagna**.
+- Nel database (Prisma), ogni ristorante ha campi di regime fiscale in `RestaurantSettings`:
+  - `countryCode` (`IT` | `ES`)
+  - `taxRegion` (`IT_MAIN` | `ES_CANARIAS` | `ES_PENINSULA`)
+  - `taxRate`, `taxId`, `defaultLocale`
+- **NON usare MAI testi hard-coded.** Utilizza sempre il sistema **i18n** (`useTranslation` / chiavi `reportFiscal.byRegime.*`).
+- La **logica di business** e la **reportistica fiscale** (PDF, dashboard) devono leggere il regime del **ristorante** (non la sola lingua UI) per applicare le normative corrette:
+  - **Italia (`IT_MAIN`)**: IVA, P.IVA, formato date `DD/MM/YYYY` (`it-IT`).
+  - **Spagna Canarie (`ES_CANARIAS`)**: IGIC, NIF/CIF, normativa Canarias.
+  - **Spagna Penisola (`ES_PENINSULA`)**: IVA, NIF/CIF, normativa spagnola peninsulare.
+- I calcoli fiscali devono passare dal motore centralizzato (`backend/src/lib/taxEngine.ts`); **non** hard-codare aliquote nei componenti o nelle route.
+- Le funzionalità fiscali devono essere **isolate in moduli dedicati** (`taxEngine`, `fiscalRegime`, `fiscalPdf`, `fiscalLabels`) e **non mischiate** nei componenti UI.
+
+### Separazione lingua UI vs regime fiscale
+
+| Layer | Fonte | Esempio |
+|-------|-------|---------|
+| UI generica (filtri, mesi, bottoni) | Lingua utente (`LanguageSwitcher`) | "Filtro periodo" |
+| Terminologia fiscale (IVA/IGIC, PDF, report) | `taxRegion` del ristorante | "IGIC" per Canarie |
+
+---
+
+## Design System e UI/UX (SaaS Professional)
+
+- Mantieni **leggibilità assoluta** e **contrasto elevato**. **Nessun glassmorphism** o trasparenze che compromettano la lettura.
+
+### Layout principale
+
+- **Sidebar**: sfondo scuro elegante (`bg-slate-900`), testi `text-slate-300`, voce attiva `bg-slate-800 text-white`.
+- **Area di lavoro**: sfondo neutro chiarissimo (`bg-slate-50`).
+
+### Componenti (Card, Modali, Pannelli)
+
+- Sfondo bianco puro (`bg-white`).
+- Bordi leggeri (`border border-slate-200`).
+- Ombre morbide (`shadow-sm` o `shadow-md`).
+- Angoli arrotondati (`rounded-xl`).
+
+### Tipografia
+
+- Dati primari, titoli e numeri: `text-slate-900`.
+- Dati secondari e label: `text-slate-500`.
+
+### Colore brand (accento)
+
+- Ambra/giallo food: `amber-500` per pulsanti primari (hover `amber-600`) e elementi di spicco.
+- Logo: gradiente ambra + icona **Zap** (fulmine).
+
+### Responsività (Mobile-First per i camerieri)
+
+- L'interfaccia **POS/Tavoli su mobile** NON deve mai avere elementi sovrapposti.
+- Usa layout a **Tabs** su schermi piccoli (es. mostra il **Menu** o il **Carrello**, mai entrambi affiancati o sovrapposti).
+
+---
+
+## Linee Guida per il Codice
+
+- Scrivi codice **pulito, modulare e documentato**.
+- Quando crei nuovi moduli, verifica sempre l'impatto su **Italia vs Spagna**.
+- Mantieni i componenti React **leggeri**; separa la logica (**custom hooks**, `lib/`) dalla UI.
+- **Minimizza lo scope** dei diff: non modificare codice non correlato al task.
+- Riutilizza le convenzioni esistenti (naming, struttura cartelle, pattern i18n).
+- Solo test significativi; evita test triviali.
+- **Non committare** a meno che l'utente non lo chieda esplicitamente.
+- Non committare file con segreti (`.env`, credenziali).
+
+---
+
+## Moduli chiave di riferimento
+
+| Area | Percorso |
+|------|----------|
+| Tax engine backend | `backend/src/lib/taxEngine.ts` |
+| Payload auth / tenant | `backend/src/lib/tenant.ts` |
+| Report fiscal API | `backend/src/routes/reports.ts` |
+| Regime fiscale frontend | `frontend/src/lib/fiscalRegime.ts` |
+| Auth + regime tenant | `frontend/src/contexts/AuthContext.tsx` |
+| i18n | `frontend/src/i18n/locales/{it,en,es,fr,de}.json` |
+| PDF fiscal | `frontend/src/lib/fiscalPdf.ts`, `fiscalLabels.ts` |
+
+---
+
+## Checklist pre-merge per feature fiscali
+
+- [ ] Legge `countryCode` / `taxRegion` dal DB o dallo stato auth?
+- [ ] Nessun testo hard-coded (i18n + `byRegime`)?
+- [ ] Calcoli tax via `taxEngine`, non `* 0.1` inline?
+- [ ] PDF e dashboard coerenti col regime del ristorante?
+- [ ] Fallback sicuro per tenant legacy (`IT_MAIN` default)?
+- [ ] UI mobile senza overlap (tabs se necessario)?
+- [ ] Contrasto e design system rispettati (no glass)?

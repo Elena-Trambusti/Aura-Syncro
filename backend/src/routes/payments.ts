@@ -5,6 +5,7 @@ import { stripe, STRIPE_ENABLED } from '../lib/stripe'
 import { AuthRequest, authenticate } from '../middleware/auth'
 import { io } from '../index'
 import { computePaymentSplit, releaseTableIfEmpty } from '../lib/orderPayment'
+import { computeTaxForRestaurant } from '../lib/orderTax'
 
 export const paymentsRouter = Router()
 
@@ -168,8 +169,7 @@ paymentsRouter.post('/checkout', async (req: Request, res: Response): Promise<vo
   })
 
   const subtotal = itemsWithPrice.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-  const tax = subtotal * 0.1
-  const total = subtotal + tax
+  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, subtotal)
 
   // Crea l'ordine nel DB con status PENDING_PAYMENT
   const order = await prisma.order.create({
@@ -179,6 +179,7 @@ paymentsRouter.post('/checkout', async (req: Request, res: Response): Promise<vo
       subtotal,
       tax,
       total,
+      taxRateApplied,
       revenueAmount: total,
       tipAmount: 0,
       type: orderData.type,

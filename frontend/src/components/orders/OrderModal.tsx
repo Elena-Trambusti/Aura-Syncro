@@ -1,8 +1,11 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { formatCurrency, ORDER_STATUS_LABELS, cn } from '../../lib/utils'
+import { useFiscalRegime } from '../../contexts/AuthContext'
+import { tRegime } from '../../lib/fiscalRegime'
 import { X, Plus, Minus, ShoppingCart } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -18,6 +21,8 @@ interface Table {
 
 export default function OrderModal({ table, onClose }: { table: Table; onClose: () => void }) {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
+  const fiscal = useFiscalRegime()
   const [cart, setCart] = useState<CartItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [tab, setTab] = useState<'menu' | 'order'>('menu')
@@ -282,7 +287,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
         </button>
 
         <p className="text-xs text-slate-500 text-center pt-2">
-          *Propina voluntaria exenta de IGIC
+          {tRegime(t, fiscal.taxRegion, 'tipExemptNote')}
         </p>
       </div>
     </div>

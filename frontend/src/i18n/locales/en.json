@@ -98,7 +98,13 @@
     "yourName": "Your name",
     "yourNamePlaceholder": "John Smith",
     "phonePlaceholder": "+1 555 1234567",
-    "passwordMinLength": "Minimum 6 characters"
+    "passwordMinLength": "Minimum 6 characters",
+    "country": "Restaurant country",
+    "countryIT": "Italy",
+    "countryES": "Spain",
+    "taxRegion": "Tax region",
+    "taxRegionCanarias": "Canary Islands (IGIC)",
+    "taxRegionPeninsula": "Mainland Spain (VAT)"
   },
   "status": {
     "order": {
@@ -229,7 +235,16 @@
     "restaurantId": "Restaurant ID",
     "slug": "Slug (URL)",
     "database": "Database",
-    "appVersion": "App Version"
+    "appVersion": "App Version",
+    "fiscalTitle": "Tax & fiscal regime",
+    "fiscalDesc": "Country, tax rate and fiscal ID for your restaurant",
+    "country": "Country",
+    "taxRegion": "Tax region",
+    "taxRate": "Tax rate (%)",
+    "taxId": "Tax ID (VAT / NIF)",
+    "taxRegionIT_MAIN": "Italy",
+    "taxRegionES_CANARIAS": "Canarias (IGIC)",
+    "taxRegionES_PENINSULA": "Mainland Spain (VAT)"
   },
   "reservations": {
     "title": "Reservations",
@@ -291,10 +306,6 @@
     "subtitle": "Financial analysis and food cost"
   },
   "reportFiscal": {
-    "title": "Fiscal Register Book",
-    "regimeLabel": "Italy Fiscal Report",
-    "breadcrumb": "Reports → Fiscal · {{regime}}",
-    "subtitle": "Legal export of tips and billing · Split {{taxName}} / Voluntary tip",
     "exportPdf": "Export PDF for inspection",
     "exporting": "Generating document...",
     "filterPeriod": "Period filter",
@@ -305,50 +316,100 @@
     "to": "To",
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     "transactionsMeta": "{{count}} transactions · {{period}}",
-    "taxIdMeta": " · VAT ID: {{taxId}}",
     "loading": "Loading fiscal data...",
     "loadError": "Error loading fiscal data",
     "emptyTitle": "No paid transactions in this period",
     "emptyHint": "Select another date range or register payments with tips",
-    "cards": {
-      "netRevenue": {
-        "label": "Net Billed Total",
-        "sub": "Subject to tax (VAT)"
-      },
-      "tips": {
-        "label": "Total Staff Tips",
-        "sub": "VAT exempt · Italy"
-      },
-      "reconciliation": {
-        "label": "POS Bank Reconciliation",
-        "sub": "Total collected at POS"
-      }
-    },
-    "table": {
-      "date": "Date",
-      "orderId": "Order ID",
-      "taxableBase": "Taxable base",
-      "tax": "VAT",
-      "restaurantTotal": "Restaurant total",
-      "tip": "Tip",
-      "collectedTotal": "Total collected"
-    },
-    "pdf": {
-      "title": "Tips & Billing Register — {{restaurant}}",
-      "taxId": "VAT ID",
-      "taxIdPending": "Pending configuration",
-      "address": "Address",
-      "period": "Period",
-      "generated": "Generated",
-      "summaryNet": "Net Billed Total (Subject to VAT)",
-      "summaryTips": "Total Staff Tips (VAT exempt)",
-      "summaryReconciliation": "POS Bank Reconciliation Total",
-      "footer": "Automatically generated document · {{count}} transactions · Tips exempt from VAT (Italian regulations).",
-      "filenamePrefix": "fiscal-register"
-    },
     "noData": "No data for the selected period",
     "pdfGenerated": "PDF generated successfully",
-    "pdfError": "Error generating PDF. Please try again."
+    "pdfError": "Error generating PDF. Please try again.",
+    "linkLabel": "Fiscal Report",
+    "byRegime": {
+      "IT_MAIN": {
+        "title": "Fiscal Register Book",
+        "regimeLabel": "Italy Fiscal Report",
+        "breadcrumb": "Reports → Fiscal · {{regime}}",
+        "subtitle": "Legal export of tips and billing · Split {{taxName}} / Voluntary tip",
+        "taxIdMeta": " · VAT ID: {{taxId}}",
+        "tipExemptNote": "*Voluntary tip exempt from VAT",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to tax (VAT)" },
+          "tips": { "label": "Total Staff Tips", "sub": "VAT exempt · Italy" },
+          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+        },
+        "table": {
+          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "VAT",
+          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+        },
+        "pdf": {
+          "title": "Tips & Billing Register — {{restaurant}}",
+          "taxId": "VAT ID", "taxIdPending": "Pending configuration", "address": "Address",
+          "period": "Period", "generated": "Generated",
+          "summaryNet": "Net Billed Total (Subject to VAT)",
+          "summaryTips": "Total Staff Tips (VAT exempt)",
+          "summaryReconciliation": "POS Bank Reconciliation Total",
+          "footer": "Automatically generated document · {{count}} transactions · Tips exempt from VAT (Italian regulations).",
+          "filenamePrefix": "fiscal-register"
+        }
+      },
+      "ES_CANARIAS": {
+        "title": "Fiscal Register Book",
+        "regimeLabel": "Canarias Regulations",
+        "breadcrumb": "Reports → Fiscal · {{regime}}",
+        "subtitle": "Legal export of tips and billing · Split {{taxName}} / Voluntary tip",
+        "taxIdMeta": " · Tax ID: {{taxId}}",
+        "tipExemptNote": "*Voluntary tip exempt from IGIC",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to tax (IGIC)" },
+          "tips": { "label": "Total Staff Tips", "sub": "IGIC exempt · Canarias" },
+          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+        },
+        "table": {
+          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "IGIC",
+          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+        },
+        "pdf": {
+          "title": "Tips & Billing Register — {{restaurant}}",
+          "taxId": "Tax ID", "taxIdPending": "Pending configuration", "address": "Address",
+          "period": "Period", "generated": "Generated",
+          "summaryNet": "Net Billed Total (Subject to IGIC)",
+          "summaryTips": "Total Staff Tips (IGIC exempt)",
+          "summaryReconciliation": "POS Bank Reconciliation Total",
+          "footer": "Automatically generated document · {{count}} transactions · Tips exempt from IGIC (Canarias regulations).",
+          "filenamePrefix": "fiscal-register"
+        }
+      },
+      "ES_PENINSULA": {
+        "title": "Fiscal Register Book",
+        "regimeLabel": "Spain Peninsula Regulations",
+        "breadcrumb": "Reports → Fiscal · {{regime}}",
+        "subtitle": "Legal export of tips and billing · Split {{taxName}} / Voluntary tip",
+        "taxIdMeta": " · Tax ID: {{taxId}}",
+        "tipExemptNote": "*Voluntary tip exempt from VAT",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to VAT" },
+          "tips": { "label": "Total Staff Tips", "sub": "VAT exempt · Spain" },
+          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+        },
+        "table": {
+          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "VAT",
+          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+        },
+        "pdf": {
+          "title": "Tips & Billing Register — {{restaurant}}",
+          "taxId": "Tax ID", "taxIdPending": "Pending configuration", "address": "Address",
+          "period": "Period", "generated": "Generated",
+          "summaryNet": "Net Billed Total (Subject to VAT)",
+          "summaryTips": "Total Staff Tips (VAT exempt)",
+          "summaryReconciliation": "POS Bank Reconciliation Total",
+          "footer": "Automatically generated document · {{count}} transactions · Tips exempt from VAT (Spanish regulations).",
+          "filenamePrefix": "fiscal-register"
+        }
+      }
+    }
   },
   "payments": {
     "title": "Digital Payments",

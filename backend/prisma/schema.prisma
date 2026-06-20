@@ -8,6 +8,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ===== FISCALITÀ MULTI-NAZIONE =====
+enum CountryCode {
+  IT
+  ES
+}
+
+enum TaxRegion {
+  IT_MAIN
+  ES_CANARIAS
+  ES_PENINSULA
+}
+
 // ===== RISTORANTE =====
 model Restaurant {
   id          String   @id @default(cuid())
@@ -49,11 +61,14 @@ model RestaurantSettings {
   closeTime        String  @default("23:00")
   maxCoversPerSlot Int     @default(20)
   reservationSlotMinutes Int @default(90)
-  taxRate          Float   @default(10.0)
-  serviceCharge    Float   @default(0.0)
+  countryCode      CountryCode @default(IT)
+  taxRegion        TaxRegion   @default(IT_MAIN)
+  defaultLocale    String      @default("it")
+  taxRate          Float       @default(10.0)
+  serviceCharge    Float       @default(0.0)
   autoConfirmReservations Boolean @default(true)
   noShowDepositRequired   Boolean @default(false)
-  depositAmount    Float   @default(0.0)
+  depositAmount    Float       @default(0.0)
   taxId            String?
 }
 
@@ -177,6 +192,7 @@ model Order {
   notes        String?
   subtotal     Float       @default(0)
   tax          Float       @default(0)
+  taxRateApplied Float?
   serviceCharge Float      @default(0)
   discount     Float       @default(0)
   total        Float       @default(0)

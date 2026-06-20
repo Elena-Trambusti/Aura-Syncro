@@ -19,7 +19,17 @@ async function main() {
       phone: '+39 02 1234567',
       email: 'info@labellaitalai.it',
       description: 'Il miglior ristorante italiano di Milano',
-      settings: { create: { openTime: '12:00', closeTime: '23:00', taxRate: 10, taxId: 'B12345678' } },
+      settings: {
+        create: {
+          openTime: '12:00',
+          closeTime: '23:00',
+          countryCode: 'IT',
+          taxRegion: 'IT_MAIN',
+          defaultLocale: 'it',
+          taxRate: 10,
+          taxId: 'IT12345678901',
+        },
+      },
       users: {
         create: {
           name: 'Elena Rossi',

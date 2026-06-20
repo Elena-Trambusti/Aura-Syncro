@@ -5,6 +5,7 @@ import { AuthRequest } from '../middleware/auth'
 import { io } from '../index'
 import { parseLocalDate } from '../lib/dates'
 import { computePaymentSplit, releaseTableIfEmpty } from '../lib/orderPayment'
+import { computeTaxForExistingOrder, computeTaxForRestaurant } from '../lib/orderTax'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
 
 export const ordersRouter = Router()
@@ -60,8 +61,7 @@ ordersRouter.post('/public', async (req: Request, res: Response): Promise<void> 
   })
 
   const subtotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const tax = subtotal * 0.1
-  const total = subtotal + tax
+  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, subtotal)
 
   const order = await prisma.order.create({
     data: {
@@ -70,6 +70,7 @@ ordersRouter.post('/public', async (req: Request, res: Response): Promise<void> 
       subtotal,
       tax,
       total,
+      taxRateApplied,
       revenueAmount: total,
       tipAmount: 0,
       type: orderData.type,
@@ -210,8 +211,7 @@ ordersRouter.post('/', async (req: AuthRequest, res: Response): Promise<void> =>
   })
 
   const subtotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const tax = subtotal * 0.1
-  const total = subtotal + tax
+  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(req.restaurantId!, subtotal)
 
   const order = await prisma.order.create({
     data: {
@@ -220,6 +220,7 @@ ordersRouter.post('/', async (req: AuthRequest, res: Response): Promise<void> =>
       subtotal,
       tax,
       total,
+      taxRateApplied,
       revenueAmount: total,
       tipAmount: 0,
       ...orderData,
@@ -376,11 +377,10 @@ ordersRouter.post('/:id/items', async (req: AuthRequest, res: Response): Promise
   })
   if (orderWithItems) {
     const subtotal = orderWithItems.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-    const tax = subtotal * 0.1
-    const total = subtotal + tax
+    const { tax, total, taxRateApplied } = await computeTaxForExistingOrder(orderWithItems, subtotal)
     await prisma.order.updateMany({
       where: scopedWhere(req, req.params.id),
-      data: { subtotal, tax, total, revenueAmount: total },
+      data: { subtotal, tax, total, taxRateApplied, revenueAmount: total },
     })
   }
 

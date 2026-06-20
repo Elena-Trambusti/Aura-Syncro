@@ -291,10 +291,6 @@
     "subtitle": "Finanzanalyse und Food Cost"
   },
   "reportFiscal": {
-    "title": "Steuerregister",
-    "regimeLabel": "Italienischer Steuerbericht",
-    "breadcrumb": "Berichte → Fiscal · {{regime}}",
-    "subtitle": "Rechtlicher Export von Trinkgeldern und Abrechnung · Split {{taxName}} / Freiwilliges Trinkgeld",
     "exportPdf": "PDF für Prüfung exportieren",
     "exporting": "Dokument wird erstellt...",
     "filterPeriod": "Zeitraumfilter",
@@ -305,50 +301,100 @@
     "to": "Bis",
     "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
     "transactionsMeta": "{{count}} Transaktionen · {{period}}",
-    "taxIdMeta": " · USt-IdNr.: {{taxId}}",
     "loading": "Steuerdaten werden geladen...",
     "loadError": "Fehler beim Laden der Steuerdaten",
     "emptyTitle": "Keine bezahlten Transaktionen in diesem Zeitraum",
     "emptyHint": "Wählen Sie einen anderen Zeitraum oder erfassen Sie Zahlungen mit Trinkgeld",
-    "cards": {
-      "netRevenue": {
-        "label": "Netto-Rechnungsbetrag",
-        "sub": "Steuerpflichtig (MwSt.)"
-      },
-      "tips": {
-        "label": "Trinkgelder Personal gesamt",
-        "sub": "MwSt.-befreit · Italien"
-      },
-      "reconciliation": {
-        "label": "POS-Bankabstimmung",
-        "sub": "Am POS eingezogener Gesamtbetrag"
-      }
-    },
-    "table": {
-      "date": "Datum",
-      "orderId": "Bestell-ID",
-      "taxableBase": "Bemessungsgrundlage",
-      "tax": "MwSt.",
-      "restaurantTotal": "Restaurant-Gesamt",
-      "tip": "Trinkgeld",
-      "collectedTotal": "Eingezogener Gesamtbetrag"
-    },
-    "pdf": {
-      "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
-      "taxId": "USt-IdNr.",
-      "taxIdPending": "Noch nicht konfiguriert",
-      "address": "Adresse",
-      "period": "Zeitraum",
-      "generated": "Erstellt",
-      "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
-      "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
-      "summaryReconciliation": "POS-Bankabstimmung gesamt",
-      "footer": "Automatisch erstelltes Dokument · {{count}} Transaktionen · Trinkgelder MwSt.-befreit (italienische Regelung).",
-      "filenamePrefix": "steuerregister"
-    },
     "noData": "Keine Daten für den ausgewählten Zeitraum",
     "pdfGenerated": "PDF erfolgreich erstellt",
-    "pdfError": "Fehler beim Erstellen des PDF. Bitte erneut versuchen."
+    "pdfError": "Fehler beim Erstellen des PDF. Bitte erneut versuchen.",
+    "linkLabel": "Steuerbericht",
+    "byRegime": {
+      "IT_MAIN": {
+        "title": "Steuerregister",
+        "regimeLabel": "Italienischer Steuerbericht",
+        "breadcrumb": "Berichte → Fiscal · {{regime}}",
+        "subtitle": "Rechtlicher Export von Trinkgeldern und Abrechnung · Split {{taxName}} / Freiwilliges Trinkgeld",
+        "taxIdMeta": " · USt-IdNr.: {{taxId}}",
+        "tipExemptNote": "*Freiwilliges Trinkgeld MwSt.-befreit",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "Steuerpflichtig (MwSt.)" },
+          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "MwSt.-befreit · Italien" },
+          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+        },
+        "table": {
+          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "MwSt.",
+          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+        },
+        "pdf": {
+          "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
+          "taxId": "USt-IdNr.", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
+          "period": "Zeitraum", "generated": "Erstellt",
+          "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
+          "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
+          "summaryReconciliation": "POS-Bankabstimmung gesamt",
+          "footer": "Automatisch erstelltes Dokument · {{count}} Transaktionen · Trinkgelder MwSt.-befreit (italienische Regelung).",
+          "filenamePrefix": "steuerregister"
+        }
+      },
+      "ES_CANARIAS": {
+        "title": "Steuerregister",
+        "regimeLabel": "Normativa Canarias",
+        "breadcrumb": "Berichte → Fiscal · {{regime}}",
+        "subtitle": "Rechtlicher Export von Trinkgeldern und Abrechnung · Split {{taxName}} / Freiwilliges Trinkgeld",
+        "taxIdMeta": " · NIF/CIF: {{taxId}}",
+        "tipExemptNote": "*Freiwilliges Trinkgeld IGIC-befreit",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "Steuerpflichtig (IGIC)" },
+          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "IGIC-befreit · Canarias" },
+          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+        },
+        "table": {
+          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "IGIC",
+          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+        },
+        "pdf": {
+          "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
+          "taxId": "NIF/CIF", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
+          "period": "Zeitraum", "generated": "Erstellt",
+          "summaryNet": "Netto-Rechnungsbetrag (IGIC-pflichtig)",
+          "summaryTips": "Trinkgelder Personal gesamt (IGIC-befreit)",
+          "summaryReconciliation": "POS-Bankabstimmung gesamt",
+          "footer": "Automatisch erstelltes Dokument · {{count}} Transaktionen · Trinkgelder IGIC-befreit (Canarias-Regelung).",
+          "filenamePrefix": "steuerregister"
+        }
+      },
+      "ES_PENINSULA": {
+        "title": "Steuerregister",
+        "regimeLabel": "Normativa España Península",
+        "breadcrumb": "Berichte → Fiscal · {{regime}}",
+        "subtitle": "Rechtlicher Export von Trinkgeldern und Abrechnung · Split {{taxName}} / Freiwilliges Trinkgeld",
+        "taxIdMeta": " · NIF/CIF: {{taxId}}",
+        "tipExemptNote": "*Freiwilliges Trinkgeld MwSt.-befreit",
+        "taxLine": "{{taxName}} ({{rate}}%)",
+        "cards": {
+          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "MwSt.-pflichtig" },
+          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "MwSt.-befreit · Spanien" },
+          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+        },
+        "table": {
+          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "MwSt.",
+          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+        },
+        "pdf": {
+          "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
+          "taxId": "NIF/CIF", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
+          "period": "Zeitraum", "generated": "Erstellt",
+          "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
+          "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
+          "summaryReconciliation": "POS-Bankabstimmung gesamt",
+          "footer": "Automatisch erstelltes Dokument · {{count}} Transaktionen · Trinkgelder MwSt.-befreit (spanische Regelung).",
+          "filenamePrefix": "steuerregister"
+        }
+      }
+    }
   },
   "payments": {
     "title": "Digitale Zahlungen",
