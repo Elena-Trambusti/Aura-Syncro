@@ -21,32 +21,31 @@ interface DashboardData {
 }
 
 function StatCard({
-  title, value, subtitle, icon: Icon, bgColor, trend, trendLabel,
+  title, value, subtitle, icon: Icon, trend, trendLabel,
 }: {
   title: string
   value: string
   subtitle?: string
   icon: React.ElementType
-  bgColor: string
   trend?: number
   trendLabel?: (value: number) => string
 }) {
   return (
-    <div className="glass-card glass-gold-glow p-4 sm:p-6 relative z-0">
+    <div className="saas-card p-4 sm:p-6 relative z-0">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-300/90 tracking-wide">{title}</p>
-          <p className="text-2xl font-bold text-stone-50 mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-stone-300/60 mt-1">{subtitle}</p>}
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
           {trend !== undefined && trendLabel && (
-            <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${trend >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               {trendLabel(Math.abs(trend))}
             </div>
           )}
         </div>
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/10 bg-white/[0.06] backdrop-blur-md shadow-lg shadow-black/30">
-          <Icon className="w-6 h-6" style={{ color: bgColor }} />
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 bg-slate-50">
+          <Icon className="w-6 h-6 text-amber-500" />
         </div>
       </div>
     </div>
@@ -85,7 +84,7 @@ export default function DashboardPage() {
           <h1 className="aura-page-title">
             {t('dashboard.title', { name: restaurant?.name || t('common.restaurant') })}
           </h1>
-          <p className="text-stone-300/75 text-sm mt-1">{formatLongDate()}</p>
+          <p className="text-slate-500 text-sm mt-1">{formatLongDate()}</p>
         </div>
       </div>
 
@@ -95,27 +94,23 @@ export default function DashboardPage() {
           value={formatCurrency(dashboard?.today.revenue || 0)}
           subtitle={t('dashboard.todayRevenueSub')}
           icon={TrendingUp}
-          bgColor="#10b981"
         />
         <StatCard
           title={t('dashboard.activeOrders')}
           value={String(dashboard?.today.activeOrders || 0)}
           subtitle={t('dashboard.activeOrdersSub')}
           icon={ClipboardList}
-          bgColor={theme.color}
         />
         <StatCard
           title={t('dashboard.todayReservations')}
           value={String(dashboard?.today.reservations || 0)}
           subtitle={t('dashboard.todayReservationsSub')}
           icon={CalendarCheck}
-          bgColor="#3b82f6"
         />
         <StatCard
           title={t('dashboard.monthlyRevenue')}
           value={formatCurrency(dashboard?.month.revenue || 0)}
           icon={ShoppingBag}
-          bgColor="#a855f7"
           trend={dashboard?.month.revenueGrowth}
           trendLabel={v => t('dashboard.vsLastMonth', { value: v })}
         />
@@ -127,20 +122,18 @@ export default function DashboardPage() {
           value={String(dashboard?.totals.customers || 0)}
           subtitle={t('dashboard.totalCustomersSub')}
           icon={Users}
-          bgColor="#6366f1"
         />
         <StatCard
           title={t('dashboard.stockAlerts')}
           value={String(dashboard?.totals.lowStockAlerts || 0)}
           subtitle={t('dashboard.stockAlertsSub')}
           icon={AlertTriangle}
-          bgColor={dashboard?.totals.lowStockAlerts ? '#ef4444' : '#94a3b8'}
         />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 glass-card p-6">
-          <h3 className="text-base font-semibold text-stone-100 mb-4 tracking-wide">{t('dashboard.revenueChart')}</h3>
+        <div className="xl:col-span-2 saas-card p-6">
+          <h3 className="text-base font-semibold text-slate-900 mb-4 tracking-wide">{t('dashboard.revenueChart')}</h3>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={revenueData || []}>
               <defs>
@@ -149,17 +142,17 @@ export default function DashboardPage() {
                   <stop offset="95%" stopColor={theme.color} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#44403c" strokeOpacity={0.45} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis
                 dataKey="date"
                 tickFormatter={d => new Date(d).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })}
-                tick={{ fontSize: 12, fill: '#cbd5e1' }}
+                tick={{ fontSize: 12, fill: '#64748b' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
                 tickFormatter={v => `€${v}`}
-                tick={{ fontSize: 12, fill: '#cbd5e1' }}
+                tick={{ fontSize: 12, fill: '#64748b' }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -168,10 +161,10 @@ export default function DashboardPage() {
                 labelFormatter={d => new Date(d).toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: '2-digit' })}
                 contentStyle={{
                   borderRadius: '12px',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  boxShadow: '0 10px 28px rgba(0,0,0,0.35)',
-                  background: 'rgba(24,22,20,0.92)',
-                  color: '#f5f5f4',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  background: '#ffffff',
+                  color: '#0f172a',
                 }}
               />
               <Area type="monotone" dataKey="revenue" stroke={theme.color} strokeWidth={2.5} fill="url(#revenueGradient)" />
@@ -179,15 +172,15 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
 
-        <div className="glass-card p-6">
-          <h3 className="text-base font-semibold text-stone-100 mb-4 tracking-wide">{t('dashboard.topDishes')}</h3>
+        <div className="saas-card p-6">
+          <h3 className="text-base font-semibold text-slate-900 mb-4 tracking-wide">{t('dashboard.topDishes')}</h3>
           <div className="space-y-3">
             {(topItems || []).slice(0, 6).map((item: { menuItemId: string; name: string; quantity: number; revenue: number }, idx: number) => (
               <div key={item.menuItemId} className="flex items-center gap-3">
-                <span className="text-xs font-bold text-stone-300/60 w-4">{idx + 1}</span>
+                <span className="text-xs font-bold text-slate-400 w-4">{idx + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-100 truncate">{item.name}</p>
-                  <div className="w-full bg-stone-700/60 rounded-full h-1.5 mt-1">
+                  <p className="text-sm font-medium text-slate-900 truncate">{item.name}</p>
+                  <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
                     <div
                       className="h-1.5 rounded-full"
                       style={{
@@ -197,11 +190,11 @@ export default function DashboardPage() {
                     />
                   </div>
                 </div>
-                <span className="text-xs font-semibold text-stone-300/80">{item.quantity} {t('common.pieces')}</span>
+                <span className="text-xs font-semibold text-slate-500">{item.quantity} {t('common.pieces')}</span>
               </div>
             ))}
             {(!topItems || topItems.length === 0) && (
-              <p className="text-sm text-stone-300/70 text-center py-4">{t('common.noData')}</p>
+              <p className="text-sm text-slate-500 text-center py-4">{t('common.noData')}</p>
             )}
           </div>
         </div>

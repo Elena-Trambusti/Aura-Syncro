@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
+import { ui } from '../lib/ui'
 import { Plus, Edit2, Trash2, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -35,66 +36,66 @@ function ItemForm({ item, categories, onSave, onCancel }: {
   })
 
   return (
-    <div className="glass-overlay flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="glass-modal p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-stone-100 mb-5">{item?.id ? t('menu.editDish') : t('menu.newDish')}</h3>
+    <div className={ui.modalOverlay} onClick={onCancel}>
+      <div className={ui.modal} onClick={e => e.stopPropagation()}>
+        <h3 className={ui.modalTitle}>{item?.id ? t('menu.editDish') : t('menu.newDish')}</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-stone-200 mb-1">{t('menu.category')} *</label>
+            <label className={ui.label}>{t('menu.category')} *</label>
             <select value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
-              className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+              className={ui.select}>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-200 mb-1">{t('common.name')} *</label>
+            <label className={ui.label}>{t('common.name')} *</label>
             <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+              className={ui.input}
               placeholder={t('menu.namePlaceholder')} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-200 mb-1">{t('common.description')}</label>
+            <label className={ui.label}>{t('common.description')}</label>
             <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35 resize-none"
+              className={ui.textarea}
               rows={2} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">{t('menu.price')} *</label>
+              <label className={ui.label}>{t('menu.price')} *</label>
               <input type="number" step="0.5" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className={ui.input} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">{t('menu.prepTime')}</label>
+              <label className={ui.label}>{t('menu.prepTime')}</label>
               <input type="number" value={form.preparationTime} onChange={e => setForm(f => ({ ...f, preparationTime: parseInt(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className={ui.input} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">{t('menu.calories')}</label>
+              <label className={ui.label}>{t('menu.calories')}</label>
               <input type="number" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: parseInt(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className={ui.input} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-200 mb-1">{t('menu.allergens')}</label>
+            <label className={ui.label}>{t('menu.allergens')}</label>
             <input value={form.allergens} onChange={e => setForm(f => ({ ...f, allergens: e.target.value }))}
-              className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+              className={ui.input}
               placeholder={t('menu.allergensPlaceholder')} />
           </div>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.available} onChange={e => setForm(f => ({ ...f, available: e.target.checked }))} className="rounded" />
-              <span className="text-sm text-stone-200">{t('menu.available')}</span>
+              <span className="text-sm text-slate-700">{t('menu.available')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="rounded" />
-              <span className="text-sm text-stone-200">{t('menu.featured')}</span>
+              <span className="text-sm text-slate-700">{t('menu.featured')}</span>
             </label>
           </div>
         </div>
         <div className="flex gap-3 mt-6">
-          <button onClick={onCancel} className="flex-1 py-2.5 glass-chip rounded-xl text-sm font-medium text-stone-300 hover:bg-white/[0.06]">{t('common.cancel')}</button>
-          <button onClick={() => onSave(form)} className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold">{t('common.save')}</button>
+          <button onClick={onCancel} className={`flex-1 py-2.5 ${ui.chipInactive} rounded-xl text-sm font-medium`}>{t('common.cancel')}</button>
+          <button onClick={() => onSave(form)} className={`flex-1 py-2.5 ${ui.btnPrimary} text-sm`}>{t('common.save')}</button>
         </div>
       </div>
     </div>
@@ -137,81 +138,81 @@ export default function MenuPage() {
 
   return (
     <div className="space-y-5">
-      <div className="glass-card p-4 sm:p-5 space-y-4">
-        <div className="aura-page-header">
+      <div className={`${ui.card} p-4 sm:p-5 space-y-4`}>
+        <div className={ui.pageHeader}>
           <div className="min-w-0">
-            <h1 className="aura-page-title">{t('menu.title')}</h1>
-            <p className="aura-page-subtitle">{t('menu.subtitle', { count: allItems.length, categories: categories.length })}</p>
+            <h1 className={ui.pageTitle}>{t('menu.title')}</h1>
+            <p className={ui.pageSubtitle}>{t('menu.subtitle', { count: allItems.length, categories: categories.length })}</p>
           </div>
           <button onClick={() => setShowForm(true)}
-            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors w-full sm:w-auto shrink-0 shadow-lg shadow-amber-900/30">
+            className={`flex items-center justify-center gap-2 ${ui.btnPrimary} px-4 py-2.5 text-sm w-full sm:w-auto shrink-0`}>
             <Plus className="w-4 h-4" />
             {t('menu.newDish')}
           </button>
         </div>
-        <div className="aura-filter-row">
+        <div className={ui.filterRow}>
           <button onClick={() => setSelectedCat(null)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${!selectedCat ? 'bg-amber-500 text-stone-950 font-semibold shadow-md shadow-amber-900/25' : 'glass-chip text-stone-300 hover:bg-white/[0.06] hover:text-stone-100'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${!selectedCat ? ui.tabActive : ui.tabInactive}`}>
             {t('common.all')} ({allItems.length})
           </button>
           {categories.map(cat => (
             <button key={cat.id} onClick={() => setSelectedCat(cat.id)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCat === cat.id ? 'bg-amber-500 text-stone-950 font-semibold shadow-md shadow-amber-900/25' : 'glass-chip text-stone-300 hover:bg-white/[0.06] hover:text-stone-100'}`}>
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedCat === cat.id ? ui.tabActive : ui.tabInactive}`}>
               {cat.name} ({cat.items.length})
             </button>
           ))}
         </div>
       </div>
 
-      <div className="aura-card overflow-hidden">
-        <div className="aura-table-wrap">
+      <div className={`${ui.card} overflow-hidden`}>
+        <div className={ui.tableWrap}>
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10 glass-table-head">
-              <th className="text-left text-[11px] font-semibold text-stone-300 uppercase tracking-wide px-5 py-3.5 w-[38%]">{t('menu.dish')}</th>
-              <th className="text-left text-[11px] font-semibold text-stone-300 uppercase tracking-wide px-4 py-3.5">{t('menu.category')}</th>
-              <th className="text-left text-[11px] font-semibold text-stone-300 uppercase tracking-wide px-4 py-3.5">{t('menu.price')}</th>
-              <th className="text-left text-[11px] font-semibold text-stone-300 uppercase tracking-wide px-4 py-3.5">{t('menu.prep')}</th>
-              <th className="text-left text-[11px] font-semibold text-stone-300 uppercase tracking-wide px-4 py-3.5">{t('common.status')}</th>
+            <tr className={`border-b border-slate-200 ${ui.tableHeadBg}`}>
+              <th className={`text-left ${ui.tableHead} px-5 py-3.5 w-[38%]`}>{t('menu.dish')}</th>
+              <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('menu.category')}</th>
+              <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('menu.price')}</th>
+              <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('menu.prep')}</th>
+              <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('common.status')}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/8">
+          <tbody className="divide-y divide-slate-200">
             {filteredItems.map(item => (
-              <tr key={item.id} className="hover:bg-white/[0.04] transition-colors">
+              <tr key={item.id} className={ui.tableRow}>
                 <td className="px-5 py-4 align-top">
                   <div>
-                    <p className="text-[15px] font-semibold text-stone-100 flex items-center gap-2 leading-tight">
+                    <p className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 leading-tight">
                       {item.name}
-                      {item.featured && <span className="text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">{t('menu.topBadge')}</span>}
+                      {item.featured && <span className="text-[11px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">{t('menu.topBadge')}</span>}
                     </p>
-                    {item.description && <p className="text-xs text-stone-300/70 mt-1 leading-relaxed">{item.description}</p>}
-                    {item.allergens && <p className="text-xs text-rose-300 mt-1">⚠ {item.allergens}</p>}
+                    {item.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>}
+                    {item.allergens && <p className="text-xs text-red-600 mt-1">⚠ {item.allergens}</p>}
                   </div>
                 </td>
                 <td className="px-4 py-4 align-top">
-                  <span className="text-xs glass-chip text-stone-200 px-2.5 py-1 rounded-lg inline-block">{item.category.name}</span>
+                  <span className={`text-xs ${ui.chip} px-2.5 py-1 inline-block`}>{item.category.name}</span>
                 </td>
                 <td className="px-4 py-4 align-top">
-                  <span className="text-[15px] font-bold text-amber-300">{formatCurrency(item.price)}</span>
+                  <span className="text-[15px] font-bold text-amber-500">{formatCurrency(item.price)}</span>
                 </td>
-                <td className="px-4 py-4 align-top text-sm text-stone-300/80">
+                <td className="px-4 py-4 align-top text-sm text-slate-500">
                   {item.preparationTime ? `${item.preparationTime} ${t('common.minutes')}` : '-'}
                 </td>
                 <td className="px-4 py-4 align-top">
                   <button onClick={() => toggleAvail.mutate({ id: item.id, available: !item.available })}
-                    className={`text-xs px-2.5 py-1 rounded-full font-medium border ${item.available ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-stone-800/50 text-stone-300 border-stone-600/40'}`}>
+                    className={`text-xs px-2.5 py-1 rounded-full font-medium border ${item.available ? ui.badgeSuccess : ui.badgeMuted}`}>
                     {item.available ? `● ${t('menu.available')}` : `○ ${t('menu.notAvailable')}`}
                   </button>
                 </td>
                 <td className="px-4 py-4 align-top">
                   <div className="flex items-center gap-1">
                     <button onClick={() => { setEditingItem({ ...item, categoryId: item.category.id }); }}
-                      className="p-1.5 glass-chip rounded-lg text-stone-400 hover:text-stone-100 transition-colors">
+                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-slate-500 hover:text-slate-900`}>
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => { if (confirm(t('menu.confirmDelete'))) deleteItem.mutate(item.id) }}
-                      className="p-1.5 rounded-lg bg-rose-500/10 text-rose-300/80 hover:bg-rose-500/20 hover:text-rose-200 transition-colors">
+                      className="p-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -222,7 +223,7 @@ export default function MenuPage() {
         </table>
         </div>
         {filteredItems.length === 0 && (
-          <div className="flex flex-col items-center py-12 text-stone-500">
+          <div className="flex flex-col items-center py-12 text-slate-500">
             <BookOpen className="w-10 h-10 mb-2 opacity-30" />
             <p>{t('menu.noDishes')}</p>
           </div>

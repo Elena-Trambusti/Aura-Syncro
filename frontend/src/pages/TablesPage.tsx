@@ -17,10 +17,10 @@ interface Table extends FloorTable {
 }
 
 const STAT_ACCENTS = [
-  { key: 'free' as const, status: 'FREE' as TableStatus, accent: 'glass-stat-accent-emerald' },
-  { key: 'occupied' as const, status: 'OCCUPIED' as TableStatus, accent: 'glass-stat-accent-red' },
-  { key: 'reserved' as const, status: 'RESERVED' as TableStatus, accent: 'glass-stat-accent-amber' },
-  { key: 'cleaning' as const, status: 'CLEANING' as TableStatus, accent: 'glass-stat-accent-blue' },
+  { key: 'free' as const, status: 'FREE' as TableStatus, accent: 'saas-stat-accent-emerald' },
+  { key: 'occupied' as const, status: 'OCCUPIED' as TableStatus, accent: 'saas-stat-accent-amber' },
+  { key: 'reserved' as const, status: 'RESERVED' as TableStatus, accent: 'saas-stat-accent-amber' },
+  { key: 'cleaning' as const, status: 'CLEANING' as TableStatus, accent: 'saas-stat-accent-blue' },
 ]
 
 export default function TablesPage() {
@@ -80,7 +80,7 @@ export default function TablesPage() {
         </div>
         <button
           onClick={() => queryClient.invalidateQueries({ queryKey: ['tables'] })}
-          className="flex items-center justify-center gap-2 px-4 py-2 glass-chip rounded-xl text-sm font-medium text-stone-300 hover:bg-white/[0.06] transition-colors w-full sm:w-auto shrink-0"
+          className="flex items-center justify-center gap-2 px-4 py-2 saas-chip rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto shrink-0"
         >
           <RefreshCw className="w-4 h-4" />
           {t('common.refresh')}
@@ -89,9 +89,9 @@ export default function TablesPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {STAT_ACCENTS.map(({ key, status, accent }) => (
-          <div key={key} className={cn('glass-stat p-4 pl-5', accent)}>
-            <p className="text-2xl font-bold text-stone-100 tabular-nums">{stats[key]}</p>
-            <p className="text-xs font-medium text-stone-400 uppercase tracking-wider mt-0.5">{statLabels[key]}</p>
+          <div key={key} className={cn('saas-stat p-4 pl-5', accent)}>
+            <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats[key]}</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mt-0.5">{statLabels[key]}</p>
             <span className={cn('inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full font-medium', TABLE_STATUS_BADGE[status])}>
               {TABLE_STATUS_LABELS[status]}
             </span>
@@ -109,8 +109,8 @@ export default function TablesPage() {
               className={cn(
                 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all',
                 filterArea === area
-                  ? 'bg-amber-600/90 text-stone-950 shadow-md shadow-amber-900/30'
-                  : 'glass-chip text-stone-300 hover:bg-white/[0.06]',
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm'
+                  : 'saas-chip text-slate-600 hover:bg-slate-50',
               )}
             >
               {area}
@@ -120,7 +120,7 @@ export default function TablesPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           {STAT_ACCENTS.map(({ status }) => (
-            <div key={status} className="flex items-center gap-1.5 text-xs text-stone-500">
+            <div key={status} className="flex items-center gap-1.5 text-xs text-slate-500">
               <span className={cn('w-2 h-2 rounded-full', TABLE_LEGEND_DOT[status])} />
               {TABLE_STATUS_LABELS[status]}
             </div>
@@ -129,11 +129,11 @@ export default function TablesPage() {
       </div>
 
       {isLoading ? (
-        <div className="glass-floor flex justify-center items-center py-20">
+        <div className="saas-floor flex justify-center items-center py-20">
           <div className="w-10 h-10 border-4 border-amber-500/40 border-t-amber-500 rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="glass-card p-12 text-center text-stone-500 text-sm">
+        <div className="saas-card p-12 text-center text-slate-500 text-sm">
           {t('common.noResults')}
         </div>
       ) : (
@@ -151,7 +151,7 @@ export default function TablesPage() {
       )}
 
       {filtered.some(tbl => tbl.status === 'CLEANING') && (
-        <div className="glass-card p-4 flex flex-wrap gap-2">
+        <div className="saas-card p-4 flex flex-wrap gap-2">
           {filtered.filter(tbl => tbl.status === 'CLEANING').map(table => (
             <button
               key={table.id}
@@ -160,7 +160,7 @@ export default function TablesPage() {
                 updateStatus.mutate({ id: table.id, status: 'FREE' })
                 toast.success(t('tables.tableReady', { number: table.number }))
               }}
-              className="glass-chip px-3 py-1.5 rounded-lg text-xs font-medium text-stone-300 hover:bg-emerald-500/15 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
+              className="saas-chip px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors"
             >
               T{table.number} — {t('tables.markFree')}
             </button>

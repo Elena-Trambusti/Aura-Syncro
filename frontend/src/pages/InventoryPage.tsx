@@ -24,53 +24,53 @@ function ItemForm({ item, onSave, onCancel }: {
   return (
     <div className="glass-overlay flex items-center justify-center p-4" onClick={onCancel}>
       <div className="glass-modal p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-stone-100 mb-5">{item?.id ? 'Modifica' : 'Nuovo'} Prodotto</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-5">{item?.id ? 'Modifica' : 'Nuovo'} Prodotto</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-stone-200 mb-1">Nome prodotto *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome prodotto *</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Unità</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Unità</label>
               <select value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
                 {['kg', 'g', 'L', 'ml', 'pz', 'casse', 'bottiglie'].map(u => <option key={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Categoria</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Categoria</label>
               <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
                 placeholder="Carni, Latticini..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Quantità attuale</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Quantità attuale</label>
               <input type="number" step="0.1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Scorta minima</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Scorta minima</label>
               <input type="number" step="0.1" value={form.minQuantity} onChange={e => setForm(f => ({ ...f, minQuantity: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Costo/unità (€)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Costo/unità (€)</label>
               <input type="number" step="0.01" value={form.cost} onChange={e => setForm(f => ({ ...f, cost: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Fornitore</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Fornitore</label>
               <input value={form.supplier} onChange={e => setForm(f => ({ ...f, supplier: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
                 placeholder="Nome fornitore" />
             </div>
           </div>
         </div>
         <div className="flex gap-3 mt-5">
           <button onClick={onCancel} className="flex-1 py-2.5 border border-stone-700/50 rounded-xl text-sm font-medium">Annulla</button>
-          <button onClick={() => onSave(form)} className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold">Salva</button>
+          <button onClick={() => onSave(form)} className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">Salva</button>
         </div>
       </div>
     </div>
@@ -119,10 +119,10 @@ export default function InventoryPage() {
         <div>
           <h1 className="aura-page-title">{t('inventory.title')}</h1>
           <p className="aura-page-subtitle">{t('inventory.subtitle')}</p>
-          <p className="text-stone-400 text-sm mt-1">{items.length} prodotti · Valore: {formatCurrency(totalValue)}</p>
+          <p className="text-slate-500 text-sm mt-1">{items.length} prodotti · Valore: {formatCurrency(totalValue)}</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
           <Plus className="w-4 h-4" />
           Nuovo Prodotto
         </button>
@@ -149,7 +149,7 @@ export default function InventoryPage() {
       <div className="flex gap-2 flex-wrap">
         {categories.map(cat => (
           <button key={cat} onClick={() => setFilterCategory(cat)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${filterCategory === cat ? 'bg-amber-600 text-white' : 'glass-chip text-stone-300'}`}>
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${filterCategory === cat ? 'bg-amber-600 text-white' : 'glass-chip text-slate-500'}`}>
             {cat}
           </button>
         ))}
@@ -159,13 +159,13 @@ export default function InventoryPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-stone-800/50 glass-table-head">
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-5 py-3">Prodotto</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Categoria</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Quantità</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Scorta min.</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Costo/u</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Valore</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Fornitore</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">Prodotto</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Categoria</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Quantità</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Scorta min.</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Costo/u</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Valore</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Fornitore</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -177,30 +177,30 @@ export default function InventoryPage() {
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       {isLow && <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />}
-                      <p className="text-sm font-semibold text-stone-100">{item.name}</p>
+                      <p className="text-sm font-semibold text-slate-900">{item.name}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="text-xs bg-stone-800/50 text-stone-300 px-2 py-1 rounded-lg">{item.category || '—'}</span>
+                    <span className="text-xs bg-stone-800/50 text-slate-500 px-2 py-1 rounded-lg">{item.category || '—'}</span>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       <button onClick={() => adjustQty.mutate({ id: item.id, delta: -1 })}
-                        className="w-6 h-6 rounded-full bg-stone-800/50 hover:bg-red-100 flex items-center justify-center text-stone-400 hover:text-red-600 transition-colors text-xs font-bold">−</button>
-                      <span className={`text-sm font-semibold min-w-12 text-center ${isLow ? 'text-red-600' : 'text-stone-100'}`}>
+                        className="w-6 h-6 rounded-full bg-stone-800/50 hover:bg-red-100 flex items-center justify-center text-slate-500 hover:text-red-600 transition-colors text-xs font-bold">−</button>
+                      <span className={`text-sm font-semibold min-w-12 text-center ${isLow ? 'text-red-600' : 'text-slate-900'}`}>
                         {item.quantity} {item.unit}
                       </span>
                       <button onClick={() => adjustQty.mutate({ id: item.id, delta: 1 })}
-                        className="w-6 h-6 rounded-full bg-stone-800/50 hover:bg-emerald-100 flex items-center justify-center text-stone-400 hover:text-emerald-600 transition-colors text-xs font-bold">+</button>
+                        className="w-6 h-6 rounded-full bg-stone-800/50 hover:bg-emerald-100 flex items-center justify-center text-slate-500 hover:text-emerald-600 transition-colors text-xs font-bold">+</button>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5 text-sm text-stone-400">{item.minQuantity} {item.unit}</td>
-                  <td className="px-4 py-3.5 text-sm text-stone-300">{formatCurrency(item.cost)}</td>
-                  <td className="px-4 py-3.5 text-sm font-medium text-stone-200">{formatCurrency(item.quantity * item.cost)}</td>
+                  <td className="px-4 py-3.5 text-sm text-slate-500">{item.minQuantity} {item.unit}</td>
+                  <td className="px-4 py-3.5 text-sm text-slate-500">{formatCurrency(item.cost)}</td>
+                  <td className="px-4 py-3.5 text-sm font-medium text-slate-700">{formatCurrency(item.quantity * item.cost)}</td>
                   <td className="px-4 py-3.5 text-xs text-stone-500">{item.supplier || '—'}</td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setEditingItem(item)} className="p-1.5 hover:bg-stone-800/50 rounded-lg text-stone-500 hover:text-stone-200 transition-colors">
+                      <button onClick={() => setEditingItem(item)} className="p-1.5 hover:bg-stone-800/50 rounded-lg text-stone-500 hover:text-slate-700 transition-colors">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => { if (confirm('Eliminare?')) remove.mutate(item.id) }} className="p-1.5 hover:bg-red-950/30 rounded-lg text-stone-500 hover:text-red-500 transition-colors">

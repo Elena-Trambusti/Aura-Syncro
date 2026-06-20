@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
@@ -26,40 +26,40 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
   return (
     <div className="glass-overlay flex items-center justify-center p-4" onClick={onCancel}>
       <div className="glass-modal p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-stone-100 mb-5">Nuova Prenotazione</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-5">Nuova Prenotazione</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-stone-200 mb-1">Nome ospite *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome ospite *</label>
               <input value={form.guestName} onChange={e => update('guestName', e.target.value)}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
                 placeholder="Mario Rossi" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Telefono *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Telefono *</label>
               <input value={form.guestPhone} onChange={e => update('guestPhone', e.target.value)}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
                 placeholder="+39 333..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Coperti *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Coperti *</label>
               <input type="number" min={1} max={20} value={form.covers} onChange={e => update('covers', parseInt(e.target.value))}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-stone-200 mb-1">Data e ora *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Data e ora *</label>
               <input type="datetime-local" value={form.date} onChange={e => update('date', e.target.value)}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Email</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
               <input type="email" value={form.guestEmail} onChange={e => update('guestEmail', e.target.value)}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">Durata (min)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Durata (min)</label>
               <select value={form.duration} onChange={e => update('duration', parseInt(e.target.value))}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
                 <option value={60}>1 ora</option>
                 <option value={90}>1.5 ore</option>
                 <option value={120}>2 ore</option>
@@ -67,9 +67,9 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-stone-200 mb-1">Note</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Note</label>
               <textarea value={form.notes} onChange={e => update('notes', e.target.value)}
-                className="w-full px-3 py-2 glass-input rounded-xl text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35 resize-none"
+                className="w-full px-3 py-2 glass-input rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35 resize-none"
                 rows={2} placeholder="Allergie, occasioni speciali..." />
             </div>
           </div>
@@ -77,7 +77,7 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
         <div className="flex gap-3 mt-5">
           <button onClick={onCancel} className="flex-1 py-2.5 border border-stone-700/50 rounded-xl text-sm font-medium">Annulla</button>
           <button onClick={() => onSave({ ...form, date: new Date(form.date).toISOString() })}
-            className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold">
+            className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">
             Conferma Prenotazione
           </button>
         </div>
@@ -118,7 +118,7 @@ export default function ReservationsPage() {
     PENDING: 'bg-yellow-100 text-yellow-800',
     CONFIRMED: 'bg-blue-100 text-blue-800',
     SEATED: 'bg-emerald-100 text-emerald-800',
-    COMPLETED: 'bg-stone-800/50 text-stone-300',
+    COMPLETED: 'bg-stone-800/50 text-slate-500',
     CANCELLED: 'bg-red-100 text-red-600',
     NO_SHOW: 'bg-gray-100 text-gray-500',
   }
@@ -131,7 +131,7 @@ export default function ReservationsPage() {
           <p className="aura-page-subtitle">{t('reservations.subtitle', { count: reservations.length, covers: totalCovers })}</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
           <Plus className="w-4 h-4" />
           {t('reservations.newReservation')}
         </button>
@@ -140,7 +140,7 @@ export default function ReservationsPage() {
       {/* Selettore data */}
       <div className="flex items-center gap-3">
         <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-          className="glass-input rounded-xl px-4 py-2 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35 text-stone-200" />
+          className="glass-input rounded-xl px-4 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35 text-slate-700" />
         <div className="flex gap-2">
           {[-1, 0, 1].map(offset => {
             const d = new Date(); d.setDate(d.getDate() + offset)
@@ -148,7 +148,7 @@ export default function ReservationsPage() {
             const labels = ['Ieri', 'Oggi', 'Domani']
             return (
               <button key={offset} onClick={() => setSelectedDate(dateStr)}
-                className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${selectedDate === dateStr ? 'bg-amber-600 text-white' : 'glass-chip text-stone-300'}`}>
+                className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${selectedDate === dateStr ? 'bg-amber-600 text-white' : 'glass-chip text-slate-500'}`}>
                 {labels[offset + 1]}
               </button>
             )
@@ -165,7 +165,7 @@ export default function ReservationsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="font-semibold text-stone-100">{res.guestName}</p>
+                <p className="font-semibold text-slate-900">{res.guestName}</p>
                 {res.customer && res.customer.totalVisits > 3 && (
                   <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">VIP</span>
                 )}
@@ -173,7 +173,7 @@ export default function ReservationsPage() {
                   {RESERVATION_STATUS_LABELS[res.status]}
                 </span>
               </div>
-              <div className="flex items-center gap-4 mt-1 text-sm text-stone-400">
+              <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
                 <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{res.covers} pers.</span>
                 <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{res.duration} min</span>
                 <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{res.guestPhone}</span>

@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
         <div className="flex items-center gap-2">
           {(['7d', '30d', '90d'] as Period[]).map(p => (
             <button key={p} onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${period === p ? 'bg-amber-600 text-white' : 'glass-chip text-stone-300'}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${period === p ? 'bg-amber-600 text-white' : 'glass-chip text-slate-500'}`}>
               {p === '7d' ? '7 giorni' : p === '30d' ? '30 giorni' : '90 giorni'}
             </button>
           ))}
@@ -75,7 +75,7 @@ export default function AnalyticsPage() {
                 ])
               )
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium glass-chip text-stone-300 hover:bg-white/[0.06] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium glass-chip text-slate-500 hover:bg-slate-50 transition-colors"
           >
             <Download className="w-4 h-4" />
             CSV
@@ -91,15 +91,15 @@ export default function AnalyticsPage() {
           { label: 'Scontrino Medio', value: formatCurrency(avgOrder) },
         ].map(kpi => (
           <div key={kpi.label} className="glass-card p-5 text-center">
-            <p className="text-sm text-stone-400 mb-1">{kpi.label}</p>
-            <p className="text-2xl font-bold text-stone-100">{kpi.value}</p>
+            <p className="text-sm text-slate-500 mb-1">{kpi.label}</p>
+            <p className="text-2xl font-bold text-slate-900">{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* Grafico fatturato */}
       <div className="glass-card p-6">
-        <h3 className="text-base font-semibold text-stone-100 mb-4">Fatturato e Ordini nel Tempo</h3>
+        <h3 className="text-base font-semibold text-slate-900 mb-4">Fatturato e Ordini nel Tempo</h3>
         <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={revenue || []}>
             <defs>
@@ -130,7 +130,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Piatti top per fatturato */}
         <div className="glass-card p-6">
-          <h3 className="text-base font-semibold text-stone-100 mb-4">Fatturato per Piatto (Top 6)</h3>
+          <h3 className="text-base font-semibold text-slate-900 mb-4">Fatturato per Piatto (Top 6)</h3>
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="value" label={false}>
@@ -139,16 +139,16 @@ export default function AnalyticsPage() {
                 ))}
               </Pie>
               <Tooltip formatter={(v) => [formatCurrency(Number(v) || 0), 'Fatturato']} />
-              <Legend formatter={(value) => <span className="text-xs text-stone-300">{value}</span>} />
+              <Legend formatter={(value) => <span className="text-xs text-slate-500">{value}</span>} />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
         {/* Analisi fasce orarie */}
         <div className="glass-card p-6">
-          <h3 className="text-base font-semibold text-stone-100 mb-2">Traffico per Ora</h3>
+          <h3 className="text-base font-semibold text-slate-900 mb-2">Traffico per Ora</h3>
           {peakHours.length > 0 && (
-            <p className="text-xs text-stone-400 mb-4">
+            <p className="text-xs text-slate-500 mb-4">
               Ore di punta: {peakHours.map((h: { hour: string }) => h.hour).join(', ')}
             </p>
           )}
@@ -167,26 +167,26 @@ export default function AnalyticsPage() {
       {/* Tabella piatti dettagliata */}
       <div className="glass-card overflow-hidden">
         <div className="p-5 border-b border-stone-800/50">
-          <h3 className="text-base font-semibold text-stone-100">Analisi Menu — Top 10</h3>
+          <h3 className="text-base font-semibold text-slate-900">Analisi Menu — Top 10</h3>
         </div>
         <table className="w-full">
           <thead>
             <tr className="glass-table-head">
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-5 py-3">#</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Piatto</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Categoria</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Pz Venduti</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Fatturato</th>
-              <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Prezzo</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">#</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Piatto</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Categoria</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Pz Venduti</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Fatturato</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Prezzo</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-800/40">
             {(topItems || []).map((item: { menuItemId: string; name: string; category: string; quantity: number; revenue: number; price: number }, i: number) => (
               <tr key={item.menuItemId} className="hover:glass-table-head">
                 <td className="px-5 py-3 text-sm font-bold text-stone-500">{i + 1}</td>
-                <td className="px-4 py-3 text-sm font-semibold text-stone-100">{item.name}</td>
-                <td className="px-4 py-3"><span className="text-xs bg-stone-800/50 text-stone-300 px-2 py-1 rounded-lg">{item.category}</span></td>
-                <td className="px-4 py-3 text-sm text-stone-300">{item.quantity}</td>
+                <td className="px-4 py-3 text-sm font-semibold text-slate-900">{item.name}</td>
+                <td className="px-4 py-3"><span className="text-xs bg-stone-800/50 text-slate-500 px-2 py-1 rounded-lg">{item.category}</span></td>
+                <td className="px-4 py-3 text-sm text-slate-500">{item.quantity}</td>
                 <td className="px-4 py-3 text-sm font-bold text-emerald-600">{formatCurrency(item.revenue)}</td>
                 <td className="px-4 py-3 text-sm text-amber-400 font-medium">{formatCurrency(item.price)}</td>
               </tr>

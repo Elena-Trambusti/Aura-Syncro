@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Sparkles, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { BRAND } from '../lib/brand'
+import { ui } from '../lib/ui'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import { formatApiError } from '../lib/errors'
 import toast from 'react-hot-toast'
@@ -30,61 +31,52 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 relative"
-      style={{ background: `linear-gradient(135deg, ${BRAND.dark} 0%, #1c1917 50%, #292524 100%)` }}
-    >
+    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-slate-50 relative">
       <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
         <LanguageSwitcher prominent />
-      </div>
-
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: BRAND.gold }} />
-        <div className="absolute bottom-0 left-1/4 h-72 w-72 rounded-full opacity-10 blur-3xl" style={{ backgroundColor: BRAND.amber }} />
       </div>
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-            style={{ background: `linear-gradient(135deg, ${BRAND.gold}, ${BRAND.amber})`, boxShadow: `0 8px 32px ${BRAND.gold}40` }}
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-amber-200"
+            style={{ background: `linear-gradient(135deg, ${BRAND.gold}, ${BRAND.amber})` }}
           >
-            <Sparkles className="w-9 h-9 text-stone-950" />
+            <Sparkles className="w-9 h-9 text-slate-900" />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">{BRAND.name}</h1>
-          <p className="text-stone-400 mt-2 text-sm">{t('brand.tagline')}</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{BRAND.name}</h1>
+          <p className="text-slate-500 mt-2 text-sm">{t('brand.tagline')}</p>
         </div>
 
-        <div className="glass-modal p-8">
-          <h2 className="text-xl font-bold text-stone-100 mb-6">{t('auth.loginTitle')}</h2>
+        <div className="saas-card p-8 shadow-md">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">{t('auth.loginTitle')}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-300 mb-1.5">{t('common.email')}</label>
+              <label className={ui.label}>{t('common.email')}</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700 rounded-xl bg-stone-950 text-stone-100 focus:outline-none focus:ring-2 focus:border-transparent placeholder:text-stone-600"
-                style={{ ['--tw-ring-color' as string]: BRAND.gold }}
+                className={ui.input}
                 placeholder={t('auth.emailPlaceholder')}
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-300 mb-1.5">{t('common.password')}</label>
+              <label className={ui.label}>{t('common.password')}</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-stone-700 rounded-xl bg-stone-950 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/60 pr-12 placeholder:text-stone-600"
+                  className={`${ui.input} pr-12`}
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                   aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -94,21 +86,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full font-semibold py-3 rounded-xl transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed mt-2 text-stone-950 hover:opacity-90"
-              style={{ background: `linear-gradient(135deg, ${BRAND.gold}, ${BRAND.amber})` }}
+              className={`w-full py-3 mt-2 ${ui.btnPrimary} disabled:opacity-60 disabled:cursor-not-allowed`}
             >
               {loading ? t('auth.loggingIn') : t('auth.login')}
             </button>
           </form>
 
-          <div className="mt-6 p-4 rounded-xl border border-amber-900/40 bg-amber-950/30">
-            <p className="text-xs font-medium mb-1" style={{ color: BRAND.amber }}>{t('auth.demoCredentials')}</p>
-            <p className="text-xs text-stone-400">{t('auth.demoHint')}</p>
+          <div className="mt-6 p-4 rounded-xl border border-amber-200 bg-amber-50">
+            <p className="text-xs font-medium mb-1 text-amber-700">{t('auth.demoCredentials')}</p>
+            <p className="text-xs text-slate-500">{t('auth.demoHint')}</p>
           </div>
 
-          <p className="text-center text-sm text-stone-500 mt-4">
+          <p className="text-center text-sm text-slate-500 mt-4">
             {t('auth.newRestaurant')}{' '}
-            <Link to="/register" className="font-medium hover:underline" style={{ color: BRAND.gold }}>
+            <Link to="/register" className="font-medium text-amber-600 hover:text-amber-700 hover:underline">
               {t('auth.register')}
             </Link>
           </p>

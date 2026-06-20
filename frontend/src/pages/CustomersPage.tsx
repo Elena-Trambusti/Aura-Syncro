@@ -72,7 +72,7 @@ export default function CustomersPage() {
     if (c.totalVisits >= 10) return { label: 'VIP', color: 'bg-purple-100 text-purple-700' }
     if (c.totalVisits >= 5) return { label: 'Fedele', color: 'bg-blue-100 text-blue-700' }
     if (c.totalVisits >= 2) return { label: 'Abituale', color: 'bg-emerald-950/50 text-emerald-400' }
-    return { label: 'Nuovo', color: 'bg-stone-800/50 text-stone-300' }
+    return { label: 'Nuovo', color: 'bg-stone-800/50 text-slate-500' }
   }
 
   const inputClass =
@@ -96,8 +96,8 @@ export default function CustomersPage() {
           <div key={s.label} className="glass-card p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-stone-400">{s.label}</p>
-                <p className="text-xl font-bold text-stone-100 mt-1">{s.value}</p>
+                <p className="text-xs font-medium text-slate-500">{s.label}</p>
+                <p className="text-xl font-bold text-slate-900 mt-1">{s.value}</p>
               </div>
               <div className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center`}>
                 <s.icon className="w-5 h-5 text-white" />
@@ -114,14 +114,14 @@ export default function CustomersPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35 bg-stone-900/55"
+            className="w-full pl-10 pr-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35 bg-stone-900/55"
             placeholder="Cerca per nome, email, telefono..."
           />
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0"
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           Nuovo Cliente
@@ -134,12 +134,12 @@ export default function CustomersPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-stone-800/50 glass-table-head">
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-5 py-3">Cliente</th>
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Segmento</th>
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Visite</th>
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Tot. speso</th>
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Punti</th>
-                <th className="text-left text-xs font-semibold text-stone-400 uppercase px-4 py-3">Ultima visita</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">Cliente</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Segmento</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Visite</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Tot. speso</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Punti</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Ultima visita</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/40">
@@ -151,21 +151,21 @@ export default function CustomersPage() {
                     className="hover:bg-stone-800/40 cursor-pointer transition-colors">
                     <td className="px-5 py-3.5">
                       <div>
-                        <p className="text-sm font-semibold text-stone-100">{customer.name}</p>
+                        <p className="text-sm font-semibold text-slate-900">{customer.name}</p>
                         <p className="text-xs text-stone-500">{customer.email || customer.phone || '—'}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${segment.color}`}>{segment.label}</span>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-stone-300 font-medium">{customer.totalVisits}</td>
-                    <td className="px-4 py-3.5 text-sm font-semibold text-stone-100">{formatCurrency(customer.totalSpent)}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-500 font-medium">{customer.totalVisits}</td>
+                    <td className="px-4 py-3.5 text-sm font-semibold text-slate-900">{formatCurrency(customer.totalSpent)}</td>
                     <td className="px-4 py-3.5">
                       <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full font-medium">
                         ⭐ {customer.loyaltyPoints}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-stone-400">
+                    <td className="px-4 py-3.5 text-sm text-slate-500">
                       {customer.lastVisit ? formatDate(customer.lastVisit) : 'Mai'}
                     </td>
                   </tr>
@@ -186,10 +186,10 @@ export default function CustomersPage() {
           <div className="w-72 glass-card p-5">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-bold text-stone-100">{selectedCustomer.name}</h3>
+                <h3 className="font-bold text-slate-900">{selectedCustomer.name}</h3>
                 <p className="text-xs text-stone-500">{selectedCustomer.email}</p>
               </div>
-              <button onClick={() => setSelectedCustomer(null)} className="text-stone-500 hover:text-stone-300 text-lg leading-none">×</button>
+              <button onClick={() => setSelectedCustomer(null)} className="text-stone-500 hover:text-slate-500 text-lg leading-none">×</button>
             </div>
             <div className="space-y-3">
               {[
@@ -200,8 +200,8 @@ export default function CustomersPage() {
                 { label: 'Ultima visita', value: selectedCustomer.lastVisit ? formatDate(selectedCustomer.lastVisit) : 'Mai' },
               ].map(row => (
                 <div key={row.label} className="flex justify-between text-sm">
-                  <span className="text-stone-400">{row.label}</span>
-                  <span className="font-medium text-stone-200">{row.value}</span>
+                  <span className="text-slate-500">{row.label}</span>
+                  <span className="font-medium text-slate-700">{row.value}</span>
                 </div>
               ))}
               {selectedCustomer.allergens && (
@@ -229,10 +229,10 @@ export default function CustomersPage() {
             className="glass-modal w-full max-w-md p-6 space-y-4"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-stone-100">Nuovo Cliente</h3>
+            <h3 className="text-lg font-bold text-slate-900">Nuovo Cliente</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">
+                <label className="block text-xs font-medium text-slate-500 mb-1">
                   Nome e Cognome <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -245,7 +245,7 @@ export default function CustomersPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Email</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
                 <input
                   type="email"
                   value={form.email}
@@ -255,7 +255,7 @@ export default function CustomersPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Telefono</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Telefono</label>
                 <input
                   type="tel"
                   value={form.phone}
@@ -265,7 +265,7 @@ export default function CustomersPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Note / Preferenze</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Note / Preferenze</label>
                 <textarea
                   value={form.notes}
                   onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
@@ -279,14 +279,14 @@ export default function CustomersPage() {
                   type="button"
                   onClick={() => setShowCreateModal(false)}
                   disabled={createCustomer.isPending}
-                  className="flex-1 border border-stone-700/50 text-stone-300 py-2.5 rounded-xl text-sm font-medium disabled:opacity-60"
+                  className="flex-1 border border-stone-700/50 text-slate-500 py-2.5 rounded-xl text-sm font-medium disabled:opacity-60"
                 >
                   Annulla
                 </button>
                 <button
                   type="submit"
                   disabled={createCustomer.isPending}
-                  className="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
                 >
                   {createCustomer.isPending ? 'Salvataggio...' : 'Salva Cliente'}
                 </button>

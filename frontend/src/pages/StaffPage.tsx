@@ -18,7 +18,7 @@ const ROLE_COLORS: Record<string, string> = {
   MANAGER: 'bg-blue-100 text-blue-700',
   WAITER: 'bg-emerald-950/50 text-emerald-400',
   KITCHEN: 'bg-amber-950/40 text-amber-400',
-  CASHIER: 'bg-stone-800/50 text-stone-200',
+  CASHIER: 'bg-stone-800/50 text-slate-700',
 }
 
 export default function StaffPage() {
@@ -68,7 +68,7 @@ export default function StaffPage() {
         </div>
         {tab === 'staff' && (
           <button onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
+            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
             <Plus className="w-4 h-4" />
             Aggiungi
           </button>
@@ -78,7 +78,7 @@ export default function StaffPage() {
       <div className="flex gap-2">
         {[{ key: 'staff', label: 'Squadra', icon: UserCog }, { key: 'shifts', label: 'Turni Settimanali', icon: Calendar }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as 'staff' | 'shifts')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${tab === t.key ? 'bg-amber-600 text-white' : 'glass-chip text-stone-300'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${tab === t.key ? 'bg-amber-600 text-white' : 'glass-chip text-slate-500'}`}>
             <t.icon className="w-4 h-4" />
             {t.label}
           </button>
@@ -94,7 +94,7 @@ export default function StaffPage() {
                   <span className="text-sm font-bold text-amber-400">{getInitials(member.name)}</span>
                 </div>
                 <div>
-                  <p className="font-semibold text-stone-100">{member.name}</p>
+                  <p className="font-semibold text-slate-900">{member.name}</p>
                   <p className="text-xs text-stone-500">{member.email}</p>
                 </div>
               </div>
@@ -105,7 +105,7 @@ export default function StaffPage() {
                 {member.role !== 'OWNER' && (
                   <button
                     onClick={() => toggleActive.mutate({ id: member.id, active: !member.active })}
-                    className={`text-xs px-3 py-1 rounded-full border transition-colors ${member.active ? 'border-emerald-300 text-emerald-600 hover:bg-red-950/30 hover:text-red-600 hover:border-red-300' : 'border-stone-700/50 text-stone-400 hover:bg-emerald-950/30 hover:text-emerald-600'}`}
+                    className={`text-xs px-3 py-1 rounded-full border transition-colors ${member.active ? 'border-emerald-300 text-emerald-600 hover:bg-red-950/30 hover:text-red-600 hover:border-red-300' : 'border-stone-700/50 text-slate-500 hover:bg-emerald-950/30 hover:text-emerald-600'}`}
                   >
                     {member.active ? 'Attivo' : 'Inattivo'}
                   </button>
@@ -123,9 +123,9 @@ export default function StaffPage() {
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-stone-800/50 glass-table-head">
-                  <th className="text-left text-xs font-semibold text-stone-400 uppercase px-5 py-3 w-36">Dipendente</th>
+                  <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3 w-36">Dipendente</th>
                   {daysOfWeek.map(d => (
-                    <th key={d.toISOString()} className="text-center text-xs font-semibold text-stone-400 uppercase px-2 py-3">
+                    <th key={d.toISOString()} className="text-center text-xs font-semibold text-slate-500 uppercase px-2 py-3">
                       <div className={`${d.toDateString() === new Date().toDateString() ? 'text-amber-400' : ''}`}>
                         {d.toLocaleDateString('it-IT', { weekday: 'short' })}
                         <br />
@@ -144,7 +144,7 @@ export default function StaffPage() {
                           <span className="text-xs font-bold text-amber-400">{getInitials(member.name)}</span>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-stone-200">{member.name.split(' ')[0]}</p>
+                          <p className="text-xs font-semibold text-slate-700">{member.name.split(' ')[0]}</p>
                           <p className="text-xs text-stone-500">{ROLE_LABELS[member.role]}</p>
                         </div>
                       </div>
@@ -161,7 +161,7 @@ export default function StaffPage() {
                               {shift.startTime}–{shift.endTime}
                             </div>
                           ))}
-                          {dayShifts.length === 0 && <span className="text-stone-300">—</span>}
+                          {dayShifts.length === 0 && <span className="text-slate-500">—</span>}
                         </td>
                       )
                     })}
@@ -183,7 +183,7 @@ export default function StaffPage() {
       {showForm && (
         <div className="glass-overlay flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="glass-modal p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-stone-100 mb-5">Aggiungi Membro del Team</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-5">Aggiungi Membro del Team</h3>
             <div className="space-y-4">
               {[
                 { label: 'Nome completo *', key: 'name', type: 'text', placeholder: 'Mario Rossi' },
@@ -192,17 +192,17 @@ export default function StaffPage() {
                 { label: 'Telefono', key: 'phone', type: 'tel', placeholder: '+39 333...' },
               ].map(f => (
                 <div key={f.key}>
-                  <label className="block text-sm font-medium text-stone-200 mb-1">{f.label}</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{f.label}</label>
                   <input type={f.type} value={(newStaff as Record<string, string>)[f.key]}
                     onChange={e => setNewStaff(s => ({ ...s, [f.key]: e.target.value }))}
-                    className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                    className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
                     placeholder={f.placeholder} />
                 </div>
               ))}
               <div>
-                <label className="block text-sm font-medium text-stone-200 mb-1">Ruolo *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Ruolo *</label>
                 <select value={newStaff.role} onChange={e => setNewStaff(s => ({ ...s, role: e.target.value }))}
-                  className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+                  className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
                   {['MANAGER', 'WAITER', 'KITCHEN', 'CASHIER'].map(r => (
                     <option key={r} value={r}>{ROLE_LABELS[r]}</option>
                   ))}
@@ -212,7 +212,7 @@ export default function StaffPage() {
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowForm(false)} className="flex-1 py-2.5 border border-stone-700/50 rounded-xl text-sm font-medium">Annulla</button>
               <button onClick={() => createStaff.mutate(newStaff)}
-                className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold">
+                className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">
                 Aggiungi
               </button>
             </div>

@@ -60,7 +60,7 @@ const SUMMARY_CARDS = [
 const glassPanel = 'glass-card'
 
 const inputClass = cn(
-  'glass-input rounded-xl px-3 py-2.5 text-sm text-stone-200',
+  'glass-input rounded-xl px-3 py-2.5 text-sm text-slate-700',
   'focus:outline-none focus:ring-2 focus:ring-orange-400/60 focus:border-amber-700/40',
   'transition-all duration-200',
 )
@@ -154,7 +154,7 @@ export default function ReportFiscal() {
                 Libro de Registro Fiscal
               </span>
             </h1>
-            <p className="max-w-xl text-sm text-stone-400/90">
+            <p className="max-w-xl text-sm text-slate-500/90">
               Exportación legal de propinas y facturación · Split IGIC / Propina voluntaria
             </p>
           </div>
@@ -205,10 +205,10 @@ export default function ReportFiscal() {
                 <div className={cn('absolute inset-0 bg-gradient-to-br opacity-60', card.gradient)} />
                 <div className="relative flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                       {card.label}
                     </p>
-                    <p className="mt-2 text-3xl font-black tracking-tight text-stone-100">
+                    <p className="mt-2 text-3xl font-black tracking-tight text-slate-900">
                       {isLoading ? '—' : formatCurrency(summaryValues[i])}
                     </p>
                     <p className="mt-1 text-xs text-stone-500">{card.sub}</p>
@@ -224,7 +224,7 @@ export default function ReportFiscal() {
 
         {/* Filters */}
         <div className={cn(glassPanel, 'p-6 space-y-5')}>
-          <div className="flex items-center gap-2 text-sm font-semibold text-stone-200">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
             <CalendarRange className="h-4 w-4 text-amber-400" />
             Filtro de periodo
           </div>
@@ -246,7 +246,7 @@ export default function ReportFiscal() {
                 onClick={() => setMode(opt.key)}
                 className={cn(
                   'relative z-10 flex-1 min-w-0 rounded-full px-3 py-2.5 text-sm font-semibold transition-colors duration-300',
-                  mode === opt.key ? 'text-white' : 'text-stone-300 hover:text-stone-100',
+                  mode === opt.key ? 'text-white' : 'text-slate-500 hover:text-slate-900',
                 )}
               >
                 {opt.label}
@@ -276,11 +276,11 @@ export default function ReportFiscal() {
 
             {mode === 'range' && (
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full">
-                <label className="flex items-center gap-2 text-sm text-stone-400 w-full sm:w-auto">
+                <label className="flex items-center gap-2 text-sm text-slate-500 w-full sm:w-auto">
                   Desde
                   <input type="date" value={rangeFrom} onChange={e => setRangeFrom(e.target.value)} className={inputClass} />
                 </label>
-                <label className="flex items-center gap-2 text-sm text-stone-400 w-full sm:w-auto">
+                <label className="flex items-center gap-2 text-sm text-slate-500 w-full sm:w-auto">
                   Hasta
                   <input type="date" value={rangeTo} onChange={e => setRangeTo(e.target.value)} className={inputClass} />
                 </label>
@@ -353,16 +353,16 @@ export default function ReportFiscal() {
                                 'group-hover:border-orange-200/60 group-hover:bg-white/[0.08] group-hover:shadow-lg group-hover:shadow-orange-100/30',
                               )}
                             >
-                              <span className="whitespace-nowrap text-stone-300">
+                              <span className="whitespace-nowrap text-slate-500">
                                 {row.fecha ? fmtDate(row.fecha) : '—'}
                               </span>
-                              <span className="flex items-center gap-1.5 font-mono text-xs font-semibold text-stone-200">
+                              <span className="flex items-center gap-1.5 font-mono text-xs font-semibold text-slate-700">
                                 <Hash className="h-3 w-3 text-orange-400" />
                                 {row.orderId.slice(-6).toUpperCase()}
                               </span>
-                              <span className="text-stone-300">{formatCurrency(row.baseImponible)}</span>
-                              <span className="text-stone-400">{formatCurrency(row.igic)}</span>
-                              <span className="font-semibold text-stone-100">{formatCurrency(row.revenueAmount)}</span>
+                              <span className="text-slate-500">{formatCurrency(row.baseImponible)}</span>
+                              <span className="text-slate-500">{formatCurrency(row.igic)}</span>
+                              <span className="font-semibold text-slate-900">{formatCurrency(row.revenueAmount)}</span>
                               <span className="font-medium text-amber-600">{formatCurrency(row.tipAmount)}</span>
                               <span className="font-bold text-amber-400">{formatCurrency(row.total)}</span>
                             </div>

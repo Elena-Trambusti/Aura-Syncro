@@ -129,13 +129,13 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-stone-800/50">
           <div>
-            <h2 className="text-lg font-bold text-stone-100">Tavolo {table.number}</h2>
-            <p className="text-sm text-stone-400">{table.seats} posti</p>
+            <h2 className="text-lg font-bold text-slate-900">Tavolo {table.number}</h2>
+            <p className="text-sm text-slate-500">{table.seats} posti</p>
           </div>
           <div className="flex items-center gap-3">
             {['menu', 'order'].map(t => (
               <button key={t} onClick={() => setTab(t as 'menu' | 'order')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === t ? 'bg-amber-600 text-white' : 'bg-stone-800/50 text-stone-300'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === t ? 'bg-amber-600 text-white' : 'bg-stone-800/50 text-slate-500'}`}
               >
                 {t === 'menu' ? 'Menu' : 'Ordine'}
                 {t === 'order' && activeOrder && (
@@ -146,7 +146,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
               </button>
             ))}
             <button onClick={onClose} className="p-2 hover:bg-stone-800/50 rounded-lg">
-              <X className="w-5 h-5 text-stone-400" />
+              <X className="w-5 h-5 text-slate-500" />
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`w-full text-left px-3 py-2.5 text-sm font-medium transition-colors ${(selectedCategory || categories[0]?.id) === cat.id ? 'bg-amber-950/30 text-amber-400 border-r-2 border-orange-500' : 'text-stone-300 hover:glass-table-head'}`}
+                    className={`w-full text-left px-3 py-2.5 text-sm font-medium transition-colors ${(selectedCategory || categories[0]?.id) === cat.id ? 'bg-amber-950/30 text-amber-400 border-r-2 border-orange-500' : 'text-slate-500 hover:glass-table-head'}`}
                   >
                     {cat.name}
                   </button>
@@ -178,7 +178,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                         onClick={() => addToCart(item)}
                         className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${inCart ? 'border-orange-400 bg-amber-950/30' : 'border-stone-800/50 hover:border-amber-700/40 hover:bg-stone-800/40/50'}`}
                       >
-                        <p className="text-sm font-semibold text-stone-100">{item.name}</p>
+                        <p className="text-sm font-semibold text-slate-900">{item.name}</p>
                         <div className="flex items-center justify-between mt-2">
                           <p className="text-base font-bold text-amber-400">{formatCurrency(item.price)}</p>
                           {inCart && (
@@ -205,7 +205,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                   <div className="p-3 border-b border-stone-800/50">
                     <div className="flex items-center gap-2">
                       <ShoppingCart className="w-4 h-4 text-amber-400" />
-                      <span className="text-sm font-semibold text-stone-200">Carrello ({cart.reduce((s, c) => s + c.quantity, 0)})</span>
+                      <span className="text-sm font-semibold text-slate-700">Carrello ({cart.reduce((s, c) => s + c.quantity, 0)})</span>
                     </div>
                   </div>
                   <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -217,21 +217,21 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                           <button onClick={() => addToCart({ id: item.menuItemId, name: item.name, price: item.price, available: true, category: { name: '' } })}><Plus className="w-3 h-3 text-amber-400" /></button>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-stone-200 truncate">{item.name}</p>
-                          <p className="text-xs text-stone-400">{formatCurrency(item.price * item.quantity)}</p>
+                          <p className="text-xs font-medium text-slate-700 truncate">{item.name}</p>
+                          <p className="text-xs text-slate-500">{formatCurrency(item.price * item.quantity)}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                   <div className="p-3 border-t border-stone-800/50">
-                    <div className="flex justify-between text-sm font-bold text-stone-100 mb-3">
+                    <div className="flex justify-between text-sm font-bold text-slate-900 mb-3">
                       <span>Totale</span>
                       <span>{formatCurrency(cartTotal)}</span>
                     </div>
                     <button
                       onClick={handleSendOrder}
                       disabled={createOrder.isPending || addToOrder.isPending}
-                      className="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60"
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60"
                     >
                       Invia in cucina
                     </button>
@@ -255,10 +255,10 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                     {activeOrder.items.map(item => (
                       <div key={item.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="w-6 h-6 shrink-0 bg-stone-800/50 text-stone-300 rounded-full flex items-center justify-center text-xs font-bold">{item.quantity}</span>
-                          <span className="text-sm text-stone-200 truncate">{item.menuItem.name}</span>
+                          <span className="w-6 h-6 shrink-0 bg-stone-800/50 text-slate-500 rounded-full flex items-center justify-center text-xs font-bold">{item.quantity}</span>
+                          <span className="text-sm text-slate-700 truncate">{item.menuItem.name}</span>
                         </div>
-                        <span className="text-sm text-stone-400 shrink-0 ml-3">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                        <span className="text-sm text-slate-500 shrink-0 ml-3">{formatCurrency(item.unitPrice * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
@@ -269,7 +269,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-stone-400">¿Añadir propina voluntaria?</span>
+                      <span className="text-sm text-slate-500">¿Añadir propina voluntaria?</span>
                       <div className="flex gap-2 shrink-0">
                         <button
                           type="button"
@@ -277,7 +277,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                           className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                             !wantsTip
                               ? 'bg-slate-800 text-white'
-                              : 'bg-stone-800/50 text-stone-400 hover:bg-slate-200'
+                              : 'bg-stone-800/50 text-slate-500 hover:bg-slate-200'
                           }`}
                         >
                           No
@@ -288,7 +288,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                           className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                             wantsTip
                               ? 'bg-slate-800 text-white'
-                              : 'bg-stone-800/50 text-stone-400 hover:bg-slate-200'
+                              : 'bg-stone-800/50 text-slate-500 hover:bg-slate-200'
                           }`}
                         >
                           Sí
@@ -305,7 +305,7 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                         onChange={e => setTipAmount(e.target.value)}
                         placeholder="€ 0,00"
                         autoFocus
-                        className="w-full py-3 rounded-xl border border-stone-700/50 text-sm text-stone-100 text-center placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                        className="w-full py-3 rounded-xl border border-stone-700/50 text-sm text-slate-900 text-center placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
                       />
                     )}
                   </div>
@@ -334,14 +334,14 @@ export default function OrderModal({ table, onClose }: { table: Table; onClose: 
                     + Aggiungi altri piatti
                   </button>
 
-                  <p className="text-xs text-stone-400 text-center pt-2">
+                  <p className="text-xs text-slate-500 text-center pt-2">
                     *Propina voluntaria exenta de IGIC
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                  <ShoppingCart className="w-12 h-12 text-stone-300 mb-3" />
-                  <p className="text-stone-400 font-medium">Nessun ordine aperto</p>
+                  <ShoppingCart className="w-12 h-12 text-slate-500 mb-3" />
+                  <p className="text-slate-500 font-medium">Nessun ordine aperto</p>
                   <button onClick={() => setTab('menu')} className="mt-3 text-amber-400 text-sm font-medium hover:underline">
                     Apri il menu per ordinare
                   </button>

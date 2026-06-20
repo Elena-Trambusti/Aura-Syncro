@@ -114,7 +114,7 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
                 minWidth: menuPos.minWidth,
                 zIndex: MENU_Z,
               }}
-              className="py-1 glass-dropdown"
+              className="py-1 saas-dropdown"
             >
               {LANGUAGES.map(lang => {
                 const selected = lang.code === current.code
@@ -126,8 +126,8 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
                       className={cn(
                         'w-full flex items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-left transition-colors',
                         selected
-                          ? 'text-amber-400 bg-stone-800/90'
-                          : 'text-stone-200 hover:bg-stone-800/70 hover:text-stone-50',
+                          ? 'text-amber-600 bg-amber-50'
+                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900',
                       )}
                     >
                       <span>{lang.name}</span>
@@ -152,8 +152,8 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
           'relative flex items-center gap-1.5 font-medium border rounded-lg transition-colors',
           open && 'z-[100000]',
           prominent
-            ? 'px-3 py-2 text-sm text-stone-200 glass-chip hover:bg-white/[0.08] hover:border-amber-700/50 shadow-lg'
-            : 'px-2.5 py-1.5 text-xs text-stone-300 glass-chip hover:bg-white/[0.06] hover:text-stone-100',
+            ? 'px-3 py-2 text-sm text-slate-700 saas-chip hover:bg-slate-50'
+            : 'px-2.5 py-1.5 text-xs text-slate-600 saas-chip hover:bg-slate-50 hover:text-slate-900',
         )}
         aria-label={t('common.selectLanguage')}
         aria-expanded={open}
