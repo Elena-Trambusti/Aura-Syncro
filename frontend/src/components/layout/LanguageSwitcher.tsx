@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Globe, ChevronDown } from 'lucide-react'
+import { Globe, ChevronDown, Check } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 const LANGUAGES = [
-  { code: 'it', label: 'IT', flag: '🇮🇹' },
-  { code: 'en', label: 'EN', flag: '🇬🇧' },
-  { code: 'es', label: 'ES', flag: '🇪🇸' },
-  { code: 'fr', label: 'FR', flag: '🇫🇷' },
-  { code: 'de', label: 'DE', flag: '🇩🇪' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'fr', name: 'Français' },
+  { code: 'de', name: 'Deutsch' },
 ] as const
 
 const STORAGE_KEY = 'aura-lang'
@@ -47,45 +47,47 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
         type="button"
         onClick={() => setOpen(prev => !prev)}
         className={cn(
-          'flex items-center gap-1.5 font-medium border rounded-lg transition-colors',
+          'flex items-center gap-1.5 font-medium border rounded-lg transition-colors max-w-[9.5rem]',
           prominent
             ? 'px-3 py-2 text-sm text-stone-200 border-stone-600/70 bg-stone-900/80 hover:bg-stone-800/90 hover:border-amber-700/50 shadow-lg backdrop-blur-sm'
-            : 'px-2 py-1.5 text-xs text-stone-400 border-stone-700/60 hover:bg-stone-800/50 hover:text-stone-200',
+            : 'px-2.5 py-1.5 text-xs text-stone-300 border-stone-700/60 hover:bg-stone-800/50 hover:text-stone-100',
         )}
         aria-label={t('common.selectLanguage')}
         aria-expanded={open}
         aria-haspopup="listbox"
         title={t('common.selectLanguage')}
       >
-        <Globe className={cn(prominent ? 'w-4 h-4' : 'w-3.5 h-3.5')} />
-        <span>{current.flag}</span>
-        <span>{current.label}</span>
-        <ChevronDown className={cn('opacity-60 transition-transform', prominent ? 'w-3.5 h-3.5' : 'w-3 h-3', open && 'rotate-180')} />
+        <Globe className={cn('shrink-0', prominent ? 'w-4 h-4' : 'w-3.5 h-3.5')} />
+        <span className="truncate">{current.name}</span>
+        <ChevronDown className={cn('shrink-0 opacity-60 transition-transform', prominent ? 'w-3.5 h-3.5' : 'w-3 h-3', open && 'rotate-180')} />
       </button>
 
       {open && (
         <ul
           role="listbox"
           aria-label={t('common.selectLanguage')}
-          className="absolute right-0 top-full mt-1 z-[100] min-w-[8.5rem] py-1 rounded-lg border border-stone-700/80 bg-stone-900 shadow-xl"
+          className="absolute right-0 top-full mt-1 z-[100] min-w-[10.5rem] py-1 rounded-xl border border-stone-700/80 bg-stone-900 shadow-xl"
         >
-          {LANGUAGES.map(lang => (
-            <li key={lang.code} role="option" aria-selected={lang.code === current.code}>
-              <button
-                type="button"
-                onClick={() => changeLanguage(lang.code)}
-                className={cn(
-                  'w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-left transition-colors',
-                  lang.code === current.code
-                    ? 'text-amber-400 bg-stone-800/80'
-                    : 'text-stone-300 hover:bg-stone-800/60 hover:text-stone-100',
-                )}
-              >
-                <span>{lang.flag}</span>
-                <span>{lang.label}</span>
-              </button>
-            </li>
-          ))}
+          {LANGUAGES.map(lang => {
+            const selected = lang.code === current.code
+            return (
+              <li key={lang.code} role="option" aria-selected={selected}>
+                <button
+                  type="button"
+                  onClick={() => changeLanguage(lang.code)}
+                  className={cn(
+                    'w-full flex items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-left transition-colors',
+                    selected
+                      ? 'text-amber-400 bg-stone-800/80'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-stone-100',
+                  )}
+                >
+                  <span>{lang.name}</span>
+                  {selected && <Check className="w-4 h-4 shrink-0" />}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
