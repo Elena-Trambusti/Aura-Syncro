@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
@@ -64,7 +64,7 @@ function AlertCard({ alert }: { alert: Alert }) {
   const styles = {
     danger: { bg: 'bg-red-950/40 border-red-200', icon: AlertTriangle, iconColor: 'text-red-500', titleColor: 'text-red-800' },
     warning: { bg: 'bg-amber-50 border-amber-200', icon: AlertTriangle, iconColor: 'text-amber-500', titleColor: 'text-amber-800' },
-    success: { bg: 'bg-emerald-950/40 border-emerald-200', icon: CheckCircle2, iconColor: 'text-emerald-500', titleColor: 'text-emerald-800' },
+    success: { bg: 'bg-emerald-50 border-emerald-200', icon: CheckCircle2, iconColor: 'text-emerald-600', titleColor: 'text-emerald-800' },
     info: { bg: 'bg-blue-950/40 border-blue-200', icon: Info, iconColor: 'text-blue-500', titleColor: 'text-blue-800' },
   }
   const s = styles[alert.type]
@@ -79,7 +79,7 @@ function AlertCard({ alert }: { alert: Alert }) {
             <span className={`text-xs font-black px-2 py-0.5 rounded-full ${
               alert.type === 'danger' ? 'bg-red-100 text-red-700' :
               alert.type === 'warning' ? 'bg-amber-100 text-amber-700' :
-              alert.type === 'success' ? 'bg-emerald-950/50 text-emerald-400' :
+              alert.type === 'success' ? 'bg-emerald-100 text-emerald-700' :
               'bg-blue-100 text-blue-700'
             }`}>{alert.value}</span>
           )}
@@ -468,13 +468,13 @@ export default function AIPage() {
             <p className="text-sm font-bold text-slate-900">Media mobile</p>
             <p className="text-xs text-stone-500 mt-1">per giorno settimana</p>
           </div>
-          <div className={`rounded-2xl p-4 border shadow-sm ${summary.criticalStock > 0 ? 'bg-red-950/40 border-red-200' : 'bg-emerald-950/40 border-emerald-200'}`}>
+          <div className={`rounded-2xl p-4 border shadow-sm ${summary.criticalStock > 0 ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`}>
             <div className="flex items-center gap-2 mb-2">
-              <ShoppingCart className={`w-4 h-4 ${summary.criticalStock > 0 ? 'text-red-500' : 'text-emerald-500'}`} />
-              <p className={`text-xs font-medium ${summary.criticalStock > 0 ? 'text-red-600' : 'text-emerald-600'}`}>Scorte critiche</p>
+              <ShoppingCart className={`w-4 h-4 ${summary.criticalStock > 0 ? 'text-red-600' : 'text-emerald-600'}`} />
+              <p className={`text-xs font-semibold ${summary.criticalStock > 0 ? 'text-red-800' : 'text-emerald-800'}`}>Scorte critiche</p>
             </div>
             <p className={`text-2xl font-black ${summary.criticalStock > 0 ? 'text-red-700' : 'text-emerald-700'}`}>{summary.criticalStock}</p>
-            <p className={`text-xs mt-1 ${summary.criticalStock > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+            <p className={`text-xs mt-1 font-medium ${summary.criticalStock > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
               {summary.criticalStock > 0 ? 'prodotti da riordinare' : 'tutto nella norma'}
             </p>
           </div>

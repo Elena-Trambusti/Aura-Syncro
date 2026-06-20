@@ -195,14 +195,14 @@ export default function StaffPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">{f.label}</label>
                   <input type={f.type} value={(newStaff as Record<string, string>)[f.key]}
                     onChange={e => setNewStaff(s => ({ ...s, [f.key]: e.target.value }))}
-                    className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                    className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                     placeholder={f.placeholder} />
                 </div>
               ))}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Ruolo *</label>
                 <select value={newStaff.role} onChange={e => setNewStaff(s => ({ ...s, role: e.target.value }))}
-                  className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+                  className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
                   {['MANAGER', 'WAITER', 'KITCHEN', 'CASHIER'].map(r => (
                     <option key={r} value={r}>{ROLE_LABELS[r]}</option>
                   ))}

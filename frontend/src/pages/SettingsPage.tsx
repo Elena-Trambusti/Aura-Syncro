@@ -61,27 +61,27 @@ export default function SettingsPage() {
             <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.restaurantName')}</label>
               <input value={form.name} onChange={e => update('name', e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.phone')}</label>
               <input value={form.phone} onChange={e => update('phone', e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.email')}</label>
               <input type="email" value={form.email} onChange={e => update('email', e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.address')}</label>
               <input value={form.address} onChange={e => update('address', e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.description')}</label>
               <textarea value={form.description} onChange={e => update('description', e.target.value)}
-                className="w-full px-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35 resize-none"
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 resize-none"
                 rows={3} />
             </div>
           </div>

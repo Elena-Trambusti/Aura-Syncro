@@ -1,14 +1,15 @@
 import { useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
+import { LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
   CalendarDays, Users, UserCog, Package, BarChart3, Settings,
   ChefHat, Star, Megaphone, FileText, CreditCard, Brain, Scale, X,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useAuth } from '../../contexts/AuthContext'
 import { getTenantTheme } from '../../lib/tenantTheme'
-import { BRAND } from '../../lib/brand'
+import { BRAND, isLegacyGold } from '../../lib/brand'
+import BrandLogo from '../brand/BrandLogo'
 import { useDashboardLayout } from './DashboardLayout'
 
 const navItems = [
@@ -67,12 +68,7 @@ export default function Sidebar() {
         <div className="p-4 sm:p-6 border-b border-slate-800">
           <div className="flex items-start justify-between gap-2 mb-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: `linear-gradient(135deg, ${BRAND.gold}, ${BRAND.amber})` }}
-              >
-                <Sparkles className="w-5 h-5 text-slate-900" />
-              </div>
+              <BrandLogo size="md" />
               <div className="min-w-0">
                 <p className="font-bold text-sm text-white tracking-wide">{BRAND.name}</p>
                 <p className="text-[10px] text-slate-400 uppercase tracking-widest">{t('brand.saasPlatform')}</p>
@@ -91,8 +87,15 @@ export default function Sidebar() {
             {restaurant?.logoUrl ? (
               <img src={restaurant.logoUrl} alt={restaurant.name} className="w-8 h-8 rounded-lg object-cover shrink-0" />
             ) : (
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: theme.color }}>
-                <UtensilsCrossed className="w-4 h-4 text-slate-900" />
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-sky-300/40"
+                style={{
+                  background: isLegacyGold(restaurant?.colorTheme)
+                    ? BRAND.logoGradient
+                    : theme.color,
+                }}
+              >
+                <UtensilsCrossed className="w-4 h-4 text-white" />
               </div>
             )}
             <p className="text-xs font-medium text-slate-200 truncate">{restaurant?.name || t('common.restaurant')}</p>

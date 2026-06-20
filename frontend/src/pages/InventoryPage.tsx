@@ -30,40 +30,40 @@ function ItemForm({ item, onSave, onCancel }: {
             <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Nome prodotto *</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Unità</label>
               <select value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35">
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
                 {['kg', 'g', 'L', 'ml', 'pz', 'casse', 'bottiglie'].map(u => <option key={u}>{u}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Categoria</label>
               <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                 placeholder="Carni, Latticini..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Quantità attuale</label>
               <input type="number" step="0.1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Scorta minima</label>
               <input type="number" step="0.1" value={form.minQuantity} onChange={e => setForm(f => ({ ...f, minQuantity: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Costo/unità (€)</label>
               <input type="number" step="0.01" value={form.cost} onChange={e => setForm(f => ({ ...f, cost: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35" />
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Fornitore</label>
               <input value={form.supplier} onChange={e => setForm(f => ({ ...f, supplier: e.target.value }))}
-                className="w-full px-3 py-2 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+                className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
                 placeholder="Nome fornitore" />
             </div>
           </div>

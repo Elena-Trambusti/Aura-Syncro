@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { api, setTenantHeader } from '../lib/api'
 import { connectSocket, disconnectSocket } from '../lib/socket'
 import { applyTenantCssVars } from '../lib/tenantTheme'
+import { isLegacyGold } from '../lib/brand'
 
 interface User {
   id: string
@@ -114,5 +115,7 @@ export function useAuth() {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useTenantTheme() {
   const { restaurant } = useAuth()
-  return restaurant?.colorTheme ?? '#c9a227'
+  return restaurant?.colorTheme && !isLegacyGold(restaurant.colorTheme)
+    ? restaurant.colorTheme
+    : '#0ea5e9'
 }

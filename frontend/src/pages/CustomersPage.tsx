@@ -1,8 +1,9 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { formatCurrency, formatDate } from '../lib/utils'
+import { ui } from '../lib/ui'
 import { Search, Users, Star, TrendingUp, Award, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -69,14 +70,13 @@ export default function CustomersPage() {
   }
 
   const getSegment = (c: Customer) => {
-    if (c.totalVisits >= 10) return { label: 'VIP', color: 'bg-purple-100 text-purple-700' }
-    if (c.totalVisits >= 5) return { label: 'Fedele', color: 'bg-blue-100 text-blue-700' }
-    if (c.totalVisits >= 2) return { label: 'Abituale', color: 'bg-emerald-950/50 text-emerald-400' }
-    return { label: 'Nuovo', color: 'bg-stone-800/50 text-slate-500' }
+    if (c.totalVisits >= 10) return { label: 'VIP', color: 'bg-purple-100 text-purple-700 border border-purple-200' }
+    if (c.totalVisits >= 5) return { label: 'Fedele', color: 'bg-blue-100 text-blue-700 border border-blue-200' }
+    if (c.totalVisits >= 2) return { label: 'Abituale', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200' }
+    return { label: 'Nuovo', color: 'bg-slate-100 text-slate-600 border border-slate-200' }
   }
 
-  const inputClass =
-    'w-full border border-stone-700/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40'
+  const inputClass = ui.input
 
   return (
     <div className="space-y-6">
@@ -88,10 +88,10 @@ export default function CustomersPage() {
       {/* Statistiche */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: 'Totale', value: customers.length, icon: Users, color: 'glass-table-head0' },
-          { label: 'VIP (10+ visite)', value: customers.filter(c => c.totalVisits >= 10).length, icon: Award, color: 'bg-purple-500' },
-          { label: 'Fedeli (5+ visite)', value: customers.filter(c => c.totalVisits >= 5).length, icon: Star, color: 'bg-blue-950/400' },
-          { label: 'Spesa media', value: formatCurrency(customers.reduce((s, c) => s + c.totalSpent, 0) / Math.max(1, customers.length)), icon: TrendingUp, color: 'bg-emerald-950/400' },
+          { label: 'Totale', value: customers.length, icon: Users, iconBg: 'bg-slate-100', iconColor: 'text-slate-600' },
+          { label: 'VIP (10+ visite)', value: customers.filter(c => c.totalVisits >= 10).length, icon: Award, iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
+          { label: 'Fedeli (5+ visite)', value: customers.filter(c => c.totalVisits >= 5).length, icon: Star, iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+          { label: 'Spesa media', value: formatCurrency(customers.reduce((s, c) => s + c.totalSpent, 0) / Math.max(1, customers.length)), icon: TrendingUp, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
         ].map(s => (
           <div key={s.label} className="glass-card p-4">
             <div className="flex items-center justify-between">
@@ -99,8 +99,8 @@ export default function CustomersPage() {
                 <p className="text-xs font-medium text-slate-500">{s.label}</p>
                 <p className="text-xl font-bold text-slate-900 mt-1">{s.value}</p>
               </div>
-              <div className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center`}>
-                <s.icon className="w-5 h-5 text-white" />
+              <div className={`w-10 h-10 ${s.iconBg} rounded-xl flex items-center justify-center`}>
+                <s.icon className={`w-5 h-5 ${s.iconColor}`} />
               </div>
             </div>
           </div>
@@ -110,11 +110,11 @@ export default function CustomersPage() {
       {/* Ricerca + Nuovo cliente */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative max-w-md flex-1 min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-stone-700/60 rounded-xl bg-stone-950/70 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/35 bg-stone-900/55"
+            className={`${ui.input} w-full pl-10 pr-4 py-2.5`}
             placeholder="Cerca per nome, email, telefono..."
           />
         </div>
@@ -133,7 +133,7 @@ export default function CustomersPage() {
         <div className="flex-1 glass-card overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-stone-800/50 glass-table-head">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">Cliente</th>
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Segmento</th>
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Visite</th>
@@ -142,13 +142,13 @@ export default function CustomersPage() {
                 <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Ultima visita</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-800/40">
+            <tbody className="divide-y divide-slate-200">
               {customers.map(customer => {
                 const segment = getSegment(customer)
                 return (
                   <tr key={customer.id}
                     onClick={() => setSelectedCustomer(customer)}
-                    className="hover:bg-stone-800/40 cursor-pointer transition-colors">
+                    className="hover:bg-slate-50 cursor-pointer transition-colors">
                     <td className="px-5 py-3.5">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{customer.name}</p>
@@ -279,7 +279,7 @@ export default function CustomersPage() {
                   type="button"
                   onClick={() => setShowCreateModal(false)}
                   disabled={createCustomer.isPending}
-                  className="flex-1 border border-stone-700/50 text-slate-500 py-2.5 rounded-xl text-sm font-medium disabled:opacity-60"
+                  className={`flex-1 py-2.5 ${ui.chipInactive} rounded-xl text-sm font-medium disabled:opacity-60`}
                 >
                   Annulla
                 </button>

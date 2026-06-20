@@ -1,5 +1,7 @@
 /** Tenant theme utilities — maps colorTheme hex to Tailwind-compatible classes. */
 
+import { isLegacyGold, LEGACY_GOLD_HEX } from './brand'
+
 export interface TenantTheme {
   color: string
   colorHover: string
@@ -10,17 +12,26 @@ export interface TenantTheme {
   lightText: string
 }
 
-const AURA_GOLD = '#c9a227'
+const AURA_CELESTE = '#0ea5e9'
 
 const PRESETS: Record<string, TenantTheme> = {
-  [AURA_GOLD]: {
-    color: AURA_GOLD,
-    colorHover: '#b8921f',
-    gradientFrom: '#c9a227',
-    gradientTo: '#f59e0b',
-    lightBg: '#fef9c3',
-    lightBorder: '#fde68a',
-    lightText: '#92710a',
+  [AURA_CELESTE]: {
+    color: AURA_CELESTE,
+    colorHover: '#0284c7',
+    gradientFrom: '#38bdf8',
+    gradientTo: '#0ea5e9',
+    lightBg: '#f0f9ff',
+    lightBorder: '#bae6fd',
+    lightText: '#0369a1',
+  },
+  [LEGACY_GOLD_HEX]: {
+    color: AURA_CELESTE,
+    colorHover: '#0284c7',
+    gradientFrom: '#38bdf8',
+    gradientTo: '#0ea5e9',
+    lightBg: '#f0f9ff',
+    lightBorder: '#bae6fd',
+    lightText: '#0369a1',
   },
   '#f97316': {
     color: '#f97316',
@@ -69,10 +80,10 @@ const PRESETS: Record<string, TenantTheme> = {
   },
 }
 
-const DEFAULT_THEME = PRESETS[AURA_GOLD]
+const DEFAULT_THEME = PRESETS[AURA_CELESTE]
 
 export function getTenantTheme(colorTheme?: string | null): TenantTheme {
-  if (!colorTheme) return DEFAULT_THEME
+  if (!colorTheme || isLegacyGold(colorTheme)) return DEFAULT_THEME
   return PRESETS[colorTheme.toLowerCase()] ?? {
     color: colorTheme,
     colorHover: colorTheme,

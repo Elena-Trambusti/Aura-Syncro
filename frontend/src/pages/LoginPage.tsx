@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { BRAND } from '../lib/brand'
 import { ui } from '../lib/ui'
+import BrandLogo from '../components/brand/BrandLogo'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import { formatApiError } from '../lib/errors'
 import toast from 'react-hot-toast'
@@ -38,12 +39,7 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-amber-200"
-            style={{ background: `linear-gradient(135deg, ${BRAND.gold}, ${BRAND.amber})` }}
-          >
-            <Sparkles className="w-9 h-9 text-slate-900" />
-          </div>
+          <BrandLogo size="lg" className="mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{BRAND.name}</h1>
           <p className="text-slate-500 mt-2 text-sm">{t('brand.tagline')}</p>
         </div>
@@ -92,14 +88,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 p-4 rounded-xl border border-amber-200 bg-amber-50">
-            <p className="text-xs font-medium mb-1 text-amber-700">{t('auth.demoCredentials')}</p>
+          <div className="mt-6 p-4 rounded-xl border border-sky-200 bg-sky-50">
+            <p className="text-xs font-medium mb-1 text-sky-700">{t('auth.demoCredentials')}</p>
             <p className="text-xs text-slate-500">{t('auth.demoHint')}</p>
           </div>
 
           <p className="text-center text-sm text-slate-500 mt-4">
             {t('auth.newRestaurant')}{' '}
-            <Link to="/register" className="font-medium text-amber-600 hover:text-amber-700 hover:underline">
+            <Link to="/register" className="font-medium text-sky-600 hover:text-sky-700 hover:underline">
               {t('auth.register')}
             </Link>
           </p>
