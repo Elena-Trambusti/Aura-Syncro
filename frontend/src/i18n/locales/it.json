@@ -485,6 +485,45 @@
     "title": "AI Predittiva",
     "subtitle": "Previsioni e ottimizzazione intelligente"
   },
+  "aiPredictive": {
+    "title": "AI Predittiva Magazzino e Vendite",
+    "subtitle": "Analisi incrociata di storico ordini, giorno settimana e meteo previsto",
+    "engineLabel": "Motore {{version}}",
+    "chartTitle": "Previsione Affluenza prossimi 7 giorni",
+    "chartSubtitle": "Coperti stimati in base allo storico, con aggiustamento meteo",
+    "chartPredicted": "Coperti previsti",
+    "chartHistorical": "Media storica",
+    "alertsTitle": "Alert Intelligenti",
+    "alertsSubtitle": "Suggerimenti operativi generati dal motore predittivo",
+    "refresh": "Aggiorna",
+    "updatedAt": "Aggiornato il {{date}}",
+    "noAlerts": "Nessun alert al momento",
+    "noAlertsHint": "Il sistema monitora scorte, meteo e trend vendite in tempo reale",
+    "severity": {
+      "critical": "Critico",
+      "optimization": "Ottimizzazione",
+      "opportunity": "Opportunità"
+    },
+    "factors": {
+      "orderHistory": "Storico ordini",
+      "dayOfWeek": "Giorno settimana",
+      "weather": "Meteo previsto"
+    },
+    "days": {
+      "sunday": "Domenica",
+      "monday": "Lunedì",
+      "tuesday": "Martedì",
+      "wednesday": "Mercoledì",
+      "thursday": "Giovedì",
+      "friday": "Venerdì",
+      "saturday": "Sabato"
+    },
+    "alerts": {
+      "stockCritical": "Allerta Stock: Previsti {{covers}} coperti {{day}}. La scorta di {{item}} ({{qty}}{{unit}}) è insufficiente. Ordina +{{orderQty}}{{unit}}.",
+      "rainFish": "Previsione Pioggia {{day}}: Riduci gli ordini di {{item}} del {{pct}}% per evitare sprechi di food cost.",
+      "trendDish": "Trend in crescita: \"{{dish}}\" sta vendendo il {{pct}}% in più questa settimana. Aumenta la produzione."
+    }
+  },
   "kitchen": {
     "title": "Schermo Cucina",
     "newOrder": "Nuovo ordine!",

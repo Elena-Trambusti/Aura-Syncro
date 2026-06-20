@@ -468,6 +468,45 @@
     "title": "Predictive KI",
     "subtitle": "Prognosen und intelligente Optimierung"
   },
+  "aiPredictive": {
+    "title": "Predictive KI — Lager & Umsatz",
+    "subtitle": "Kreuzanalyse von Bestellhistorie, Wochentag und Wettervorhersage",
+    "engineLabel": "Engine {{version}}",
+    "chartTitle": "Gästeprognose — nächste 7 Tage",
+    "chartSubtitle": "Geschätzte Gäste basierend auf Historie, wetterbereinigt",
+    "chartPredicted": "Prognostizierte Gäste",
+    "chartHistorical": "Historischer Durchschnitt",
+    "alertsTitle": "Intelligente Alerts",
+    "alertsSubtitle": "Operative Vorschläge der Predictive Engine",
+    "refresh": "Aktualisieren",
+    "updatedAt": "Aktualisiert am {{date}}",
+    "noAlerts": "Keine Alerts im Moment",
+    "noAlertsHint": "Das System überwacht Lager, Wetter und Verkaufstrends in Echtzeit",
+    "severity": {
+      "critical": "Kritisch",
+      "optimization": "Optimierung",
+      "opportunity": "Chance"
+    },
+    "factors": {
+      "orderHistory": "Bestellhistorie",
+      "dayOfWeek": "Wochentag",
+      "weather": "Wettervorhersage"
+    },
+    "days": {
+      "sunday": "Sonntag",
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag"
+    },
+    "alerts": {
+      "stockCritical": "Lager-Alert: {{covers}} Gäste erwartet am {{day}}. {{item}}-Bestand ({{qty}}{{unit}}) unzureichend. +{{orderQty}}{{unit}} bestellen.",
+      "rainFish": "Regenvorhersage {{day}}: {{item}}-Bestellungen um {{pct}}% reduzieren, um Food-Cost-Verschwendung zu vermeiden.",
+      "trendDish": "Wachstumstrend: \"{{dish}}\" verkauft sich diese Woche {{pct}}% mehr. Produktion erhöhen."
+    }
+  },
   "kitchen": {
     "title": "Küchenanzeige",
     "newOrder": "Neue Bestellung!",

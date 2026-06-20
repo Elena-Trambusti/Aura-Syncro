@@ -30,7 +30,7 @@ import PublicMenuPage from './pages/PublicMenuPage'
 import PaymentSuccessPage from './pages/PaymentSuccessPage'
 import PaymentCancelPage from './pages/PaymentCancelPage'
 import PaymentsPage from './pages/PaymentsPage'
-import AIPage from './pages/AIPage'
+import AIPredictivePage from './pages/AIPredictivePage'
 
 function AuthLoadingScreen() {
   const { t } = useTranslation()
@@ -92,7 +92,8 @@ function AppRoutes() {
           <Route path="fiscal" element={<ReportFiscal />} />
         </Route>
         <Route path="pagamenti" element={<PaymentsPage />} />
-        <Route path="ai" element={<AIPage />} />
+        <Route path="dashboard/ai-predictive" element={<AIPredictivePage />} />
+        <Route path="ai" element={<Navigate to="/dashboard/ai-predictive" replace />} />
         <Route path="impostazioni" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

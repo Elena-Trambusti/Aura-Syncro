@@ -19,7 +19,7 @@ const navItems = [
   { to: '/prenotazioni', icon: CalendarDays, labelKey: 'nav.reservations' },
   { to: '/menu', icon: BookOpen, labelKey: 'nav.menu' },
   { to: '/crm', icon: Users, labelKey: 'nav.crm' },
-  { to: '/ai', icon: Brain, labelKey: 'nav.ai' },
+  { to: '/dashboard/ai-predictive', icon: Brain, labelKey: 'nav.ai' },
   { to: '/fedelta', icon: Star, labelKey: 'nav.loyalty' },
   { to: '/marketing', icon: Megaphone, labelKey: 'nav.marketing' },
   { to: '/pagamenti', icon: CreditCard, labelKey: 'nav.payments' },

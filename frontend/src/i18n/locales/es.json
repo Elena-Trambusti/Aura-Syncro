@@ -483,6 +483,45 @@
     "title": "IA Predictiva",
     "subtitle": "Previsiones y optimización inteligente"
   },
+  "aiPredictive": {
+    "title": "IA Predictiva — Almacén y Ventas",
+    "subtitle": "Análisis cruzado de historial de pedidos, día de la semana y clima previsto",
+    "engineLabel": "Motor {{version}}",
+    "chartTitle": "Previsión de afluencia — próximos 7 días",
+    "chartSubtitle": "Cubiertos estimados según historial, ajustados por clima",
+    "chartPredicted": "Cubiertos previstos",
+    "chartHistorical": "Media histórica",
+    "alertsTitle": "Alertas Inteligentes",
+    "alertsSubtitle": "Sugerencias operativas del motor predictivo",
+    "refresh": "Actualizar",
+    "updatedAt": "Actualizado el {{date}}",
+    "noAlerts": "Sin alertas por el momento",
+    "noAlertsHint": "El sistema monitoriza stock, clima y tendencias de ventas en tiempo real",
+    "severity": {
+      "critical": "Crítico",
+      "optimization": "Optimización",
+      "opportunity": "Oportunidad"
+    },
+    "factors": {
+      "orderHistory": "Historial de pedidos",
+      "dayOfWeek": "Día de la semana",
+      "weather": "Clima previsto"
+    },
+    "days": {
+      "sunday": "Domingo",
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado"
+    },
+    "alerts": {
+      "stockCritical": "Alerta de Stock: Previstos {{covers}} cubiertos el {{day}}. El stock de {{item}} ({{qty}}{{unit}}) es insuficiente. Pedir +{{orderQty}}{{unit}}.",
+      "rainFish": "Previsión de lluvia {{day}}: Reduce pedidos de {{item}} un {{pct}}% para evitar desperdicio de food cost.",
+      "trendDish": "Tendencia al alza: \"{{dish}}\" vende un {{pct}}% más esta semana. Aumenta la producción."
+    }
+  },
   "kitchen": {
     "title": "Pantalla Cocina",
     "newOrder": "¡Nuevo pedido!",

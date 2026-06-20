@@ -468,6 +468,45 @@
     "title": "IA Prédictive",
     "subtitle": "Prévisions et optimisation intelligente"
   },
+  "aiPredictive": {
+    "title": "IA Prédictive — Stock et Ventes",
+    "subtitle": "Analyse croisée de l'historique des commandes, du jour de la semaine et de la météo",
+    "engineLabel": "Moteur {{version}}",
+    "chartTitle": "Prévision d'affluence — 7 prochains jours",
+    "chartSubtitle": "Couverts estimés selon l'historique, ajustés à la météo",
+    "chartPredicted": "Couverts prévus",
+    "chartHistorical": "Moyenne historique",
+    "alertsTitle": "Alertes Intelligentes",
+    "alertsSubtitle": "Suggestions opérationnelles du moteur prédictif",
+    "refresh": "Actualiser",
+    "updatedAt": "Mis à jour le {{date}}",
+    "noAlerts": "Aucune alerte pour le moment",
+    "noAlertsHint": "Le système surveille stock, météo et tendances de vente en temps réel",
+    "severity": {
+      "critical": "Critique",
+      "optimization": "Optimisation",
+      "opportunity": "Opportunité"
+    },
+    "factors": {
+      "orderHistory": "Historique commandes",
+      "dayOfWeek": "Jour de la semaine",
+      "weather": "Météo prévue"
+    },
+    "days": {
+      "sunday": "Dimanche",
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi"
+    },
+    "alerts": {
+      "stockCritical": "Alerte Stock : {{covers}} couverts prévus {{day}}. Stock de {{item}} ({{qty}}{{unit}}) insuffisant. Commander +{{orderQty}}{{unit}}.",
+      "rainFish": "Pluie prévue {{day}} : Réduire les commandes de {{item}} de {{pct}}% pour éviter le gaspillage.",
+      "trendDish": "Tendance haussière : \"{{dish}}\" vend {{pct}}% de plus cette semaine. Augmentez la production."
+    }
+  },
   "kitchen": {
     "title": "Écran Cuisine",
     "newOrder": "Nouvelle commande !",

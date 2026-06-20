@@ -1,6 +1,7 @@
 import { Router, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
+import { runPredictiveAnalysis } from '../lib/predictiveAI'
 
 export const aiRouter = Router()
 
@@ -504,4 +505,10 @@ aiRouter.get('/summary', async (req: AuthRequest, res: Response): Promise<void> 
     },
     criticalStock,
   })
+})
+
+// ── 6. AI PREDITTIVA MAGAZZINO E VENDITE ─────────────────────────────────────
+aiRouter.get('/predictive', async (req: AuthRequest, res: Response): Promise<void> => {
+  const result = await runPredictiveAnalysis(req.restaurantId!)
+  res.json(result)
 })

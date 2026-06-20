@@ -483,6 +483,45 @@
     "title": "Predictive AI",
     "subtitle": "Forecasts and intelligent optimisation"
   },
+  "aiPredictive": {
+    "title": "Predictive AI — Inventory & Sales",
+    "subtitle": "Cross-analysis of order history, day of week and weather forecast",
+    "engineLabel": "Engine {{version}}",
+    "chartTitle": "Footfall forecast — next 7 days",
+    "chartSubtitle": "Estimated covers based on history, adjusted for weather",
+    "chartPredicted": "Predicted covers",
+    "chartHistorical": "Historical average",
+    "alertsTitle": "Smart Alerts",
+    "alertsSubtitle": "Operational suggestions from the predictive engine",
+    "refresh": "Refresh",
+    "updatedAt": "Updated {{date}}",
+    "noAlerts": "No alerts at the moment",
+    "noAlertsHint": "The system monitors stock, weather and sales trends in real time",
+    "severity": {
+      "critical": "Critical",
+      "optimization": "Optimisation",
+      "opportunity": "Opportunity"
+    },
+    "factors": {
+      "orderHistory": "Order history",
+      "dayOfWeek": "Day of week",
+      "weather": "Weather forecast"
+    },
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "alerts": {
+      "stockCritical": "Stock Alert: {{covers}} covers expected on {{day}}. {{item}} stock ({{qty}}{{unit}}) is insufficient. Order +{{orderQty}}{{unit}}.",
+      "rainFish": "Rain forecast {{day}}: Reduce {{item}} orders by {{pct}}% to avoid food cost waste.",
+      "trendDish": "Growing trend: \"{{dish}}\" is selling {{pct}}% more this week. Increase production."
+    }
+  },
   "kitchen": {
     "title": "Kitchen Display",
     "newOrder": "New order!",
