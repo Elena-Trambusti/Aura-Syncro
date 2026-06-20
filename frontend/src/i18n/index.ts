@@ -9,13 +9,8 @@ import de from './locales/de.json'
 const STORAGE_KEY = 'aura-lang'
 
 const saved = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-const browserLang = typeof navigator !== 'undefined' ? navigator.language.split('-')[0] : 'it'
 const supported = ['it', 'en', 'es', 'fr', 'de'] as const
-const initial = saved && supported.includes(saved as (typeof supported)[number])
-  ? saved
-  : supported.includes(browserLang as (typeof supported)[number])
-    ? browserLang
-    : 'it'
+const initial = saved && supported.includes(saved as (typeof supported)[number]) ? saved : 'it'
 
 i18n.use(initReactI18next).init({
   resources: {

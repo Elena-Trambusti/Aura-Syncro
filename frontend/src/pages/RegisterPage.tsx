@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Sparkles } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { BRAND } from '../lib/brand'
+import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
@@ -38,9 +39,13 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex items-center justify-center p-4 relative"
       style={{ background: `linear-gradient(135deg, ${BRAND.dark} 0%, #1c1917 50%, #292524 100%)` }}
     >
+      <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
+        <LanguageSwitcher prominent />
+      </div>
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div

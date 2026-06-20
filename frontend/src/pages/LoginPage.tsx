@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Sparkles, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { BRAND } from '../lib/brand'
+import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import { formatApiError } from '../lib/errors'
 import toast from 'react-hot-toast'
 
@@ -30,9 +31,13 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6"
+      className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 relative"
       style={{ background: `linear-gradient(135deg, ${BRAND.dark} 0%, #1c1917 50%, #292524 100%)` }}
     >
+      <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
+        <LanguageSwitcher prominent />
+      </div>
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: BRAND.gold }} />
         <div className="absolute bottom-0 left-1/4 h-72 w-72 rounded-full opacity-10 blur-3xl" style={{ backgroundColor: BRAND.amber }} />
