@@ -1,0 +1,47 @@
+/**
+ * Web App Manifest — icone allineate ad Android (densità + maskable/adaptive).
+ * Genera asset con: npm run generate-pwa-icons
+ */
+const STANDARD_SIZES = [48, 72, 96, 128, 144, 192, 384, 512] as const
+const MASKABLE_SIZES = [192, 512] as const
+
+export const pwaManifest = {
+  id: '/',
+  name: 'Aura Syncro',
+  /** Etichetta sotto l’icona su Android (max ~12 caratteri consigliati) */
+  short_name: 'Aura Syncro',
+  description: 'Gestionale ristoranti SaaS — POS, ordini e cucina in tempo reale',
+  start_url: '/dashboard',
+  scope: '/',
+  display: 'standalone' as const,
+  orientation: 'portrait' as const,
+  theme_color: '#C9A227',
+  background_color: '#C9A227',
+  lang: 'it',
+  categories: ['business', 'food'],
+  icons: [
+    ...STANDARD_SIZES.map(size => ({
+      src: `/pwa/icon-${size}.png`,
+      sizes: `${size}x${size}`,
+      type: 'image/png',
+      purpose: 'any',
+    })),
+    ...MASKABLE_SIZES.map(size => ({
+      src: `/pwa/maskable-${size}.png`,
+      sizes: `${size}x${size}`,
+      type: 'image/png',
+      purpose: 'maskable',
+    })),
+  ],
+}
+
+export const pwaIncludeAssets = [
+  'favicon.svg',
+  ...STANDARD_SIZES.map(s => `pwa/icon-${s}.png`),
+  ...MASKABLE_SIZES.map(s => `pwa/maskable-${s}.png`),
+  'pwa/android/ic_launcher_mdpi.png',
+  'pwa/android/ic_launcher_hdpi.png',
+  'pwa/android/ic_launcher_xhdpi.png',
+  'pwa/android/ic_launcher_xxhdpi.png',
+  'pwa/android/ic_launcher_xxxhdpi.png',
+]

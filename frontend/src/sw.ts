@@ -29,8 +29,8 @@ self.addEventListener('push', (event) => {
   const title = payload.title ?? 'Aura Syncro'
   const options = {
     body: payload.body ?? '',
-    icon: '/pwa/icon-192.png',
-    badge: '/pwa/icon-192.png',
+    icon: '/pwa/maskable-192.png',
+    badge: '/pwa/maskable-192.png',
     tag: payload.tag ?? 'aura-syncro',
     data: {
       url: payload.url ?? '/dashboard/orders',

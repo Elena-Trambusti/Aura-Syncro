@@ -43,7 +43,7 @@ export default function DashboardLayout() {
 
   return (
     <LayoutContext.Provider value={{ sidebarOpen, openSidebar, closeSidebar, toggleSidebar }}>
-      <div className="pwa-app-shell flex h-[100dvh] overflow-hidden bg-slate-50">
+      <div className="pwa-app-shell">
         <Sidebar />
         <div className="dashboard-main flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-50">
           <Header />
