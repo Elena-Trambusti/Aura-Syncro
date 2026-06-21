@@ -475,7 +475,20 @@
     "filterRange": "Zeitraum",
     "from": "Von",
     "to": "Bis",
-    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+    "months": [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember"
+    ],
     "transactionsMeta": "{{count}} Transaktionen · {{period}}",
     "loading": "Steuerdaten werden geladen...",
     "loadError": "Fehler beim Laden der Steuerdaten",
@@ -495,18 +508,35 @@
         "tipExemptNote": "*Freiwilliges Trinkgeld MwSt.-befreit",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "Steuerpflichtig (MwSt.)" },
-          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "MwSt.-befreit · Italien" },
-          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+          "netRevenue": {
+            "label": "Netto-Rechnungsbetrag",
+            "sub": "Steuerpflichtig (MwSt.)"
+          },
+          "tips": {
+            "label": "Trinkgelder Personal gesamt",
+            "sub": "MwSt.-befreit · Italien"
+          },
+          "reconciliation": {
+            "label": "POS-Bankabstimmung",
+            "sub": "Am POS eingezogener Gesamtbetrag"
+          }
         },
         "table": {
-          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "MwSt.",
-          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+          "date": "Datum",
+          "orderId": "Bestell-ID",
+          "taxableBase": "Bemessungsgrundlage",
+          "tax": "MwSt.",
+          "restaurantTotal": "Restaurant-Gesamt",
+          "tip": "Trinkgeld",
+          "collectedTotal": "Eingezogener Gesamtbetrag"
         },
         "pdf": {
           "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
-          "taxId": "USt-IdNr.", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
-          "period": "Zeitraum", "generated": "Erstellt",
+          "taxId": "USt-IdNr.",
+          "taxIdPending": "Noch nicht konfiguriert",
+          "address": "Adresse",
+          "period": "Zeitraum",
+          "generated": "Erstellt",
           "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
           "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
           "summaryReconciliation": "POS-Bankabstimmung gesamt",
@@ -523,18 +553,35 @@
         "tipExemptNote": "*Freiwilliges Trinkgeld IGIC-befreit",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "Steuerpflichtig (IGIC)" },
-          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "IGIC-befreit · Canarias" },
-          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+          "netRevenue": {
+            "label": "Netto-Rechnungsbetrag",
+            "sub": "Steuerpflichtig (IGIC)"
+          },
+          "tips": {
+            "label": "Trinkgelder Personal gesamt",
+            "sub": "IGIC-befreit · Canarias"
+          },
+          "reconciliation": {
+            "label": "POS-Bankabstimmung",
+            "sub": "Am POS eingezogener Gesamtbetrag"
+          }
         },
         "table": {
-          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "IGIC",
-          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+          "date": "Datum",
+          "orderId": "Bestell-ID",
+          "taxableBase": "Bemessungsgrundlage",
+          "tax": "IGIC",
+          "restaurantTotal": "Restaurant-Gesamt",
+          "tip": "Trinkgeld",
+          "collectedTotal": "Eingezogener Gesamtbetrag"
         },
         "pdf": {
           "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
-          "period": "Zeitraum", "generated": "Erstellt",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "Noch nicht konfiguriert",
+          "address": "Adresse",
+          "period": "Zeitraum",
+          "generated": "Erstellt",
           "summaryNet": "Netto-Rechnungsbetrag (IGIC-pflichtig)",
           "summaryTips": "Trinkgelder Personal gesamt (IGIC-befreit)",
           "summaryReconciliation": "POS-Bankabstimmung gesamt",
@@ -551,18 +598,35 @@
         "tipExemptNote": "*Freiwilliges Trinkgeld MwSt.-befreit",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Netto-Rechnungsbetrag", "sub": "MwSt.-pflichtig" },
-          "tips": { "label": "Trinkgelder Personal gesamt", "sub": "MwSt.-befreit · Spanien" },
-          "reconciliation": { "label": "POS-Bankabstimmung", "sub": "Am POS eingezogener Gesamtbetrag" }
+          "netRevenue": {
+            "label": "Netto-Rechnungsbetrag",
+            "sub": "MwSt.-pflichtig"
+          },
+          "tips": {
+            "label": "Trinkgelder Personal gesamt",
+            "sub": "MwSt.-befreit · Spanien"
+          },
+          "reconciliation": {
+            "label": "POS-Bankabstimmung",
+            "sub": "Am POS eingezogener Gesamtbetrag"
+          }
         },
         "table": {
-          "date": "Datum", "orderId": "Bestell-ID", "taxableBase": "Bemessungsgrundlage", "tax": "MwSt.",
-          "restaurantTotal": "Restaurant-Gesamt", "tip": "Trinkgeld", "collectedTotal": "Eingezogener Gesamtbetrag"
+          "date": "Datum",
+          "orderId": "Bestell-ID",
+          "taxableBase": "Bemessungsgrundlage",
+          "tax": "MwSt.",
+          "restaurantTotal": "Restaurant-Gesamt",
+          "tip": "Trinkgeld",
+          "collectedTotal": "Eingezogener Gesamtbetrag"
         },
         "pdf": {
           "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "Noch nicht konfiguriert", "address": "Adresse",
-          "period": "Zeitraum", "generated": "Erstellt",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "Noch nicht konfiguriert",
+          "address": "Adresse",
+          "period": "Zeitraum",
+          "generated": "Erstellt",
           "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
           "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
           "summaryReconciliation": "POS-Bankabstimmung gesamt",
@@ -872,7 +936,10 @@
     "pushError": "Push-Benachrichtigungen konnten nicht aktiviert werden.",
     "pushNoVapid": "VAPID-Schlüssel fehlt auf dem Server. VAPID_PUBLIC_KEY im Backend .env setzen.",
     "pushNoSw": "Service Worker nicht aktiv. Seite neu laden (HTTPS oder localhost erforderlich).",
-    "installHint": "Auf Android: Chrome-Menü → «App installieren» oder «Zum Startbildschirm hinzufügen»."
+    "installHint": "Android: Chrome-Menü → «App installieren». iPhone: Teilen → «Zum Home-Bildschirm».",
+    "installTitle": "Aura Syncro auf dem Gerät installieren",
+    "installApp": "App installieren",
+    "installSuccess": "App installiert! Öffne sie über den Startbildschirm."
   },
   "export": {
     "receipt": "Beleg",

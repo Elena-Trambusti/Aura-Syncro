@@ -872,7 +872,10 @@
     "pushError": "Could not enable push notifications.",
     "pushNoVapid": "VAPID key missing on server. Set VAPID_PUBLIC_KEY in backend .env and restart.",
     "pushNoSw": "Service Worker not active. Reload the page (HTTPS or localhost required).",
-    "installHint": "For the best Android experience: Chrome menu → \"Install app\" or \"Add to Home screen\"."
+    "installHint": "For the best experience on Android: Chrome menu → \"Install app\". On iPhone: Share → \"Add to Home Screen\".",
+    "installTitle": "Install Aura Syncro on your device",
+    "installApp": "Install app",
+    "installSuccess": "App installed! Open it from your Home screen."
   },
   "export": {
     "receipt": "Receipt",

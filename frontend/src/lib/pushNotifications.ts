@@ -1,4 +1,5 @@
 import { api, getApiBaseUrl } from './api'
+import { PWA_ROUTES } from './pwaRoutes'
 
 export class PushSubscribeError extends Error {
   code: 'unsupported' | 'denied' | 'no_vapid' | 'invalid_vapid' | 'no_sw' | 'subscribe_failed' | 'server_error'
@@ -127,7 +128,7 @@ export async function showNativeNotification(
     icon: '/pwa/maskable-192.png',
     badge: '/pwa/maskable-192.png',
     ...rest,
-    data: { url: url ?? '/dashboard/orders', orderId, ...(rest.data as object | undefined) },
+    data: { url: url ?? PWA_ROUTES.orders, orderId, ...(rest.data as object | undefined) },
   } as NotificationOptions)
 }
 

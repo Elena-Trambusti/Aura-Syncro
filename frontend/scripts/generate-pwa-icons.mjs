@@ -88,6 +88,22 @@ for (const size of STANDARD_SIZES) {
 for (const size of MASKABLE_SIZES) {
   await writeMaskableIcon(size)
 }
+
+/** iOS home screen — 180×180 con zona sicura */
+{
+  const size = 180
+  const logoSize = Math.round(size * 0.58)
+  const offset = Math.round((size - logoSize) / 2)
+  const logo = await sharp(svg).resize(logoSize, logoSize).png().toBuffer()
+  await sharp({
+    create: { width: size, height: size, channels: 4, background: BRAND_GOLD },
+  })
+    .composite([{ input: logo, top: offset, left: offset }])
+    .png()
+    .toFile(join(outDir, 'apple-touch-icon.png'))
+  console.log('  apple-touch-icon.png')
+}
+
 console.log('Generating Android adaptive icons…')
 for (const { name, size } of ADAPTIVE_DENSITIES) {
   await writeAdaptivePair(size, name)

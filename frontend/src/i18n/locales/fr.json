@@ -475,7 +475,20 @@
     "filterRange": "Plage",
     "from": "De",
     "to": "À",
-    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+    "months": [
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre"
+    ],
     "transactionsMeta": "{{count}} transactions · {{period}}",
     "loading": "Chargement des données fiscales...",
     "loadError": "Erreur lors du chargement des données fiscales",
@@ -495,18 +508,35 @@
         "tipExemptNote": "*Pourboire volontaire exempt de TVA",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturé Net", "sub": "Soumis à l'impôt (TVA)" },
-          "tips": { "label": "Total Pourboires Personnel", "sub": "Exempt de TVA · Italie" },
-          "reconciliation": { "label": "Rapprochement Bancaire POS", "sub": "Total encaissé au POS" }
+          "netRevenue": {
+            "label": "Total Facturé Net",
+            "sub": "Soumis à l'impôt (TVA)"
+          },
+          "tips": {
+            "label": "Total Pourboires Personnel",
+            "sub": "Exempt de TVA · Italie"
+          },
+          "reconciliation": {
+            "label": "Rapprochement Bancaire POS",
+            "sub": "Total encaissé au POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "ID Commande", "taxableBase": "Base imposable", "tax": "TVA",
-          "restaurantTotal": "Total Restaurant", "tip": "Pourboire", "collectedTotal": "Total Encaissé"
+          "date": "Date",
+          "orderId": "ID Commande",
+          "taxableBase": "Base imposable",
+          "tax": "TVA",
+          "restaurantTotal": "Total Restaurant",
+          "tip": "Pourboire",
+          "collectedTotal": "Total Encaissé"
         },
         "pdf": {
           "title": "Registre Pourboires et Facturation — {{restaurant}}",
-          "taxId": "N° TVA", "taxIdPending": "À configurer", "address": "Adresse",
-          "period": "Période", "generated": "Généré",
+          "taxId": "N° TVA",
+          "taxIdPending": "À configurer",
+          "address": "Adresse",
+          "period": "Période",
+          "generated": "Généré",
           "summaryNet": "Total Facturé Net (Soumis à TVA)",
           "summaryTips": "Total Pourboires Personnel (Exempt de TVA)",
           "summaryReconciliation": "Total Rapprochement Bancaire POS",
@@ -523,18 +553,35 @@
         "tipExemptNote": "*Pourboire volontaire exempt d'IGIC",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturé Net", "sub": "Soumis à l'impôt (IGIC)" },
-          "tips": { "label": "Total Pourboires Personnel", "sub": "Exempt d'IGIC · Canarias" },
-          "reconciliation": { "label": "Rapprochement Bancaire POS", "sub": "Total encaissé au POS" }
+          "netRevenue": {
+            "label": "Total Facturé Net",
+            "sub": "Soumis à l'impôt (IGIC)"
+          },
+          "tips": {
+            "label": "Total Pourboires Personnel",
+            "sub": "Exempt d'IGIC · Canarias"
+          },
+          "reconciliation": {
+            "label": "Rapprochement Bancaire POS",
+            "sub": "Total encaissé au POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "ID Commande", "taxableBase": "Base imposable", "tax": "IGIC",
-          "restaurantTotal": "Total Restaurant", "tip": "Pourboire", "collectedTotal": "Total Encaissé"
+          "date": "Date",
+          "orderId": "ID Commande",
+          "taxableBase": "Base imposable",
+          "tax": "IGIC",
+          "restaurantTotal": "Total Restaurant",
+          "tip": "Pourboire",
+          "collectedTotal": "Total Encaissé"
         },
         "pdf": {
           "title": "Registre Pourboires et Facturation — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "À configurer", "address": "Adresse",
-          "period": "Période", "generated": "Généré",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "À configurer",
+          "address": "Adresse",
+          "period": "Période",
+          "generated": "Généré",
           "summaryNet": "Total Facturé Net (Soumis à IGIC)",
           "summaryTips": "Total Pourboires Personnel (Exempt d'IGIC)",
           "summaryReconciliation": "Total Rapprochement Bancaire POS",
@@ -551,18 +598,35 @@
         "tipExemptNote": "*Pourboire volontaire exempt de TVA",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturé Net", "sub": "Soumis à TVA" },
-          "tips": { "label": "Total Pourboires Personnel", "sub": "Exempt de TVA · Espagne" },
-          "reconciliation": { "label": "Rapprochement Bancaire POS", "sub": "Total encaissé au POS" }
+          "netRevenue": {
+            "label": "Total Facturé Net",
+            "sub": "Soumis à TVA"
+          },
+          "tips": {
+            "label": "Total Pourboires Personnel",
+            "sub": "Exempt de TVA · Espagne"
+          },
+          "reconciliation": {
+            "label": "Rapprochement Bancaire POS",
+            "sub": "Total encaissé au POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "ID Commande", "taxableBase": "Base imposable", "tax": "TVA",
-          "restaurantTotal": "Total Restaurant", "tip": "Pourboire", "collectedTotal": "Total Encaissé"
+          "date": "Date",
+          "orderId": "ID Commande",
+          "taxableBase": "Base imposable",
+          "tax": "TVA",
+          "restaurantTotal": "Total Restaurant",
+          "tip": "Pourboire",
+          "collectedTotal": "Total Encaissé"
         },
         "pdf": {
           "title": "Registre Pourboires et Facturation — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "À configurer", "address": "Adresse",
-          "period": "Période", "generated": "Généré",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "À configurer",
+          "address": "Adresse",
+          "period": "Période",
+          "generated": "Généré",
           "summaryNet": "Total Facturé Net (Soumis à TVA)",
           "summaryTips": "Total Pourboires Personnel (Exempt de TVA)",
           "summaryReconciliation": "Total Rapprochement Bancaire POS",
@@ -872,7 +936,10 @@
     "pushError": "Impossible d'activer les notifications push.",
     "pushNoVapid": "Clé VAPID absente sur le serveur. Configurez VAPID_PUBLIC_KEY dans le backend.",
     "pushNoSw": "Service Worker inactif. Rechargez la page (HTTPS ou localhost requis).",
-    "installHint": "Sur Android : menu Chrome → « Installer l'application » ou « Ajouter à l'écran d'accueil »."
+    "installHint": "Android : menu Chrome → « Installer l'application ». iPhone : Partager → « Sur l'écran d'accueil ».",
+    "installTitle": "Installer Aura Syncro sur l'appareil",
+    "installApp": "Installer l'app",
+    "installSuccess": "Application installée ! Ouvrez-la depuis l'écran d'accueil."
   },
   "export": {
     "receipt": "Ticket",

@@ -39,7 +39,7 @@ export async function sendPushToRestaurant(restaurantId: string, payload: PushPa
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
-    url: payload.url ?? '/dashboard/orders',
+    url: payload.url ?? '/ordini',
     orderId: payload.orderId,
     tag: payload.tag ?? (payload.orderId ? `order-${payload.orderId}` : 'aura-syncro'),
   })
@@ -72,7 +72,7 @@ export async function notifyNewOrder(
   await sendPushToRestaurant(restaurantId, {
     title: 'Nuovo ordine',
     body: message,
-    url: '/dashboard/orders',
+    url: '/ordini',
     orderId,
     tag: `order-${orderId}`,
   })

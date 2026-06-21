@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
-import PwaNotificationBanner from './PwaNotificationBanner'
+import PwaNotificationBanner, { PwaInstallHint } from './PwaNotificationBanner'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
 
@@ -48,6 +48,7 @@ export default function DashboardLayout() {
         <div className="dashboard-main flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-slate-50">
           <Header />
           <main className="pwa-main-scroll relative z-0 flex-1 overflow-y-auto overflow-x-hidden p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6 lg:p-8">
+            <PwaInstallHint />
             <PwaNotificationBanner enabled={!!user} />
             <Outlet />
           </main>

@@ -10,7 +10,6 @@ import { cn } from '../lib/utils'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import { useRealtimeTables } from '../hooks/useRealtimeInvalidation'
-import { PwaInstallHint } from '../components/layout/PwaNotificationBanner'
 
 interface MenuItem { id: string; name: string; price: number; available: boolean; category: { name: string } }
 interface OrderItem { id: string; menuItem: MenuItem; quantity: number; unitPrice: number; status: string; notes?: string }
@@ -68,7 +67,6 @@ export default function TablesPage() {
 
   return (
     <div className="pwa-mobile-page">
-      <PwaInstallHint />
       <div className="aura-page-header">
         <div>
           <h1 className="aura-page-title">{t('tables.title')}</h1>

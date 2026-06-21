@@ -475,7 +475,20 @@
     "filterRange": "Rango",
     "from": "Desde",
     "to": "Hasta",
-    "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    "months": [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre"
+    ],
     "transactionsMeta": "{{count}} transacciones · {{period}}",
     "loading": "Cargando datos fiscales...",
     "loadError": "Error al cargar los datos fiscales",
@@ -495,18 +508,35 @@
         "tipExemptNote": "*Propina voluntaria exenta de IVA",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a IVA" },
-          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IVA · Italia" },
-          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+          "netRevenue": {
+            "label": "Total Facturado Neto",
+            "sub": "Sujeto a IVA"
+          },
+          "tips": {
+            "label": "Total Propinas Personal",
+            "sub": "Exento de IVA · Italia"
+          },
+          "reconciliation": {
+            "label": "Conciliación Bancaria POS",
+            "sub": "Total cobrado en TPV"
+          }
         },
         "table": {
-          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IVA",
-          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+          "date": "Fecha",
+          "orderId": "ID Comanda",
+          "taxableBase": "Base Imponible",
+          "tax": "IVA",
+          "restaurantTotal": "Total Restaurante",
+          "tip": "Propina",
+          "collectedTotal": "Total Cobrado"
         },
         "pdf": {
           "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
-          "taxId": "P.IVA", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
-          "period": "Periodo", "generated": "Generado",
+          "taxId": "P.IVA",
+          "taxIdPending": "Pendiente de configuración",
+          "address": "Domicilio",
+          "period": "Periodo",
+          "generated": "Generado",
           "summaryNet": "Total Facturado Neto (Sujeto a IVA)",
           "summaryTips": "Total Propinas Personal (Exento de IVA)",
           "summaryReconciliation": "Total Conciliación Bancaria POS",
@@ -523,18 +553,35 @@
         "tipExemptNote": "*Propina voluntaria exenta de IGIC",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a impuestos (IGIC)" },
-          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IGIC · Canarias" },
-          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+          "netRevenue": {
+            "label": "Total Facturado Neto",
+            "sub": "Sujeto a impuestos (IGIC)"
+          },
+          "tips": {
+            "label": "Total Propinas Personal",
+            "sub": "Exento de IGIC · Canarias"
+          },
+          "reconciliation": {
+            "label": "Conciliación Bancaria POS",
+            "sub": "Total cobrado en TPV"
+          }
         },
         "table": {
-          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IGIC",
-          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+          "date": "Fecha",
+          "orderId": "ID Comanda",
+          "taxableBase": "Base Imponible",
+          "tax": "IGIC",
+          "restaurantTotal": "Total Restaurante",
+          "tip": "Propina",
+          "collectedTotal": "Total Cobrado"
         },
         "pdf": {
           "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
-          "period": "Periodo", "generated": "Generado",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "Pendiente de configuración",
+          "address": "Domicilio",
+          "period": "Periodo",
+          "generated": "Generado",
           "summaryNet": "Total Facturado Neto (Sujeto a Impuestos)",
           "summaryTips": "Total Propinas Personal (Exento de IGIC)",
           "summaryReconciliation": "Total Conciliación Bancaria POS",
@@ -551,18 +598,35 @@
         "tipExemptNote": "*Propina voluntaria exenta de IVA",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a IVA" },
-          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IVA · España" },
-          "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
+          "netRevenue": {
+            "label": "Total Facturado Neto",
+            "sub": "Sujeto a IVA"
+          },
+          "tips": {
+            "label": "Total Propinas Personal",
+            "sub": "Exento de IVA · España"
+          },
+          "reconciliation": {
+            "label": "Conciliación Bancaria POS",
+            "sub": "Total cobrado en TPV"
+          }
         },
         "table": {
-          "date": "Fecha", "orderId": "ID Comanda", "taxableBase": "Base Imponible", "tax": "IVA",
-          "restaurantTotal": "Total Restaurante", "tip": "Propina", "collectedTotal": "Total Cobrado"
+          "date": "Fecha",
+          "orderId": "ID Comanda",
+          "taxableBase": "Base Imponible",
+          "tax": "IVA",
+          "restaurantTotal": "Total Restaurante",
+          "tip": "Propina",
+          "collectedTotal": "Total Cobrado"
         },
         "pdf": {
           "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
-          "taxId": "NIF/CIF", "taxIdPending": "Pendiente de configuración", "address": "Domicilio",
-          "period": "Periodo", "generated": "Generado",
+          "taxId": "NIF/CIF",
+          "taxIdPending": "Pendiente de configuración",
+          "address": "Domicilio",
+          "period": "Periodo",
+          "generated": "Generado",
           "summaryNet": "Total Facturado Neto (Sujeto a IVA)",
           "summaryTips": "Total Propinas Personal (Exento de IVA)",
           "summaryReconciliation": "Total Conciliación Bancaria POS",
@@ -872,7 +936,10 @@
     "pushError": "No se pudieron activar las notificaciones push.",
     "pushNoVapid": "Clave VAPID ausente en el servidor. Configura VAPID_PUBLIC_KEY en el backend.",
     "pushNoSw": "Service Worker inactivo. Recarga la página (requiere HTTPS o localhost).",
-    "installHint": "En Android: menú de Chrome → «Instalar aplicación» o «Añadir a pantalla de inicio»."
+    "installHint": "En Android: menú Chrome → «Instalar aplicación». En iPhone: Compartir → «Añadir a pantalla de inicio».",
+    "installTitle": "Instala Aura Syncro en el dispositivo",
+    "installApp": "Instalar app",
+    "installSuccess": "¡App instalada! Ábrela desde la pantalla de inicio."
   },
   "export": {
     "receipt": "Ticket",
