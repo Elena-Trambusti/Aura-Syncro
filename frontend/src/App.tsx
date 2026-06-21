@@ -30,6 +30,7 @@ import KitchenDisplayPage from './pages/KitchenDisplayPage'
 import PublicMenuPage from './pages/PublicMenuPage'
 import PaymentSuccessPage from './pages/PaymentSuccessPage'
 import PaymentCancelPage from './pages/PaymentCancelPage'
+import PaymentDepositSuccessPage from './pages/PaymentDepositSuccessPage'
 import PaymentsPage from './pages/PaymentsPage'
 import AIPredictivePage from './pages/AIPredictivePage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -68,6 +69,7 @@ function AppRoutes() {
       <Route path="/menu/:slug" element={<PublicMenuPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+      <Route path="/payment/deposit-success" element={<PaymentDepositSuccessPage />} />
       {/* KDS — stesso sbarramento tier della dashboard */}
       <Route
         path="/cucina"
@@ -90,7 +92,7 @@ function AppRoutes() {
         }
       >
         <Route index element={<DashboardPage />} />
-        <Route path="tavoli" element={<TablesPage />} />
+        <Route path="tavoli" element={<RequirePermission permissions={['tables.read']}><TablesPage /></RequirePermission>} />
         <Route path="checkout/:orderId" element={<RequirePermission permissions={['orders.pay']}><CheckoutPage /></RequirePermission>} />
         <Route path="ordini" element={<OrdersPage />} />
         <Route path="menu" element={<MenuPage />} />
@@ -101,7 +103,7 @@ function AppRoutes() {
         <Route path="dashboard/onboarding" element={<OnboardingPage />} />
         <Route path="dashboard/billing" element={<BillingPage />} />
         <Route path="dashboard/staff" element={<RequireRole roles={STAFF_MANAGE_ROLES}><StaffPage /></RequireRole>} />
-        <Route path="magazzino" element={<InventoryPage />} />
+        <Route path="magazzino" element={<RequirePermission permissions={['inventory.read']}><InventoryPage /></RequirePermission>} />
         <Route path="analytics" element={<RequireProPlan><AnalyticsPage /></RequireProPlan>} />
         <Route path="fedelta" element={<RequireProPlan><LoyaltyPage /></RequireProPlan>} />
         <Route path="marketing" element={<RequireProPlan><MarketingPage /></RequireProPlan>} />
@@ -111,7 +113,7 @@ function AppRoutes() {
         </Route>
         <Route path="pagamenti" element={<RequireRole roles={ADMIN_NAV_ROLES}><RequireProPlan><PaymentsPage /></RequireProPlan></RequireRole>} />
         <Route path="dashboard/ai-predictive" element={<RequireProPlan><AIPredictivePage /></RequireProPlan>} />
-        <Route path="dashboard/qr-builder" element={<QRBuilderPage />} />
+        <Route path="dashboard/qr-builder" element={<RequirePermission permissions={['menu.manage']}><QRBuilderPage /></RequirePermission>} />
         <Route path="ai" element={<Navigate to="/dashboard/ai-predictive" replace />} />
         <Route path="impostazioni" element={<RequireRole roles={ADMIN_NAV_ROLES}><SettingsPage /></RequireRole>} />
       </Route>

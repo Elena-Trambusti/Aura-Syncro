@@ -305,6 +305,55 @@ paymentsRouter.get('/session/:sessionId', async (req: Request, res: Response): P
   }
 })
 
+/** Verifica caparra prenotazione dopo redirect Stripe (pagina pubblica) */
+paymentsRouter.get('/deposit-session/:sessionId', async (req: Request, res: Response): Promise<void> => {
+  if (!STRIPE_ENABLED) {
+    res.status(503).json({ error: 'Stripe non configurato' })
+    return
+  }
+
+  try {
+    const sessionId = String(req.params.sessionId)
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    const reservationId = session.metadata?.reservationId
+
+    if (!reservationId) {
+      res.status(400).json({ error: 'Sessione non valida per caparra prenotazione' })
+      return
+    }
+
+    const reservation = await prisma.reservation.findFirst({
+      where: { id: reservationId, depositStripeSessionId: sessionId },
+      select: {
+        guestName: true,
+        covers: true,
+        date: true,
+        depositPaid: true,
+        restaurant: { select: { name: true } },
+      },
+    })
+
+    if (!reservation) {
+      res.status(404).json({ error: 'Prenotazione non trovata' })
+      return
+    }
+
+    res.json({
+      status: session.payment_status,
+      amount: session.amount_total ? session.amount_total / 100 : 0,
+      customerEmail: session.customer_details?.email,
+      reservation: {
+        guestName: reservation.guestName,
+        covers: reservation.covers,
+        date: reservation.date.toISOString(),
+        restaurantName: reservation.restaurant.name,
+      },
+    })
+  } catch {
+    res.status(404).json({ error: 'Sessione non trovata' })
+  }
+})
+
 // ── Webhook Stripe (richiede raw body — gestito in index.ts) ──────────────────
 paymentsRouter.post('/webhook', async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature']
@@ -395,7 +444,7 @@ paymentsRouter.post('/deposit', async (req: Request, res: Response): Promise<voi
       quantity: 1,
     }],
     success_url: `${frontendUrl}/payment/deposit-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${frontendUrl}/reservations?payment=cancelled`,
+    cancel_url: `${frontendUrl.split(',')[0].trim().replace(/\/$/, '')}/payment/cancel?reason=deposit`,
   })
 
   await prisma.reservation.update({

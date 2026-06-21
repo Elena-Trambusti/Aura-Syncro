@@ -7,6 +7,7 @@ import { ChefHat, Clock, CheckCircle2, Flame, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface OrderItem {
   id: string
@@ -164,7 +165,7 @@ export default function KitchenDisplayPage() {
     return () => clearInterval(id)
   }, [])
 
-  const { data: orders = [] } = useQuery<Order[]>({
+  const { data: orders = [], isError } = useQuery<Order[]>({
     queryKey: tq(tk, 'kitchen', 'orders'),
     queryFn: () => api.get('/orders/active').then(r =>
       r.data.filter((o: Order) => !['PAID', 'CANCELLED', 'SERVED'].includes(o.status))
@@ -235,6 +236,14 @@ export default function KitchenDisplayPage() {
   const pending = orders.filter(o => o.status === 'PENDING' || o.status === 'CONFIRMED')
   const preparing = orders.filter(o => o.status === 'PREPARING')
   const ready = orders.filter(o => o.status === 'READY')
+
+  if (isError) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-slate-900 text-white items-center justify-center p-6">
+        <QueryErrorBanner message={t('common.loadError')} />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-slate-900 text-white">

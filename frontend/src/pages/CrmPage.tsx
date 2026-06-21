@@ -10,6 +10,7 @@ import { Search, Users, TrendingUp, Award, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface CustomerListItem {
   id: string
@@ -58,12 +59,12 @@ export default function CrmPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [form, setForm] = useState<NewCustomerForm>(emptyForm)
 
-  const { data: customers = [] } = useQuery<CustomerListItem[]>({
+  const { data: customers = [], isError: customersError } = useQuery<CustomerListItem[]>({
     queryKey: tq(tk, 'customers', search),
     queryFn: () => api.get(`/customers${search ? `?search=${encodeURIComponent(search)}` : ''}`).then(r => r.data),
   })
 
-  const { data: stats } = useQuery<CrmStats>({
+  const { data: stats, isError: statsError } = useQuery<CrmStats>({
     queryKey: tq(tk, 'customers', 'stats'),
     queryFn: () => api.get('/customers/stats').then(r => r.data),
   })
@@ -169,6 +170,8 @@ export default function CrmPage() {
           {t('crm.newCustomer')}
         </button>
       </div>
+
+      {(customersError || statsError) && <QueryErrorBanner />}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {statBlocks.map(s => (

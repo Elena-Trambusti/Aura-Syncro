@@ -14,6 +14,7 @@ import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import { useRealtimeTables } from '../hooks/useRealtimeInvalidation'
 import { useRole } from '../hooks/useRole'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface MenuItem { id: string; name: string; price: number; available: boolean; category: { name: string } }
 interface OrderItem { id: string; menuItem: MenuItem; quantity: number; unitPrice: number; status: string; notes?: string }
@@ -116,7 +117,7 @@ export default function TablesPage() {
   const allAreasKey = t('common.allAreas')
   const [filterArea, setFilterArea] = useState(allAreasKey)
 
-  const { data: tables = [], isLoading } = useQuery<Table[]>({
+  const { data: tables = [], isLoading, isError } = useQuery<Table[]>({
     queryKey: tq(tk, 'tables'),
     queryFn: () => api.get('/tables').then(r => r.data),
   })
@@ -251,7 +252,9 @@ export default function TablesPage() {
         </div>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <QueryErrorBanner />
+      ) : isLoading ? (
         <div className="saas-floor flex justify-center items-center py-20">
           <div className="w-10 h-10 border-4 border-amber-500/40 border-t-amber-500 rounded-full animate-spin" />
         </div>

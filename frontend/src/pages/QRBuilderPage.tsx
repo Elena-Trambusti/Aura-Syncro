@@ -1,4 +1,5 @@
 import { useRef, useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useAuth } from '../contexts/AuthContext'
@@ -14,7 +15,7 @@ const EXPORT_SIZE = 2048
 
 export default function QRBuilderPage() {
   const { t } = useTranslation()
-  const { restaurant } = useAuth()
+  const { restaurant, isLoading } = useAuth()
   const exportCanvasRef = useRef<HTMLCanvasElement>(null)
   const [tableNumber, setTableNumber] = useState('')
 
@@ -44,10 +45,24 @@ export default function QRBuilderPage() {
     toast.success(t('common.linkCopied'))
   }
 
-  if (!restaurant?.slug) {
+  if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-slate-500">{t('common.loading')}</p>
+      </div>
+    )
+  }
+
+  if (!restaurant?.slug) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-slate-600 max-w-md">{t('qrBuilder.slugMissing')}</p>
+        <Link
+          to="/impostazioni"
+          className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+        >
+          {t('qrBuilder.goToSettings')}
+        </Link>
       </div>
     )
   }

@@ -9,6 +9,7 @@ import { useRole } from '../hooks/useRole'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import toast from 'react-hot-toast'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface InventoryItem {
   id: string; name: string; unit: string; quantity: number
@@ -20,6 +21,7 @@ function ItemForm({ item, onSave, onCancel }: {
   onSave: (data: Record<string, unknown>) => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation()
   const [form, setForm] = useState({
     name: item?.name || '', unit: item?.unit || 'kg',
     quantity: item?.quantity || 0, minQuantity: item?.minQuantity || 0,
@@ -28,53 +30,53 @@ function ItemForm({ item, onSave, onCancel }: {
   return (
     <div className="glass-overlay flex items-center justify-center p-4" onClick={onCancel}>
       <div className="glass-modal p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-slate-900 mb-5">{item?.id ? 'Modifica' : 'Nuovo'} Prodotto</h3>
+        <h3 className="text-lg font-bold text-slate-900 mb-5">{item?.id ? t('inventory.editProduct') : t('inventory.newProduct')}</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nome prodotto *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.productName')} *</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Unità</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.unit')}</label>
               <select value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
                 {['kg', 'g', 'L', 'ml', 'pz', 'casse', 'bottiglie'].map(u => <option key={u}>{u}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Categoria</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.category')}</label>
               <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
-                placeholder="Carni, Latticini..." />
+                placeholder={t('inventory.categoryPlaceholder')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Quantità attuale</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.currentQty')}</label>
               <input type="number" step="0.1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Scorta minima</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.minStock')}</label>
               <input type="number" step="0.1" value={form.minQuantity} onChange={e => setForm(f => ({ ...f, minQuantity: parseFloat(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Costo/unità (€)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.costPerUnit')}</label>
               <input type="number" step="0.01" value={form.cost} onChange={e => setForm(f => ({ ...f, cost: parseFloat(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Fornitore</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('inventory.supplier')}</label>
               <input value={form.supplier} onChange={e => setForm(f => ({ ...f, supplier: e.target.value }))}
                 className="w-full px-3 py-2 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
-                placeholder="Nome fornitore" />
+                placeholder={t('inventory.supplierPlaceholder')} />
             </div>
           </div>
         </div>
         <div className="flex gap-3 mt-5">
-          <button onClick={onCancel} className="flex-1 py-2.5 border border-slate-300 rounded-xl text-sm font-medium">Annulla</button>
-          <button onClick={() => onSave(form)} className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">Salva</button>
+          <button onClick={onCancel} className="flex-1 py-2.5 border border-slate-300 rounded-xl text-sm font-medium">{t('common.cancel')}</button>
+          <button onClick={() => onSave(form)} className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">{t('common.save')}</button>
         </div>
       </div>
     </div>
@@ -89,17 +91,19 @@ export default function InventoryPage() {
   const canManageInventory = can('inventory.manage')
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [filterCategory, setFilterCategory] = useState('Tutti')
+  const allCategoriesKey = t('inventory.allCategories')
+  const otherCategoryKey = t('inventory.otherCategory')
+  const [filterCategory, setFilterCategory] = useState(allCategoriesKey)
 
-  const { data } = useQuery<{ items: InventoryItem[]; alerts: InventoryItem[] }>({
+  const { data, isError } = useQuery<{ items: InventoryItem[]; alerts: InventoryItem[] }>({
     queryKey: tq(tk, 'inventory'),
     queryFn: () => api.get('/inventory').then(r => r.data),
   })
   const items = data?.items || []
   const alerts = data?.alerts || []
 
-  const categories = ['Tutti', ...Array.from(new Set(items.map(i => i.category || 'Altro').filter(Boolean)))]
-  const filtered = filterCategory === 'Tutti' ? items : items.filter(i => (i.category || 'Altro') === filterCategory)
+  const categories = [allCategoriesKey, ...Array.from(new Set(items.map(i => i.category || otherCategoryKey).filter(Boolean)))]
+  const filtered = filterCategory === allCategoriesKey ? items : items.filter(i => (i.category || otherCategoryKey) === filterCategory)
 
   const create = useMutation({
     mutationFn: (d: Record<string, unknown>) => api.post('/inventory', d),
@@ -126,28 +130,29 @@ export default function InventoryPage() {
         <div>
           <h1 className="aura-page-title">{t('inventory.title')}</h1>
           <p className="aura-page-subtitle">{t('inventory.subtitle')}</p>
-          <p className="text-slate-500 text-sm mt-1">{items.length} prodotti · Valore: {formatCurrency(totalValue)}</p>
+          <p className="text-slate-500 text-sm mt-1">{t('inventory.summary', { count: items.length, value: formatCurrency(totalValue) })}</p>
         </div>
         {canManageInventory && (
         <button onClick={() => setShowForm(true)}
           className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold">
           <Plus className="w-4 h-4" />
-          Nuovo Prodotto
+          {t('inventory.newProduct')}
         </button>
         )}
       </div>
 
-      {/* Alert scorte */}
+      {isError && <QueryErrorBanner />}
+
       {alerts.length > 0 && (
         <div className="bg-red-950/40 border border-red-200 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <p className="text-sm font-semibold text-red-700">{alerts.length} prodotti sotto scorta minima</p>
+            <p className="text-sm font-semibold text-red-700">{t('inventory.lowStockAlert', { count: alerts.length })}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {alerts.map(a => (
               <span key={a.id} className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-lg">
-                {a.name}: {a.quantity} {a.unit} (min: {a.minQuantity})
+                {t('inventory.lowStockItem', { name: a.name, qty: a.quantity, unit: a.unit, min: a.minQuantity })}
               </span>
             ))}
           </div>
@@ -169,13 +174,13 @@ export default function InventoryPage() {
         <table className="w-full max-w-full">
           <thead>
             <tr className="border-b border-slate-200 glass-table-head">
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">Prodotto</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Categoria</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Quantità</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Scorta min.</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Costo/u</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Valore</th>
-              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">Fornitore</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-5 py-3">{t('inventory.colProduct')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colCategory')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colQty')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colMin')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colCost')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colValue')}</th>
+              <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-3">{t('inventory.colSupplier')}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -222,7 +227,7 @@ export default function InventoryPage() {
                       <button onClick={() => setEditingItem(item)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-700 transition-colors">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => { if (confirm('Eliminare?')) remove.mutate(item.id) }} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-600 hover:text-red-500 transition-colors">
+                      <button onClick={() => { if (confirm(t('inventory.confirmDelete'))) remove.mutate(item.id) }} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-600 hover:text-red-500 transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -237,7 +242,7 @@ export default function InventoryPage() {
         {filtered.length === 0 && (
           <div className="flex flex-col items-center py-12 text-slate-600">
             <Package className="w-10 h-10 mb-2 opacity-30" />
-            <p>Nessun prodotto trovato</p>
+            <p>{t('inventory.noProductsFound')}</p>
           </div>
         )}
       </div>

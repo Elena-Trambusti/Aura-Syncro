@@ -10,6 +10,7 @@ import {
 import { stripeApiKeysUrl, stripePaymentsUrl } from '../lib/stripeDashboard'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface PaymentOrder {
   id: string
@@ -48,10 +49,7 @@ export default function PaymentsPage() {
         <h1 className="aura-page-title">{t('payments.title')}</h1>
         <p className="aura-page-subtitle">{t('payments.subtitle')}</p>
       </div>
-      <div className="rounded-xl border border-red-200 bg-red-50 p-8 flex flex-col items-center gap-3">
-        <AlertCircle className="w-10 h-10 text-red-400" />
-        <p className="text-sm text-red-700">{t('common.loadError')}</p>
-      </div>
+      <QueryErrorBanner />
     </div>
   )
 
@@ -65,7 +63,7 @@ export default function PaymentsPage() {
         <div>
           <h1 className="aura-page-title">{t('payments.title')}</h1>
           <p className="aura-page-subtitle">{t('payments.subtitle')}</p>
-          <p className="text-slate-500 text-sm mt-1">Incassi via Stripe dal menu QR</p>
+          <p className="text-slate-500 text-sm mt-1">{t('payments.heroHint')}</p>
         </div>
         <a
           href={stripePaymentsUrl()}
@@ -74,20 +72,17 @@ export default function PaymentsPage() {
           className="flex items-center gap-2 bg-[#635BFF] hover:bg-[#5248e8] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
-          Dashboard Stripe
+          {t('payments.stripeDashboard')}
         </a>
       </div>
 
-      {/* Banner configurazione */}
       {!data.stripeEnabled && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-amber-800">Stripe non configurato</p>
+            <p className="text-sm font-semibold text-amber-800">{t('payments.stripeNotConfigured')}</p>
             <p className="text-sm text-amber-700 mt-1">
-              Per attivare i pagamenti online, aggiungi le chiavi API nel file{' '}
-              <code className="bg-amber-100 px-1 rounded text-xs">backend/.env</code>.{' '}
-              Ottienile su{' '}
+              {t('payments.stripeNotConfiguredDesc')}{' '}
               <a href={stripeApiKeysUrl()} target="_blank" rel="noopener noreferrer" className="underline font-medium">
                 dashboard.stripe.com
               </a>
@@ -96,45 +91,43 @@ export default function PaymentsPage() {
         </div>
       )}
 
-      {/* KPI */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">Incasso mese</p>
+            <p className="text-sm font-medium text-slate-500">{t('payments.monthRevenue')}</p>
             <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-4.5 h-4.5 text-emerald-600" />
             </div>
           </div>
           <p className="text-2xl font-black text-slate-900">{formatCurrency(data.mese.amount)}</p>
-          <p className="text-xs text-slate-600 mt-1">{data.mese.count} transazioni</p>
+          <p className="text-xs text-slate-600 mt-1">{t('payments.transactions', { count: data.mese.count })}</p>
         </div>
 
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">Scontrino medio</p>
+            <p className="text-sm font-medium text-slate-500">{t('payments.avgTicket')}</p>
             <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
               <CreditCard className="w-4.5 h-4.5 text-blue-600" />
             </div>
           </div>
           <p className="text-2xl font-black text-slate-900">{formatCurrency(avgOrder)}</p>
-          <p className="text-xs text-slate-600 mt-1">per ordine Stripe</p>
+          <p className="text-xs text-slate-600 mt-1">{t('payments.perStripeOrder')}</p>
         </div>
 
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">Totale storico</p>
+            <p className="text-sm font-medium text-slate-500">{t('payments.lifetimeTotal')}</p>
             <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
               <ShoppingBag className="w-4.5 h-4.5 text-purple-600" />
             </div>
           </div>
           <p className="text-2xl font-black text-slate-900">{formatCurrency(data.totale.amount)}</p>
-          <p className="text-xs text-slate-600 mt-1">{data.totale.count} ordini totali</p>
+          <p className="text-xs text-slate-600 mt-1">{t('payments.totalOrders', { count: data.totale.count })}</p>
         </div>
       </div>
 
-      {/* Grafico */}
       <div className="glass-card p-5">
-        <h2 className="text-sm font-bold text-slate-700 mb-4">Incassi mensili {new Date().getFullYear()}</h2>
+        <h2 className="text-sm font-bold text-slate-700 mb-4">{t('payments.monthlyChart', { year: new Date().getFullYear() })}</h2>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={data.mensile} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
             <defs>
@@ -147,7 +140,7 @@ export default function PaymentsPage() {
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={v => `€${v}`} />
             <Tooltip
-              formatter={(v) => [formatCurrency(Number(v) || 0), 'Incasso']}
+              formatter={(v) => [formatCurrency(Number(v) || 0), t('payments.revenueTooltip')]}
               contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
             />
             <Area type="monotone" dataKey="amount" stroke="#635BFF" strokeWidth={2} fill="url(#stripeGrad)" />
@@ -155,16 +148,15 @@ export default function PaymentsPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Ultimi pagamenti */}
       <div className="glass-card overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-200">
-          <h2 className="text-sm font-bold text-slate-700">Ultimi pagamenti</h2>
+          <h2 className="text-sm font-bold text-slate-700">{t('payments.recentPayments')}</h2>
         </div>
         {data.recentPayments.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-slate-600">
             <CreditCard className="w-10 h-10 mb-2 opacity-30" />
-            <p className="text-sm">Nessun pagamento digitale ancora</p>
-            <p className="text-xs mt-1">I pagamenti dal menu QR appariranno qui</p>
+            <p className="text-sm">{t('payments.noPaymentsYet')}</p>
+            <p className="text-xs mt-1">{t('payments.noPaymentsHint')}</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-200">
@@ -178,8 +170,12 @@ export default function PaymentsPage() {
                     {order.items.map(i => `${i.quantity}× ${i.menuItem.name}`).join(', ')}
                   </p>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    {order.table ? `Tavolo ${order.table.number}` : order.type === 'TAKEAWAY' ? 'Asporto' : 'QR'}
-                    {order.paidAt && ` · ${new Date(order.paidAt).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+                    {order.table
+                      ? t('payments.tableOrder', { number: order.table.number })
+                      : order.type === 'TAKEAWAY'
+                        ? t('payments.takeaway')
+                        : t('payments.qrOrder')}
+                    {order.paidAt && ` · ${new Date(order.paidAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
                   </p>
                 </div>
                 <span className="text-base font-black text-emerald-600">{formatCurrency(order.total)}</span>
@@ -189,17 +185,16 @@ export default function PaymentsPage() {
         )}
       </div>
 
-      {/* Guida attivazione */}
       <div className="bg-gradient-to-br from-[#635BFF]/5 to-purple-50 border border-purple-100 rounded-2xl p-5">
         <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
           <CreditCard className="w-4 h-4 text-[#635BFF]" />
-          Come attivare i pagamenti online
+          {t('payments.setupTitle')}
         </h3>
         <ol className="space-y-2 text-sm text-slate-500">
-          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">1.</span> Crea un account su <a href="https://stripe.com" target="_blank" rel="noopener noreferrer" className="text-[#635BFF] underline">stripe.com</a></li>
-          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">2.</span> Vai in <strong>Sviluppatori → Chiavi API</strong> e copia le chiavi di test</li>
-          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">3.</span> Incollale nel file <code className="bg-slate-100 px-1 rounded text-xs">backend/.env</code> (STRIPE_SECRET_KEY e STRIPE_PUBLISHABLE_KEY)</li>
-          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">4.</span> Riavvia il backend — i clienti potranno pagare dal menu QR</li>
+          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">1.</span> {t('payments.setupStep1')}</li>
+          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">2.</span> {t('payments.setupStep2')}</li>
+          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">3.</span> {t('payments.setupStep3')}</li>
+          <li className="flex gap-2"><span className="text-[#635BFF] font-bold">4.</span> {t('payments.setupStep4')}</li>
         </ol>
       </div>
     </div>

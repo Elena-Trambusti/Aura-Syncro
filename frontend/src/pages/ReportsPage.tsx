@@ -10,6 +10,7 @@ import { downloadCSV } from '../lib/export'
 import { useFiscalRegime, useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import { tRegime } from '../lib/fiscalRegime'
+import QueryErrorBanner from '../components/QueryErrorBanner'
 
 interface PLSummary {
   revenue: number; subtotal: number; tax: number; totalDiscount: number; orders: number
@@ -33,25 +34,27 @@ export default function ReportsPage() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1)
   const [activeTab, setActiveTab] = useState<'pl' | 'foodcost' | 'annuale'>('pl')
 
-  const { data: plData } = useQuery<PLData>({
+  const { data: plData, isError: plError } = useQuery<PLData>({
     queryKey: tq(tk, 'reports', 'pl', selectedYear, selectedMonth),
     queryFn: () => api.get(`/reports/pl?year=${selectedYear}&month=${selectedMonth}`).then(r => r.data),
   })
 
-  const { data: foodCost = [] } = useQuery<FoodCostItem[]>({
+  const { data: foodCost = [], isError: foodError } = useQuery<FoodCostItem[]>({
     queryKey: tq(tk, 'reports', 'foodcost'),
     queryFn: () => api.get('/reports/food-cost').then(r => r.data),
   })
 
-  const { data: categories = [] } = useQuery<CategoryData[]>({
+  const { data: categories = [], isError: catError } = useQuery<CategoryData[]>({
     queryKey: tq(tk, 'reports', 'categories'),
     queryFn: () => api.get('/reports/categories').then(r => r.data),
   })
 
-  const { data: yearly } = useQuery<YearlyData>({
+  const { data: yearly, isError: yearlyError } = useQuery<YearlyData>({
     queryKey: tq(tk, 'reports', 'yearly', selectedYear),
     queryFn: () => api.get(`/reports/yearly?year=${selectedYear}`).then(r => r.data),
   })
+
+  const hasError = plError || foodError || catError || yearlyError
 
   const exportPL = () => {
     if (!plData) return
@@ -77,7 +80,7 @@ export default function ReportsPage() {
         <div>
           <h1 className="aura-page-title">{t('reports.title')}</h1>
           <p className="aura-page-subtitle">{t('reports.subtitle')}</p>
-          <p className="text-slate-500 text-sm mt-1">P&L, food cost e analisi margini</p>
+          <p className="text-slate-500 text-sm mt-1">{t('reports.heroHint')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -96,22 +99,23 @@ export default function ReportsPage() {
         </div>
       </div>
 
+      {hasError && <QueryErrorBanner message={t('reports.loadError')} />}
+
       {/* Tabs */}
       <div className="flex gap-2 flex-wrap">
         {([
-          { key: 'pl', label: '📊 P&L Mensile', icon: FileText },
-          { key: 'foodcost', label: '🍽 Food Cost', icon: PieChart },
-          { key: 'annuale', label: '📈 Trend Annuale', icon: BarChart2 },
-        ] as const).map(t => (
-          <button key={t.key} onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === t.key ? 'bg-amber-600 text-white' : 'glass-chip hover:bg-slate-50'}`}>
-            {t.label}
+          { key: 'pl', label: t('reports.tabPl'), icon: FileText },
+          { key: 'foodcost', label: t('reports.tabFoodCost'), icon: PieChart },
+          { key: 'annuale', label: t('reports.tabYearly'), icon: BarChart2 },
+        ] as const).map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.key ? 'bg-amber-600 text-white' : 'glass-chip hover:bg-slate-50'}`}>
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {/* P&L */}
-      {activeTab === 'pl' && (
+      {!hasError && activeTab === 'pl' && (
         <div className="space-y-6">
           {/* KPI Cards */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
@@ -182,8 +186,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* Food Cost */}
-      {activeTab === 'foodcost' && (
+      {!hasError && activeTab === 'foodcost' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Categorie */}
@@ -250,7 +253,7 @@ export default function ReportsPage() {
       )}
 
       {/* Trend Annuale */}
-      {activeTab === 'annuale' && (
+      {!hasError && activeTab === 'annuale' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass-card p-5 text-center">
