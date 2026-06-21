@@ -32,10 +32,23 @@ export default function PlatformAdminPage() {
       setRegistrations(data.registrations)
       setMeta({ count: data.count, date: data.filter.date })
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-        ?? 'Impossibile caricare le iscrizioni. Verifica la chiave admin.'
+      const axiosErr = err as { response?: { status?: number; data?: { error?: string } }; message?: string }
+      const status = axiosErr.response?.status
+      const apiError = axiosErr.response?.data?.error
+
+      let msg = apiError ?? 'Impossibile caricare le iscrizioni.'
+      if (status === 401) {
+        msg = 'Chiave admin non valida. Usa la stessa ADMIN_API_KEY impostata su DigitalOcean (non solo quella locale).'
+      } else if (status === 404) {
+        msg = 'Endpoint non disponibile sul backend: DigitalOcean non ha ancora il deploy più recente. Vai su DigitalOcean → Apps → aura-syncro → Activity e avvia un Redeploy, poi riprova tra qualche minuto.'
+      } else if (status === 503) {
+        msg = 'ADMIN_API_KEY non configurata sul server DigitalOcean.'
+      } else if (!status) {
+        msg = 'Backend non raggiungibile. Controlla che DigitalOcean sia online.'
+      }
+
       setError(msg)
-      if ((err as { response?: { status?: number } })?.response?.status === 401) {
+      if (status === 401) {
         clearStoredAdminKey()
         setAuthenticated(false)
         setAdminKey('')
