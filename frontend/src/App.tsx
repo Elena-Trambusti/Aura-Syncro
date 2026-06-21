@@ -36,6 +36,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import BillingPage from './pages/BillingPage'
 import QRBuilderPage from './pages/QRBuilderPage'
 import OnboardingPage from './pages/OnboardingPage'
+import PlatformAdminPage from './pages/PlatformAdminPage'
 import RequireRole from './components/auth/RequireRole'
 import RequireProPlan from './components/auth/RequireProPlan'
 import RequirePermission from './components/auth/RequirePermission'
@@ -62,6 +63,7 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
       <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/platform-admin" element={<PlatformAdminPage />} />
       {/* Pagine pubbliche senza auth */}
       <Route path="/menu/:slug" element={<PublicMenuPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />

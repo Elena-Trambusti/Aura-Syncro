@@ -1,4 +1,5 @@
 import { Router, Response } from 'express'
+import { campaignSendLimiter } from '../middleware/rateLimit'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
@@ -130,7 +131,7 @@ marketingRouter.post('/preview', async (req: AuthRequest, res: Response): Promis
 
 // ── Invio campagna ─────────────────────────────────────────────────────────────
 
-marketingRouter.post('/:id/send', requirePermission('marketing.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
+marketingRouter.post('/:id/send', campaignSendLimiter, requirePermission('marketing.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
   const campaign = await prisma.campaign.findFirst({
     where: scopedWhere(req, req.params.id),
   })

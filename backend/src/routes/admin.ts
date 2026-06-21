@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { requireAdminKey } from '../middleware/adminAuth'
+import { formatRomeDate, formatRomeDateTime } from '../lib/romeDate'
 
 export const adminRouter = Router()
 
@@ -125,6 +126,87 @@ adminRouter.post('/setup-reset', async (req: Request, res: Response): Promise<vo
     success: true,
     message: 'Ristorante rimesso in onboarding',
     restaurant,
+  })
+})
+
+/**
+ * GET /api/admin/registrations
+ * Elenco iscrizioni (OWNER). Query: ?today=true | ?date=YYYY-MM-DD | ?limit=50
+ */
+adminRouter.get('/registrations', async (req: Request, res: Response): Promise<void> => {
+  const today = req.query.today === 'true'
+  const dateParam = typeof req.query.date === 'string' ? req.query.date : undefined
+  const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500)
+
+  const dateFilter = today
+    ? formatRomeDate(new Date())
+    : dateParam?.match(/^\d{4}-\d{2}-\d{2}$/)
+      ? dateParam
+      : null
+
+  const fetchLimit = dateFilter ? 500 : limit
+
+  const owners = await prisma.user.findMany({
+    where: { role: 'OWNER' },
+    orderBy: { createdAt: 'desc' },
+    take: fetchLimit,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      createdAt: true,
+      restaurant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          email: true,
+          isSetupComplete: true,
+          createdAt: true,
+          settings: {
+            select: {
+              hasActiveSubscription: true,
+              planTier: true,
+              countryCode: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  let registrations = owners.map(u => ({
+    userId: u.id,
+    ownerName: u.name,
+    email: u.email,
+    phone: u.phone,
+    registeredAt: u.createdAt,
+    registeredAtRome: formatRomeDateTime(u.createdAt),
+    restaurantId: u.restaurant.id,
+    restaurantName: u.restaurant.name,
+    slug: u.restaurant.slug,
+    restaurantEmail: u.restaurant.email,
+    isSetupComplete: u.restaurant.isSetupComplete,
+    hasActiveSubscription: u.restaurant.settings?.hasActiveSubscription === true,
+    planTier: u.restaurant.settings?.planTier ?? 'BASE',
+    countryCode: u.restaurant.settings?.countryCode ?? 'IT',
+  }))
+
+  if (dateFilter) {
+    registrations = registrations
+      .filter(r => formatRomeDate(r.registeredAt) === dateFilter)
+      .slice(0, limit)
+  }
+
+  res.json({
+    count: registrations.length,
+    filter: {
+      today: today || undefined,
+      date: dateFilter ?? undefined,
+      timezone: 'Europe/Rome',
+    },
+    registrations,
   })
 })
 

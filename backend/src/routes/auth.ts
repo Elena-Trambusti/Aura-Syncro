@@ -8,6 +8,11 @@ import { restaurantPayload } from '../lib/tenant'
 import { getPermissionsForRole } from '../lib/permissions'
 import { settingsForRegistration } from '../lib/taxEngine'
 import { sendEmail } from '../lib/email'
+import {
+  authForgotPasswordLimiter,
+  authLoginLimiter,
+  authRegisterLimiter,
+} from '../middleware/rateLimit'
 
 export const authRouter = Router()
 
@@ -36,7 +41,7 @@ async function findUserWithRestaurant(userId: string, restaurantId: string) {
   })
 }
 
-authRouter.post('/register', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/register', authRegisterLimiter, async (req: Request, res: Response): Promise<void> => {
   const result = registerSchema.safeParse(req.body)
   if (!result.success) {
     res.status(400).json({ error: 'Dati non validi', details: result.error.flatten() })
@@ -96,7 +101,7 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
   })
 })
 
-authRouter.post('/login', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/login', authLoginLimiter, async (req: Request, res: Response): Promise<void> => {
   const result = loginSchema.safeParse(req.body)
   if (!result.success) {
     res.status(400).json({ error: 'Dati non validi' })
@@ -162,7 +167,7 @@ authRouter.get('/me', async (req: Request, res: Response): Promise<void> => {
   }
 })
 
-authRouter.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/forgot-password', authForgotPasswordLimiter, async (req: Request, res: Response): Promise<void> => {
   const parsed = z.object({ email: z.string().email() }).safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Email non valida' })
