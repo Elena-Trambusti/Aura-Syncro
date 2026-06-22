@@ -10,6 +10,8 @@ import { settingsForRegistration } from '../lib/taxEngine'
 import { sendEmail } from '../lib/email'
 import { resolvePrimaryFrontendUrl } from '../lib/frontendUrl'
 import { ensureDefaultTables } from '../lib/defaultTables'
+import { signAuthToken, verifyAuthToken } from '../lib/jwtAuth'
+import { asyncHandler } from '../lib/asyncHandler'
 import {
   authForgotPasswordLimiter,
   authLoginLimiter,
@@ -18,16 +20,19 @@ import {
 
 export const authRouter = Router()
 
+const PASSWORD_MIN = 8
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  restaurantSlug: z.string().min(1).optional(),
 })
 
 const registerSchema = z.object({
   restaurantName: z.string().min(2),
   name: z.string().min(2),
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(PASSWORD_MIN),
   phone: z.string().optional(),
   countryCode: z.nativeEnum(CountryCode).default('IT'),
   taxRegion: z.nativeEnum(TaxRegion).optional(),
@@ -38,12 +43,35 @@ async function findUserWithRestaurant(userId: string, restaurantId: string) {
     where: { id: userId },
     include: { restaurant: { include: { settings: true } } },
   }).then(user => {
-    if (!user || user.restaurantId !== restaurantId) return null
+    if (!user || user.restaurantId !== restaurantId || !user.active) return null
     return user
   })
 }
 
-authRouter.post('/register', authRegisterLimiter, async (req: Request, res: Response): Promise<void> => {
+function issueAuthResponse(user: {
+  id: string
+  name: string
+  email: string
+  role: string
+  restaurantId: string
+  tokenVersion: number
+  restaurant: Parameters<typeof restaurantPayload>[0]
+}) {
+  const token = signAuthToken({
+    id: user.id,
+    restaurantId: user.restaurantId,
+    role: user.role,
+    tokenVersion: user.tokenVersion,
+  })
+  return {
+    token,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    restaurant: restaurantPayload(user.restaurant),
+    permissions: getPermissionsForRole(user.role),
+  }
+}
+
+authRouter.post('/register', authRegisterLimiter, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const result = registerSchema.safeParse(req.body)
   if (!result.success) {
     res.status(400).json({ error: 'Dati non validi', details: result.error.flatten() })
@@ -53,7 +81,7 @@ authRouter.post('/register', authRegisterLimiter, async (req: Request, res: Resp
 
   const existingUser = await prisma.user.findFirst({ where: { email } })
   if (existingUser) {
-    res.status(409).json({ error: 'Email già registrata' })
+    res.status(409).json({ error: 'Email già registrata', code: 'EMAIL_TAKEN' })
     return
   }
 
@@ -91,32 +119,45 @@ authRouter.post('/register', authRegisterLimiter, async (req: Request, res: Resp
   const user = restaurant.users[0]
   await ensureDefaultTables(restaurant.id)
 
-  const token = jwt.sign(
-    { userId: user.id, restaurantId: restaurant.id, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: '7d' },
-  )
+  res.status(201).json(issueAuthResponse({
+    ...user,
+    restaurant,
+  }))
+}))
 
-  res.status(201).json({
-    token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    restaurant: restaurantPayload(restaurant),
-    permissions: getPermissionsForRole(user.role),
-  })
-})
-
-authRouter.post('/login', authLoginLimiter, async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/login', authLoginLimiter, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const result = loginSchema.safeParse(req.body)
   if (!result.success) {
     res.status(400).json({ error: 'Dati non validi' })
     return
   }
-  const { email, password } = result.data
+  const { email, password, restaurantSlug } = result.data
 
-  const user = await prisma.user.findFirst({
+  const candidates = await prisma.user.findMany({
     where: { email, active: true },
     include: { restaurant: { include: { settings: true } } },
   })
+
+  if (candidates.length === 0) {
+    res.status(401).json({ error: 'Credenziali non valide' })
+    return
+  }
+
+  if (candidates.length > 1 && !restaurantSlug) {
+    res.status(409).json({
+      error: 'Email associata a più ristoranti. Inserisci il codice ristorante.',
+      code: 'MULTIPLE_TENANTS',
+      restaurants: candidates.map(u => ({
+        name: u.restaurant.name,
+        slug: u.restaurant.slug,
+      })),
+    })
+    return
+  }
+
+  const user = candidates.length === 1
+    ? candidates[0]
+    : candidates.find(u => u.restaurant.slug === restaurantSlug)
 
   if (!user) {
     res.status(401).json({ error: 'Credenziali non valide' })
@@ -129,58 +170,43 @@ authRouter.post('/login', authLoginLimiter, async (req: Request, res: Response):
     return
   }
 
-  const token = jwt.sign(
-    { userId: user.id, restaurantId: user.restaurantId, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: '7d' },
-  )
+  res.json(issueAuthResponse(user))
+}))
 
-  res.json({
-    token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    restaurant: restaurantPayload(user.restaurant),
-    permissions: getPermissionsForRole(user.role),
-  })
-})
-
-authRouter.get('/me', async (req: Request, res: Response): Promise<void> => {
+authRouter.get('/me', asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ error: 'Token mancante' })
     return
   }
-  try {
-    const token = authHeader.split(' ')[1]
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string
-      restaurantId: string
-      role: string
-    }
-    const user = await findUserWithRestaurant(payload.userId, payload.restaurantId)
-    if (!user) {
-      res.status(404).json({ error: 'Utente non trovato' })
-      return
-    }
-    res.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-      restaurant: restaurantPayload(user.restaurant),
-      permissions: getPermissionsForRole(user.role),
-    })
-  } catch {
-    res.status(401).json({ error: 'Token non valido' })
+  const token = authHeader.split(' ')[1]
+  const payload = verifyAuthToken(token)
+  const user = await findUserWithRestaurant(payload.userId, payload.restaurantId)
+  if (!user) {
+    res.status(401).json({ error: 'Sessione non valida', code: 'SESSION_INVALID' })
+    return
   }
-})
+  if (user.tokenVersion !== (payload.tv ?? 0)) {
+    res.status(401).json({ error: 'Sessione non più valida', code: 'SESSION_REVOKED' })
+    return
+  }
+  res.json({
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    restaurant: restaurantPayload(user.restaurant),
+    permissions: getPermissionsForRole(user.role),
+  })
+}))
 
-authRouter.post('/forgot-password', authForgotPasswordLimiter, async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/forgot-password', authForgotPasswordLimiter, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const parsed = z.object({ email: z.string().email() }).safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Email non valida' })
     return
   }
 
-  const user = await prisma.user.findFirst({ where: { email: parsed.data.email, active: true } })
-  if (user) {
-    const token = jwt.sign(
+  const users = await prisma.user.findMany({ where: { email: parsed.data.email, active: true } })
+  for (const user of users) {
+    const resetToken = jwt.sign(
       { userId: user.id, purpose: 'password-reset' },
       process.env.JWT_SECRET!,
       { expiresIn: '1h' },
@@ -189,17 +215,17 @@ authRouter.post('/forgot-password', authForgotPasswordLimiter, async (req: Reque
     await sendEmail({
       to: user.email,
       subject: 'Reimposta password — Aura Syncro',
-      text: `Clicca per reimpostare la password (valido 1 ora):\n${frontend}/reset-password?token=${token}`,
+      text: `Clicca per reimpostare la password (valido 1 ora):\n${frontend}/reset-password?token=${resetToken}`,
     })
   }
 
   res.json({ success: true, message: 'Se l\'email esiste, riceverai le istruzioni.' })
-})
+}))
 
-authRouter.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/reset-password', asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const parsed = z.object({
     token: z.string().min(1),
-    password: z.string().min(6),
+    password: z.string().min(PASSWORD_MIN),
   }).safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Dati non validi' })
@@ -218,10 +244,13 @@ authRouter.post('/reset-password', async (req: Request, res: Response): Promise<
     const hashed = await bcrypt.hash(parsed.data.password, 12)
     await prisma.user.update({
       where: { id: payload.userId },
-      data: { password: hashed },
+      data: {
+        password: hashed,
+        tokenVersion: { increment: 1 },
+      },
     })
     res.json({ success: true, message: 'Password aggiornata' })
   } catch {
     res.status(400).json({ error: 'Token scaduto o non valido' })
   }
-})
+}))

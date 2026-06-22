@@ -111,6 +111,10 @@ export default function CrmPage() {
         tags: data.tags.trim()
           ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean)
           : [],
+        taxId: data.taxId.trim() || null,
+        fiscalCode: data.fiscalCode.trim() || null,
+        sdiRecipientCode: data.sdiRecipientCode.trim() || null,
+        pec: data.pec.trim() || null,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tq(tk, 'customers') })

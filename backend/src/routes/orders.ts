@@ -12,6 +12,9 @@ import { releaseTableIfEmpty } from '../lib/orderPayment'
 import { computeTaxForExistingOrder, computeTaxForRestaurant } from '../lib/orderTax'
 import { broadcastNewOrderNotification, formatOrderCurrency } from '../lib/orderNotifications'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
+import { deductInventoryForOrder, restoreInventoryForOrderItem } from '../lib/inventoryDeduction'
+import { resolveOrCreateCustomer } from '../lib/customerResolver'
+import { assertMenuItemOrderable } from '../lib/menuStock'
 
 export const ordersRouter = Router()
 
@@ -89,6 +92,9 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   const schema = z.object({
     tableId: z.string().optional(),
     customerId: z.string().optional(),
+    customerEmail: z.string().email().optional(),
+    customerPhone: z.string().min(6).optional(),
+    customerName: z.string().min(2).optional(),
     type: z.enum(['DINE_IN', 'TAKEAWAY', 'DELIVERY']).default('DINE_IN'),
     notes: z.string().optional(),
     items: z.array(z.object({
@@ -104,17 +110,29 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
     return
   }
 
-  const { items, ...orderData } = result.data
+  const { items, customerEmail, customerPhone, customerName, ...orderData } = result.data
+
+  let resolvedCustomerId = orderData.customerId
+  if (!resolvedCustomerId && (customerEmail || customerPhone)) {
+    resolvedCustomerId = await resolveOrCreateCustomer(req.restaurantId!, {
+      email: customerEmail,
+      phone: customerPhone,
+      name: customerName,
+    })
+  }
 
   let itemsWithPrice
   try {
     const menuItems = await prisma.menuItem.findMany({
       where: { id: { in: items.map(i => i.menuItemId) }, restaurantId: tenantId(req) },
+      include: {
+        inventoryLinks: { include: { inventoryItem: { select: { quantity: true } } } },
+      },
     })
     itemsWithPrice = items.map(item => {
       const menuItem = menuItems.find(m => m.id === item.menuItemId)
       if (!menuItem) throw Object.assign(new Error('not found'), { code: 'MENU_ITEM_NOT_FOUND' })
-      if (!menuItem.available) throw Object.assign(new Error('unavailable'), { code: 'MENU_ITEM_UNAVAILABLE' })
+      void assertMenuItemOrderable(menuItem, item.quantity)
       return { ...item, unitPrice: menuItem.price }
     })
   } catch (e) {
@@ -124,36 +142,45 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
       return
     }
     if (code === 'MENU_ITEM_UNAVAILABLE') {
-      res.status(400).json({ error: 'Piatto non disponibile' })
+      res.status(400).json({ error: 'Piatto non disponibile', code })
+      return
+    }
+    if (code === 'MENU_ITEM_SOLD_OUT') {
+      res.status(400).json({ error: 'Piatto esaurito — ingredienti insufficienti', code })
       return
     }
     throw e
   }
 
-  const subtotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(req.restaurantId!, subtotal)
+  const grossTotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+  const { subtotal, tax, total, taxRateApplied } = await computeTaxForRestaurant(req.restaurantId!, grossTotal)
 
-  const order = await prisma.order.create({
-    data: {
-      restaurantId: req.restaurantId!,
-      waiterId: req.userId,
-      subtotal,
-      tax,
-      total,
-      taxRateApplied,
-      revenueAmount: total,
-      tipAmount: 0,
-      ...orderData,
-      items: {
-        create: itemsWithPrice.map(item => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          notes: item.notes,
-        })),
+  const order = await prisma.$transaction(async tx => {
+    const created = await tx.order.create({
+      data: {
+        restaurantId: req.restaurantId!,
+        waiterId: req.userId,
+        subtotal,
+        tax,
+        total,
+        taxRateApplied,
+        revenueAmount: total,
+        tipAmount: 0,
+        ...orderData,
+        customerId: resolvedCustomerId,
+        items: {
+          create: itemsWithPrice.map(item => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            notes: item.notes,
+          })),
+        },
       },
-    },
-    include: orderInclude,
+      include: orderInclude,
+    })
+    await deductInventoryForOrder(tx, created.id, req.restaurantId!)
+    return created
   })
 
   if (orderData.tableId) {
@@ -214,6 +241,12 @@ ordersRouter.patch('/:orderId/items/:itemId/status', async (req: AuthRequest, re
     where: { id: req.params.itemId },
     data: { status: parsed.data },
   })
+
+  if (parsed.data === 'CANCELLED') {
+    await prisma.$transaction(async tx => {
+      await restoreInventoryForOrderItem(tx, req.params.itemId, req.restaurantId!)
+    })
+  }
 
   await syncOrderStatusFromItems(req.params.orderId)
 
@@ -317,25 +350,42 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
 
   const menuItem = await prisma.menuItem.findFirst({
     where: { id: result.data.menuItemId, restaurantId: tenantId(req) },
+    include: {
+      inventoryLinks: { include: { inventoryItem: { select: { quantity: true } } } },
+    },
   })
   if (!menuItem) {
     tenantNotFound(res, 'Piatto non trovato')
     return
   }
-  if (!menuItem.available) {
-    res.status(400).json({ error: 'Piatto non disponibile' })
-    return
+  try {
+    await assertMenuItemOrderable(menuItem, result.data.quantity)
+  } catch (e) {
+    const code = (e as { code?: string }).code
+    if (code === 'MENU_ITEM_UNAVAILABLE') {
+      res.status(400).json({ error: 'Piatto non disponibile', code })
+      return
+    }
+    if (code === 'MENU_ITEM_SOLD_OUT') {
+      res.status(400).json({ error: 'Piatto esaurito — ingredienti insufficienti', code })
+      return
+    }
+    throw e
   }
 
-  const orderItem = await prisma.orderItem.create({
-    data: {
-      orderId: req.params.id,
-      menuItemId: result.data.menuItemId,
-      quantity: result.data.quantity,
-      unitPrice: menuItem.price,
-      notes: result.data.notes,
-    },
-    include: { menuItem: true },
+  const orderItem = await prisma.$transaction(async tx => {
+    const created = await tx.orderItem.create({
+      data: {
+        orderId: req.params.id,
+        menuItemId: result.data.menuItemId,
+        quantity: result.data.quantity,
+        unitPrice: menuItem.price,
+        notes: result.data.notes,
+      },
+      include: { menuItem: true },
+    })
+    await deductInventoryForOrder(tx, req.params.id, tenantId(req))
+    return created
   })
 
   const orderWithItems = await prisma.order.findFirst({
@@ -343,8 +393,8 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     include: { items: true },
   })
   if (orderWithItems) {
-    const subtotal = orderWithItems.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-    const { tax, total, taxRateApplied } = await computeTaxForExistingOrder(orderWithItems, subtotal)
+    const grossTotal = orderWithItems.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
+    const { subtotal, tax, total, taxRateApplied } = await computeTaxForExistingOrder(orderWithItems, grossTotal)
     await prisma.order.updateMany({
       where: scopedWhere(req, req.params.id),
       data: { subtotal, tax, total, taxRateApplied, revenueAmount: total },

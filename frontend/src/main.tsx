@@ -7,12 +7,14 @@ import App from './App'
 import './index.css'
 import { queryClient } from './lib/queryClient'
 import './lib/pwaRegister'
+import ErrorBoundary from './components/ErrorBoundary'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-      <Toaster
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -21,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
           error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
         }}
       />
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>
 )

@@ -10,6 +10,29 @@ export interface FiscalConfig {
   timezone: string
 }
 
+/** Trattamento fiscale mance per regime (sempre esenti da IVA/IGIC sul conto). */
+export type TipTaxTreatment = 'EXEMPT_IT' | 'EXEMPT_IGIC' | 'EXEMPT_IVA'
+
+export type FoodTaxResult = {
+  subtotal: number
+  tax: number
+  /** Totale lordo piatti (imponibile + imposta), senza mancia */
+  total: number
+  taxRateApplied: number
+}
+
+export type RegimeOrderTaxResult = FoodTaxResult & {
+  /** Mancia aggiunta al pagamento — mai inclusa in subtotal/tax */
+  tipAmount: number
+  tipTaxTreatment: TipTaxTreatment
+  /** Lordo soggetto a scorporo (solo piatti) */
+  taxableGross: number
+  /** Totale incassato dal cliente (piatti + mancia) */
+  customerTotal: number
+  /** IT: mancia elettronica tracciata per registro (POS/app) */
+  electronicTipTracked: boolean
+}
+
 export interface RestaurantSettingsLike {
   countryCode?: CountryCode | null
   taxRegion?: TaxRegion | null
@@ -55,7 +78,7 @@ export function resolveTaxRegion(
   if (taxRegion && REGION_META[taxRegion]?.countryCode === countryCode) {
     return taxRegion
   }
-  return countryCode === 'ES' ? 'ES_CANARIAS' : 'IT_MAIN'
+  return countryCode === 'ES' ? 'ES_PENINSULA' : 'IT_MAIN'
 }
 
 export function buildFiscalConfig(settings?: RestaurantSettingsLike | null): FiscalConfig {
@@ -77,11 +100,50 @@ export function buildFiscalConfig(settings?: RestaurantSettingsLike | null): Fis
   }
 }
 
-export function computeOrderTax(subtotal: number, taxRate: number) {
+/**
+ * Scorporo IVA/IGIC da prezzo lordo menu (IVA/IGIC inclusa).
+ * @param grossFoodAmount Somma prezzi menu — NON includere mai la mancia.
+ */
+export function scorporoTaxFromGross(grossFoodAmount: number, taxRate: number): FoodTaxResult {
   const rate = taxRate / 100
-  const tax = roundMoney(subtotal * rate)
-  const total = roundMoney(subtotal + tax)
-  return { subtotal: roundMoney(subtotal), tax, total, taxRateApplied: taxRate }
+  const taxableBase = roundMoney(grossFoodAmount / (1 + rate))
+  const tax = roundMoney(grossFoodAmount - taxableBase)
+  const total = roundMoney(grossFoodAmount)
+  return { subtotal: taxableBase, tax, total, taxRateApplied: taxRate }
+}
+
+/**
+ * Scorporo IVA/IGIC da prezzo lordo (menu IVA inclusa — obbligo ristorazione IT/ES).
+ * @param grossAmount Somma prezzi menu (totale piatti, imposta inclusa). Non passare la mancia.
+ */
+export function computeOrderTax(grossAmount: number, taxRate: number): FoodTaxResult {
+  return scorporoTaxFromGross(grossAmount, taxRate)
+}
+
+export function getTipTaxTreatment(taxRegion: TaxRegion): TipTaxTreatment {
+  if (taxRegion === 'ES_CANARIAS') return 'EXEMPT_IGIC'
+  if (taxRegion === 'ES_PENINSULA') return 'EXEMPT_IVA'
+  return 'EXEMPT_IT'
+}
+
+/**
+ * Calcolo fiscale per regime ristorante: scorporo sui soli piatti, mancia sempre esclusa.
+ */
+export function computeOrderTaxForRegime(
+  config: FiscalConfig,
+  grossFoodAmount: number,
+  tipAmount = 0,
+): RegimeOrderTaxResult {
+  const food = scorporoTaxFromGross(grossFoodAmount, config.taxRate)
+  const tip = roundMoney(Math.max(0, Number(tipAmount) || 0))
+  return {
+    ...food,
+    tipAmount: tip,
+    tipTaxTreatment: getTipTaxTreatment(config.taxRegion),
+    taxableGross: food.total,
+    customerTotal: roundMoney(food.total + tip),
+    electronicTipTracked: config.taxRegion === 'IT_MAIN' && tip > 0,
+  }
 }
 
 export function roundMoney(n: number): number {

@@ -111,7 +111,12 @@
     "yourName": "Ihr Name",
     "yourNamePlaceholder": "Max Mustermann",
     "phonePlaceholder": "+49 170 1234567",
-    "passwordMinLength": "Mindestens 6 Zeichen",
+    "passwordMinLength": "Mindestens 8 Zeichen",
+    "restaurantCode": "Restaurant-Code",
+    "restaurantCodePlaceholder": "z. B. mein-restaurant-1234567890",
+    "restaurantCodeHint": "Steht in der Willkommens-E-Mail oder beim Inhaber erfragen.",
+    "selectRestaurant": "Restaurant auswählen",
+    "multipleTenantsHint": "Ihre E-Mail ist mit mehreren Restaurants verknüpft. Wählen Sie das richtige.",
     "country": "Land des Restaurants",
     "countryIT": "Italien",
     "countryES": "Spanien",
@@ -250,6 +255,7 @@
     "available": "Verfügbar",
     "featured": "Empfohlen",
     "notAvailable": "Nicht verf.",
+    "soldOut": "Ausverkauft",
     "topBadge": "★ Top",
     "dish": "Gericht",
     "prep": "Zub.",
@@ -265,7 +271,19 @@
     "categoryAdded": "Kategorie erstellt",
     "categoryUpdated": "Kategorie aktualisiert",
     "categoryDeleted": "Kategorie gelöscht",
-    "categorySaveError": "Fehler beim Speichern der Kategorie"
+    "categorySaveError": "Fehler beim Speichern der Kategorie",
+    "editRecipe": "Rezept / Zutaten",
+    "recipeTitle": "Gerichtrezept",
+    "recipeDesc": "Lagerbedarf pro Portion «{{dish}}». Wird bei Bestellung automatisch abgezogen.",
+    "recipeIngredient": "Zutat",
+    "recipeSelectIngredient": "Zutat wählen…",
+    "recipeQty": "Menge",
+    "recipeQtyHint": "Z. B. 0,25 kg Mehl pro Pizzaportion.",
+    "recipeAdd": "Zutat hinzufügen",
+    "recipeEmpty": "Keine Zutaten verknüpft. Rezept hinzufügen für automatischen Abzug.",
+    "recipeSaved": "Rezept gespeichert!",
+    "recipeSaveError": "Fehler beim Speichern",
+    "recipeNoInventory": "Erst Zutaten im Lager anlegen."
   },
   "settings": {
     "title": "Einstellungen",
@@ -276,9 +294,14 @@
     "saveChanges": "Änderungen speichern",
     "saved": "Einstellungen gespeichert!",
     "qrMenu": "Digitale Speisekarte QR",
-    "qrMenuDesc": "Ihre Gäste können den QR-Code scannen, um die digitale Speisekarte zu sehen",
+    "qrMenuDesc": "Digitale Speisekarte nur zur Ansicht — QR am Tisch. Kellner nehmen Bestellungen auf.",
     "publicMenuLink": "Öffentlicher Menü-Link:",
     "openMenu": "Menü öffnen",
+    "qrBooking": "Online-Reservierungen",
+    "qrBookingDesc": "Gäste reservieren über diesen Link oder den Reservierungs-QR.",
+    "publicBookingLink": "Reservierungs-Link:",
+    "openBooking": "Reservierung öffnen",
+    "bookingQr": "Reservierungs-QR erstellen",
     "kds": "Küchenanzeige (KDS)",
     "kdsDesc": "Öffnen Sie diesen Link auf einem Tablet oder Monitor in der Küche für Echtzeit-Bestellungen",
     "accountInfo": "Kontoinformationen",
@@ -294,7 +317,16 @@
     "taxId": "Steuer-ID (USt / NIF)",
     "taxRegionIT_MAIN": "Italien",
     "taxRegionES_CANARIAS": "Kanarische Inseln (IGIC)",
-    "taxRegionES_PENINSULA": "Festlandspanien (MwSt.)"
+    "taxRegionES_PENINSULA": "Festlandspanien (MwSt.)",
+    "billingTitle": "Rechnungsdaten",
+    "billingDesc": "Firmenname und Kontakte für E-Rechnung (SDI) und künftige Integrationen",
+    "legalName": "Firmenname (Rechtsträger)",
+    "legalAddress": "Gesetzliche Adresse",
+    "fiscalCode": "Steuernummer",
+    "pec": "PEC",
+    "sdiRecipientCode": "SDI-Empfängercode",
+    "invoicePrefix": "Rechnungsnummer-Präfix",
+    "invoicePrefixHint": "Z.B. FATT → FATT-2026-001"
   },
   "reservations": {
     "title": "Reservierungen",
@@ -376,6 +408,13 @@
       "tags": "Tags",
       "tagsPlaceholder": "VIP, Zöliakie, Rotwein (durch Komma getrennt)",
       "notes": "Notizen / Präferenzen"
+    },
+    "fiscal": {
+      "title": "Steuerdaten (B2B-Rechnung)",
+      "taxId": "USt-IdNr. / NIF",
+      "fiscalCode": "Steuernummer",
+      "sdiRecipientCode": "SDI-Empfängercode",
+      "pec": "PEC"
     },
     "slideOver": {
       "title": "Kundenprofil",
@@ -587,7 +626,11 @@
   },
   "reportFiscal": {
     "exportPdf": "PDF für Prüfung exportieren",
+    "exportCsv": "CSV exportieren",
     "exporting": "Dokument wird erstellt...",
+    "csvGenerated": "CSV erfolgreich exportiert",
+    "legalDisclaimer": "Betriebsdokument für interne Verwaltung und Buchhaltung. Ersetzt keine offiziellen Steuerregister, elektronische Rechnungsstellung (SDI/Verifactu) oder gesetzliche Aufbewahrungspflichten.",
+    "totalTipsNote": "Trinkgelder gesamt (alle): {{total}}",
     "filterPeriod": "Zeitraumfilter",
     "filterDay": "Nach Tag",
     "filterMonth": "Nach Monat",
@@ -632,8 +675,8 @@
             "sub": "Steuerpflichtig (MwSt.)"
           },
           "tips": {
-            "label": "Trinkgelder Personal gesamt",
-            "sub": "MwSt.-befreit · Italien"
+            "label": "Elektronische Trinkgelder (nachverfolgt)",
+            "sub": "MwSt.-befreit · Register Ersatzsteuer 5%"
           },
           "reconciliation": {
             "label": "POS-Bankabstimmung",
@@ -647,7 +690,8 @@
           "tax": "MwSt.",
           "restaurantTotal": "Restaurant-Gesamt",
           "tip": "Trinkgeld",
-          "collectedTotal": "Eingezogener Gesamtbetrag"
+          "collectedTotal": "Eingezogener Gesamtbetrag",
+          "paymentMethod": "POS-Zahlungsart"
         },
         "pdf": {
           "title": "Trinkgeld- & Abrechnungsregister — {{restaurant}}",
@@ -657,7 +701,8 @@
           "period": "Zeitraum",
           "generated": "Erstellt",
           "summaryNet": "Netto-Rechnungsbetrag (MwSt.-pflichtig)",
-          "summaryTips": "Trinkgelder Personal gesamt (MwSt.-befreit)",
+          "summaryTips": "Freiwillige Trinkgelder gesamt (MwSt.-befreit)",
+          "summaryElectronicTips": "Elektronische Trinkgelder (nachverfolgt) — Register Ersatzsteuer 5%",
           "summaryReconciliation": "POS-Bankabstimmung gesamt",
           "footer": "Automatisch erstelltes Dokument · {{count}} Transaktionen · Trinkgelder MwSt.-befreit (italienische Regelung).",
           "filenamePrefix": "steuerregister"
@@ -824,7 +869,12 @@
     "factors": {
       "orderHistory": "Bestellhistorie",
       "dayOfWeek": "Wochentag",
-      "weather": "Wettervorhersage"
+      "weather": "Wettervorhersage",
+      "reservations": "Reservierungen"
+    },
+    "weatherSource": {
+      "openMeteo": "Live-Wetter (Open-Meteo)",
+      "simulated": "Geschätztes Wetter"
     },
     "days": {
       "sunday": "Sonntag",
@@ -885,6 +935,8 @@
     "tax": "MwSt.",
     "orderSent": "Bestellung an Küche gesendet!",
     "dishAdded": "Gericht hinzugefügt!",
+    "soldOut": "Ausverkauft",
+    "soldOutToast": "Gericht ausverkauft — unzureichende Zutaten auf Lager",
     "paymentRegistered": "Zahlung registriert!",
     "paymentError": "Fehler bei der Zahlung",
     "notes": "Notizen",
@@ -1012,6 +1064,7 @@
     "searchResults": "Ergebnisse für „{{query}}“",
     "categories": "Kategorien",
     "featured": "Empfehlung",
+    "soldOut": "Ausverkauft",
     "allergens": "Allergene",
     "prepTime": "{{min}} Min.",
     "noResults": "Keine Gerichte gefunden",
@@ -1041,6 +1094,7 @@
     "paymentCancelled": "Zahlung abgebrochen. Sie können es erneut versuchen.",
     "stripeUnavailable": "Online-Zahlung nicht verfügbar — Sie können bestellen und am Tisch zahlen.",
     "subtotal": "Zwischensumme",
+    "taxableBase": "Bemessungsgrundlage",
     "total": "Gesamt",
     "checkoutError": "Fehler beim Senden der Bestellung",
     "remove": "Entfernen",
@@ -1098,5 +1152,82 @@
     "paymentMethod": "Zahlungsmethode",
     "cash": "Bar",
     "card": "Karte"
+  },
+  "landing": {
+    "meta": {
+      "title": "Aura Syncro — Restaurant-Cloud-Software | Italien, Spanien & Kanaren",
+      "description": "SaaS-Gastronomie für Italien, Spanien und die Kanarischen Inseln. QR-Menü, Bestell- und Tischverwaltung, Stripe-Zahlungen, MwSt./IGIC-Berichte. Aura Syncro testen."
+    },
+    "nav": {
+      "features": "Funktionen",
+      "pricing": "Preise",
+      "login": "Anmelden",
+      "tryNow": "Jetzt testen"
+    },
+    "hero": {
+      "badge": "Italien · Spanien · Kanarische Inseln",
+      "title": "Die Software, die Ihr Restaurant synchron hält",
+      "subtitle": "{{brand}} ist Cloud-Software für strukturierte Gastronomie: schnelles POS, QR-Menü, Echtzeit-Bestellungen und Multi-Länder-Steuercompliance.",
+      "ctaPrimary": "Jetzt testen",
+      "ctaSecondary": "Anmelden"
+    },
+    "features": {
+      "title": "Alles für den laufenden Betrieb",
+      "subtitle": "Vom Gastraum zur Küche, vom digitalen Menü zum Steuerbericht — eine synchronisierte Plattform.",
+      "tables": {
+        "title": "Tischverwaltung",
+        "desc": "Saalplan, Tischstatus und schnelle Bestellaufnahme — null Verzögerung zu Stoßzeiten."
+      },
+      "qrMenu": {
+        "title": "Digitales QR-Menü",
+        "desc": "Gäste bestellen per Smartphone mit Live-Karte und direktem Küchenversand."
+      },
+      "stripe": {
+        "title": "Stripe-Zahlungen",
+        "desc": "Kassieren am Tisch oder online mit Karten und digitalen Wallets, integriert in Bestellungen."
+      },
+      "fiscal": {
+        "title": "Steuerbericht",
+        "desc": "MwSt. in Italien und Festlandspanien, IGIC auf den Kanaren — Exporte für E-Rechnungen."
+      }
+    },
+    "pricing": {
+      "title": "Klare Pläne für jede Wachstumsphase",
+      "subtitle": "Schlüsselfertiges Setup und transparente Monatsgebühr.",
+      "cta": "Test starten",
+      "starter": {
+        "name": "Starter",
+        "tagline": "Täglicher Betrieb in Gastraum und Küche",
+        "price": "Individuelles Angebot",
+        "setup": "",
+        "features": [
+          "Tisch- und Bestellverwaltung",
+          "Digitales Menü und Kategorien",
+          "Küchenmonitor (KDS)",
+          "Reservierungen und Basis-Lager"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "Empfohlen",
+        "tagline": "Komplette Suite für strukturierte Restaurants",
+        "price": "199 €/Monat",
+        "setup": "500 € einmaliges Setup",
+        "features": [
+          "Alles aus Starter",
+          "CRM, Treueprogramm und Marketing",
+          "Predictive AI und Analytics",
+          "Steuerbericht und Stripe-Zahlungen",
+          "Schlüsselfertiges Onboarding"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Cloud-Software für Gastronomie in Italien, Spanien und auf den Kanaren.",
+      "privacy": "Datenschutz",
+      "terms": "Nutzungsbedingungen",
+      "contact": "Kontakt",
+      "rights": "© {{year}} {{brand}}. Alle Rechte vorbehalten."
+    }
   }
 }

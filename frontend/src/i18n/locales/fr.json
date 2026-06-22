@@ -111,7 +111,12 @@
     "yourName": "Votre nom",
     "yourNamePlaceholder": "Jean Dupont",
     "phonePlaceholder": "+33 6 12 34 56 78",
-    "passwordMinLength": "Minimum 6 caractères",
+    "passwordMinLength": "Minimum 8 caractères",
+    "restaurantCode": "Code restaurant",
+    "restaurantCodePlaceholder": "ex. mon-restaurant-1234567890",
+    "restaurantCodeHint": "Indiqué dans l'e-mail de bienvenue ou demandez au gérant.",
+    "selectRestaurant": "Sélectionner le restaurant",
+    "multipleTenantsHint": "Votre e-mail est lié à plusieurs restaurants. Sélectionnez le bon.",
     "country": "Pays du restaurant",
     "countryIT": "Italie",
     "countryES": "Espagne",
@@ -250,6 +255,7 @@
     "available": "Disponible",
     "featured": "En vedette",
     "notAvailable": "Indisp.",
+    "soldOut": "Épuisé",
     "topBadge": "★ Top",
     "dish": "Plat",
     "prep": "Prép.",
@@ -265,7 +271,19 @@
     "categoryAdded": "Catégorie créée",
     "categoryUpdated": "Catégorie mise à jour",
     "categoryDeleted": "Catégorie supprimée",
-    "categorySaveError": "Erreur lors de l'enregistrement"
+    "categorySaveError": "Erreur lors de l'enregistrement",
+    "editRecipe": "Recette / ingrédients",
+    "recipeTitle": "Recette du plat",
+    "recipeDesc": "Quantité de stock par portion de « {{dish}} ». Décomptée automatiquement à la commande.",
+    "recipeIngredient": "Ingrédient",
+    "recipeSelectIngredient": "Choisir un ingrédient…",
+    "recipeQty": "Quantité",
+    "recipeQtyHint": "Ex. 0,25 kg de farine par portion de pizza.",
+    "recipeAdd": "Ajouter un ingrédient",
+    "recipeEmpty": "Aucun ingrédient lié. Ajoutez la recette pour le déstockage automatique.",
+    "recipeSaved": "Recette enregistrée !",
+    "recipeSaveError": "Erreur lors de l'enregistrement",
+    "recipeNoInventory": "Créez d'abord les ingrédients dans Stock."
   },
   "settings": {
     "title": "Paramètres",
@@ -276,9 +294,14 @@
     "saveChanges": "Enregistrer les modifications",
     "saved": "Paramètres enregistrés !",
     "qrMenu": "Menu numérique QR",
-    "qrMenuDesc": "Vos clients peuvent scanner le QR code pour voir le menu numérique",
+    "qrMenuDesc": "Menu numérique en consultation seule — QR à table. Les serveurs prennent les commandes.",
     "publicMenuLink": "Lien du menu public :",
     "openMenu": "Ouvrir le menu",
+    "qrBooking": "Réservations en ligne",
+    "qrBookingDesc": "Les clients réservent via ce lien ou le QR Réservations.",
+    "publicBookingLink": "Lien réservations :",
+    "openBooking": "Ouvrir les réservations",
+    "bookingQr": "Générer QR réservations",
     "kds": "Écran Cuisine (KDS)",
     "kdsDesc": "Ouvrez ce lien sur une tablette ou un écran en cuisine pour voir les commandes en temps réel",
     "accountInfo": "Informations du compte",
@@ -294,7 +317,16 @@
     "taxId": "Identifiant fiscal (TVA / NIF)",
     "taxRegionIT_MAIN": "Italie",
     "taxRegionES_CANARIAS": "Canaries (IGIC)",
-    "taxRegionES_PENINSULA": "Espagne continentale (TVA)"
+    "taxRegionES_PENINSULA": "Espagne continentale (TVA)",
+    "billingTitle": "Données de facturation",
+    "billingDesc": "Raison sociale et coordonnées pour facturation électronique (SDI)",
+    "legalName": "Raison sociale",
+    "legalAddress": "Adresse légale",
+    "fiscalCode": "Code fiscal",
+    "pec": "PEC",
+    "sdiRecipientCode": "Code destinataire SDI",
+    "invoicePrefix": "Préfixe numérotation factures",
+    "invoicePrefixHint": "Ex. FATT → FATT-2026-001"
   },
   "reservations": {
     "title": "Réservations",
@@ -376,6 +408,13 @@
       "tags": "Tags",
       "tagsPlaceholder": "VIP, Cœliaque, Vin Rouge (séparés par virgule)",
       "notes": "Notes / Préférences"
+    },
+    "fiscal": {
+      "title": "Données fiscales (facturation B2B)",
+      "taxId": "N° TVA / NIF",
+      "fiscalCode": "Code fiscal",
+      "sdiRecipientCode": "Code destinataire SDI",
+      "pec": "PEC"
     },
     "slideOver": {
       "title": "Fiche Client",
@@ -587,7 +626,11 @@
   },
   "reportFiscal": {
     "exportPdf": "Exporter PDF pour inspection",
+    "exportCsv": "Exporter CSV",
     "exporting": "Génération du document...",
+    "csvGenerated": "CSV exporté avec succès",
+    "legalDisclaimer": "Document opérationnel pour la gestion interne et la comptabilité. Ne remplace pas les registres fiscaux officiels, la facturation électronique (SDI/Verifactu) ni les obligations légales de conservation.",
+    "totalTipsNote": "Total pourboires (tous) : {{total}}",
     "filterPeriod": "Filtre de période",
     "filterDay": "Par jour",
     "filterMonth": "Par mois",
@@ -632,8 +675,8 @@
             "sub": "Soumis à l'impôt (TVA)"
           },
           "tips": {
-            "label": "Total Pourboires Personnel",
-            "sub": "Exempt de TVA · Italie"
+            "label": "Pourboires Électroniques Suivis",
+            "sub": "Exempt de TVA · Registre impôt substitutif 5%"
           },
           "reconciliation": {
             "label": "Rapprochement Bancaire POS",
@@ -647,7 +690,8 @@
           "tax": "TVA",
           "restaurantTotal": "Total Restaurant",
           "tip": "Pourboire",
-          "collectedTotal": "Total Encaissé"
+          "collectedTotal": "Total Encaissé",
+          "paymentMethod": "Méthode POS"
         },
         "pdf": {
           "title": "Registre Pourboires et Facturation — {{restaurant}}",
@@ -657,7 +701,8 @@
           "period": "Période",
           "generated": "Généré",
           "summaryNet": "Total Facturé Net (Soumis à TVA)",
-          "summaryTips": "Total Pourboires Personnel (Exempt de TVA)",
+          "summaryTips": "Total Pourboires Volontaires (Exempt de TVA)",
+          "summaryElectronicTips": "Pourboires Électroniques Suivis — Registre impôt substitutif 5%",
           "summaryReconciliation": "Total Rapprochement Bancaire POS",
           "footer": "Document généré automatiquement · {{count}} transactions · Pourboires exempts de TVA (réglementation italienne).",
           "filenamePrefix": "registre-fiscal"
@@ -824,7 +869,12 @@
     "factors": {
       "orderHistory": "Historique commandes",
       "dayOfWeek": "Jour de la semaine",
-      "weather": "Météo prévue"
+      "weather": "Météo prévue",
+      "reservations": "Réservations"
+    },
+    "weatherSource": {
+      "openMeteo": "Météo en direct (Open-Meteo)",
+      "simulated": "Météo estimée"
     },
     "days": {
       "sunday": "Dimanche",
@@ -885,6 +935,8 @@
     "tax": "TVA",
     "orderSent": "Commande envoyée en cuisine !",
     "dishAdded": "Plat ajouté !",
+    "soldOut": "Épuisé",
+    "soldOutToast": "Plat épuisé — ingrédients insuffisants en stock",
     "paymentRegistered": "Paiement enregistré !",
     "paymentError": "Erreur lors du paiement",
     "notes": "Notes",
@@ -1012,6 +1064,7 @@
     "searchResults": "Résultats pour « {{query}} »",
     "categories": "Catégories",
     "featured": "À la une",
+    "soldOut": "Épuisé",
     "allergens": "Allergènes",
     "prepTime": "{{min}} min",
     "noResults": "Aucun plat trouvé",
@@ -1041,6 +1094,7 @@
     "paymentCancelled": "Paiement annulé. Vous pouvez réessayer.",
     "stripeUnavailable": "Paiement en ligne indisponible — commandez et payez à table.",
     "subtotal": "Sous-total",
+    "taxableBase": "Base imposable",
     "total": "Total",
     "checkoutError": "Erreur lors de l'envoi de la commande",
     "remove": "Supprimer",
@@ -1098,5 +1152,82 @@
     "paymentMethod": "Mode de paiement",
     "cash": "Espèces",
     "card": "Carte"
+  },
+  "landing": {
+    "meta": {
+      "title": "Aura Syncro — Logiciel cloud restauration | Italie, Espagne et Canaries",
+      "description": "Gestion de restaurant SaaS pour l'Italie, l'Espagne et les Îles Canaries. Menu QR, commandes et tables, paiements Stripe, rapports fiscaux TVA/IGIC. Essayez Aura Syncro."
+    },
+    "nav": {
+      "features": "Fonctionnalités",
+      "pricing": "Tarifs",
+      "login": "Connexion",
+      "tryNow": "Essayer"
+    },
+    "hero": {
+      "badge": "Italie · Espagne · Îles Canaries",
+      "title": "Le logiciel qui synchronise votre restaurant",
+      "subtitle": "{{brand}} est un logiciel cloud pour la restauration structurée : caisse rapide, menu QR, commandes en temps réel et conformité fiscale multi-pays.",
+      "ctaPrimary": "Essayer maintenant",
+      "ctaSecondary": "Connexion"
+    },
+    "features": {
+      "title": "Tout le nécessaire pendant le service",
+      "subtitle": "De la salle à la cuisine, du menu digital aux rapports fiscaux — une plateforme synchronisée.",
+      "tables": {
+        "title": "Gestion des tables",
+        "desc": "Plan de salle, statuts et prise de commande rapide — zéro latence aux heures de pointe."
+      },
+      "qrMenu": {
+        "title": "Menu QR digital",
+        "desc": "Les clients commandent depuis leur téléphone avec une carte à jour envoyée en cuisine."
+      },
+      "stripe": {
+        "title": "Paiements Stripe",
+        "desc": "Encaissement à table ou en ligne par carte et portefeuilles digitaux, intégrés aux commandes."
+      },
+      "fiscal": {
+        "title": "Rapport fiscal",
+        "desc": "TVA en Italie et péninsule, IGIC aux Canaries — exports prêts pour la facturation électronique."
+      }
+    },
+    "pricing": {
+      "title": "Des offres claires à chaque étape",
+      "subtitle": "Installation clé en main et abonnement mensuel transparent.",
+      "cta": "Commencer l'essai",
+      "starter": {
+        "name": "Starter",
+        "tagline": "Exploitation quotidienne salle et cuisine",
+        "price": "Sur devis",
+        "setup": "",
+        "features": [
+          "Gestion tables et commandes",
+          "Menu digital et catégories",
+          "Écran cuisine (KDS)",
+          "Réservations et stock de base"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "Recommandé",
+        "tagline": "Suite complète pour restaurants structurés",
+        "price": "199 €/mois",
+        "setup": "500 € setup initial (unique)",
+        "features": [
+          "Tout le Starter inclus",
+          "CRM, fidélité et marketing",
+          "IA prédictive et analytics",
+          "Rapport fiscal et paiements Stripe",
+          "Onboarding clé en main"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Logiciel cloud pour la restauration en Italie, Espagne et Îles Canaries.",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "contact": "Contact",
+      "rights": "© {{year}} {{brand}}. Tous droits réservés."
+    }
   }
 }

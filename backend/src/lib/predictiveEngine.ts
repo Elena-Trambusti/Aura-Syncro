@@ -54,6 +54,10 @@ export interface AffluenceForecastDay {
   weatherImpactPct: number
   confidence: number
   historicalSamples: number
+  /** Coperti già prenotati per questa data */
+  reservedCovers?: number
+  /** Stima walk-in oltre alle prenotazioni */
+  walkInCovers?: number
 }
 
 export interface DishSalesTrend {
@@ -86,9 +90,10 @@ export interface PredictiveEngineOutput {
   forecast: AffluenceForecastDay[]
   alerts: SmartAlert[]
   expectedDemand: ExpectedDemandMap
-  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather')[]
-  engineVersion: 'statistical_rules_v1'
+  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather' | 'reservations')[]
+  engineVersion: 'statistical_rules_v1' | 'statistical_rules_v2'
   generatedAt: string
+  weatherSource?: 'open-meteo' | 'simulated'
 }
 
 const DAY_I18N_KEYS = [
@@ -256,6 +261,58 @@ export function buildWeatherForecast(daysAhead = 7, startOffset = 1): WeatherFor
   }
 
   return forecast
+}
+
+/**
+ * Previsione affluenza avanzata: prenotazioni note + walk-in storico + meteo reale.
+ */
+export function calculateAffluenceForecastAdvanced(
+  coverHistory: PastSaleRecord[],
+  reservationHistory: PastSaleRecord[],
+  weatherForecast: WeatherForecastDay[],
+  upcomingReservations: Record<string, number>,
+  options?: { windowWeeks?: number; defaultCovers?: number },
+): AffluenceForecastDay[] {
+  const defaultCovers = options?.defaultCovers ?? 45
+
+  const avgReservedByDow: Record<number, number> = {}
+  for (let dow = 0; dow < 7; dow++) {
+    const demand = calculateExpectedDemand('__reserved__', reservationHistory, dow, options)
+    avgReservedByDow[dow] = demand.sampleCount > 0 ? demand.expectedQuantity : 0
+  }
+
+  return weatherForecast.map(day => {
+    const demand = calculateExpectedDemand('__covers__', coverHistory, day.dayOfWeek, options)
+    const historicalAvg = demand.sampleCount > 0
+      ? Math.round(demand.expectedQuantity)
+      : defaultCovers
+
+    const reservedCovers = upcomingReservations[day.date] ?? 0
+    const avgReservedOnDow = Math.round(avgReservedByDow[day.dayOfWeek] ?? 0)
+    const walkInBase = Math.max(0, historicalAvg - avgReservedOnDow)
+    const baseCovers = reservedCovers + walkInBase
+
+    const weatherMult = WEATHER_IMPACT[day.condition]
+    const weatherImpactPct = Math.round((weatherMult - 1) * 100)
+    const predictedCovers = Math.max(0, Math.round(baseCovers * weatherMult))
+
+    const confidence = demand.sampleCount > 0
+      ? Math.min(95, Math.round(50 + demand.sampleCount * 10 + (reservedCovers > 0 ? 15 : 0)))
+      : reservedCovers > 0 ? 70 : 50
+
+    return {
+      date: day.date,
+      dayOfWeek: day.dayOfWeek,
+      predictedCovers,
+      baseCovers,
+      weather: day.condition,
+      weatherImpactPct,
+      confidence,
+      historicalSamples: demand.sampleCount,
+      reservedCovers,
+      walkInCovers: walkInBase,
+    }
+  })
 }
 
 /**
@@ -466,11 +523,24 @@ export function runPredictiveEngine(input: {
   inventory: InventoryInput[]
   expectedDemand: ExpectedDemandMap
   coverHistory: PastSaleRecord[]
+  reservationHistory?: PastSaleRecord[]
+  upcomingReservations?: Record<string, number>
   dishTrends: DishSalesTrend[]
   weatherForecast?: WeatherForecastDay[]
+  weatherSource?: 'open-meteo' | 'simulated'
 }): PredictiveEngineOutput {
   const weatherForecast = input.weatherForecast ?? buildWeatherForecast()
-  const forecast = calculateAffluenceForecast(input.coverHistory, weatherForecast)
+  const useAdvanced = input.reservationHistory != null || input.upcomingReservations != null
+
+  const forecast = useAdvanced
+    ? calculateAffluenceForecastAdvanced(
+      input.coverHistory,
+      input.reservationHistory ?? [],
+      weatherForecast,
+      input.upcomingReservations ?? {},
+    )
+    : calculateAffluenceForecast(input.coverHistory, weatherForecast)
+
   const alerts = generateSmartAlerts(
     input.inventory,
     input.expectedDemand,
@@ -481,12 +551,16 @@ export function runPredictiveEngine(input: {
     },
   )
 
+  const factorsUsed: PredictiveEngineOutput['factorsUsed'] = ['orderHistory', 'dayOfWeek', 'weather']
+  if (useAdvanced) factorsUsed.push('reservations')
+
   return {
     forecast,
     alerts,
     expectedDemand: input.expectedDemand,
-    factorsUsed: ['orderHistory', 'dayOfWeek', 'weather'],
-    engineVersion: 'statistical_rules_v1',
+    factorsUsed,
+    engineVersion: useAdvanced ? 'statistical_rules_v2' : 'statistical_rules_v1',
     generatedAt: new Date().toISOString(),
+    weatherSource: input.weatherSource ?? (input.weatherForecast ? 'simulated' : 'simulated'),
   }
 }

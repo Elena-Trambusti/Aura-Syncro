@@ -2,6 +2,7 @@ import { io } from '../index'
 import { completeGuestStripePayment } from './completePayment'
 import { markReservationDepositPaid } from './depositWebhook'
 import { activateRestaurantSubscription } from './stripeSubscriptionWebhook'
+import { linkCustomerToOrder } from './customerResolver'
 
 export type CheckoutSessionWebhookPayload = {
   id?: string
@@ -12,6 +13,7 @@ export type CheckoutSessionWebhookPayload = {
   payment_intent?: unknown
   payment_status?: string | null
   amount_total?: number | null
+  customer_details?: { email?: string | null; name?: string | null; phone?: string | null } | null
 }
 
 /** Gestisce checkout.session.completed per abbonamento SaaS, ordini guest e caparre. */
@@ -34,6 +36,14 @@ export async function handleCheckoutSessionCompleted(
   const orderId = session.metadata?.orderId
   if (orderId) {
     if (session.payment_status === 'paid') {
+      const restaurantId = session.metadata?.restaurantId
+      if (restaurantId) {
+        await linkCustomerToOrder(orderId, restaurantId, {
+          email: session.customer_details?.email ?? session.metadata?.customerEmail,
+          name: session.customer_details?.name ?? session.metadata?.customerName,
+          phone: session.customer_details?.phone ?? undefined,
+        })
+      }
       const paymentIntentId =
         typeof session.payment_intent === 'string'
           ? session.payment_intent

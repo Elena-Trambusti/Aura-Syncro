@@ -65,6 +65,48 @@ Flusso checkout:
 
 ---
 
+## Go-To-Market pilota (onboarding guidato)
+
+Il prodotto è configurato per un **lancio pilota concierge**: il ristoratore si registra e paga in autonomia, poi il team Aura Syncro completa il setup.
+
+### Flusso cliente
+
+1. **Landing** (`/`) → Registrazione (`/register`) con regime fiscale IT/ES/Canarie
+2. **Anteprima gratuita** — dashboard, ordini, menu, report (tier `unsubscribed`)
+3. **Pagamento** — `/dashboard/billing` → Stripe Checkout (€500 + €199/mo)
+4. **Onboarding guidato** — `/dashboard/onboarding` (form Tally + call Calendly)
+5. **Sblocco operativo** — operatore chiama `POST /api/admin/setup-complete` (o UI `/platform-admin`)
+
+### Checklist operatore (primo cliente pagante)
+
+```bash
+# 1. Verifica Stripe Live
+cd backend && npm run stripe:verify
+
+# 2. Sincronizza webhook su DigitalOcean
+npm run stripe:sync-webhooks
+
+# 3. Dopo pagamento cliente: sblocca dashboard
+curl -X POST https://<backend>/api/admin/setup-complete \
+  -H "X-Admin-Key: $ADMIN_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"restaurantId":"<id>"}'
+```
+
+Oppure usa **Platform Admin** nel frontend (`/platform-admin`, chiave `ADMIN_API_KEY` in sessione).
+
+### Variabili produzione obbligatorie
+
+| Variabile | Note |
+|---|---|
+| `STRIPE_PRICE_SETUP` | Price ID setup €500 |
+| `STRIPE_PRICE_SUBSCRIPTION` | Price ID ricorrente €199/mo |
+| `ADMIN_API_KEY` | Sblocco concierge + API admin |
+| `BACKEND_URL` | Su Vercel, proxy `/api` → backend |
+| `SMTP_*` | Reset password e notifiche email |
+
+---
+
 ## Installazione locale
 
 ### Prerequisiti
@@ -120,6 +162,8 @@ Su Windows: `.\avvia-app.ps1` avvia backend + frontend insieme.
 | `FRONTEND_URL` | Origini CORS (comma-separated). Produzione: `https://aurasyncro.com,https://www.aurasyncro.com` |
 | `STRIPE_SECRET_KEY` | Chiave segreta Stripe |
 | `STRIPE_WEBHOOK_SECRET` | Verifica webhook |
+| `STRIPE_PRICE_SETUP` | Price ID setup una tantum (€500) |
+| `STRIPE_PRICE_SUBSCRIPTION` | Price ID abbonamento mensile (€199) |
 | `ADMIN_API_KEY` | Endpoint admin (setup concierge, downgrade piano) |
 | `PREMIUM_DEV_UNLOCK` | `true` in dev → bypass paywall Premium |
 | `PRO_PLAN_DEV_UNLOCK` | `true` in dev → bypass paywall Pro |
@@ -130,6 +174,7 @@ Su Windows: `.\avvia-app.ps1` avvia backend + frontend insieme.
 |---|---|
 | `VITE_API_URL` | URL backend (es. `http://localhost:3001`) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Chiave pubblica Stripe |
+| `BACKEND_URL` | URL backend per proxy Vercel (produzione) |
 
 ---
 
@@ -150,9 +195,8 @@ npx prisma studio           # UI esplorazione dati
 
 ```
 POST   /api/auth/login | /api/auth/register
-GET    /api/analytics/dashboard
-GET    /api/orders | PATCH /api/orders/:id/status
-POST   /api/orders/public          # menu QR (guest)
+GET    /api/public/menu/:slug          # menu QR (solo consultazione)
+POST   /api/public/reservations        # prenotazioni + caparra
 GET    /api/tables
 GET    /api/staff/shifts
 GET    /api/waitlist

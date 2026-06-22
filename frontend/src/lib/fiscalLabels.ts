@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { FiscalReportData } from './fiscalPdf'
-import { getIntlLocale } from '../i18n'
+import { getFiscalIntlLocale } from '../i18n'
 import { fiscalRegimePrefix, type TaxRegion } from './fiscalRegime'
 
 export interface FiscalPdfLabels {
@@ -10,18 +10,29 @@ export interface FiscalPdfLabels {
   address: string
   period: string
   generated: string
+  taxRateLine?: string
   headers: string[]
   summaryNet: string
   summaryTips: string
   summaryElectronicTips?: string
   summaryReconciliation: string
   footer: (count: number) => string
+  legalDisclaimer: string
+  noDataExport: string
   filenamePrefix: string
   locale: string
+  includePaymentMethod: boolean
+  paymentMethodHeader?: string
 }
 
-export function buildFiscalPdfLabels(t: TFunction, taxRegion: TaxRegion): FiscalPdfLabels {
+export function buildFiscalPdfLabels(
+  t: TFunction,
+  taxRegion: TaxRegion,
+  defaultLocale?: string | null,
+  taxRate?: number,
+): FiscalPdfLabels {
   const prefix = fiscalRegimePrefix(taxRegion)
+  const includePaymentMethod = taxRegion === 'IT_MAIN'
   return {
     title: (restaurant: string) => t(`${prefix}.pdf.title`, { restaurant }),
     taxId: t(`${prefix}.pdf.taxId`),
@@ -29,6 +40,9 @@ export function buildFiscalPdfLabels(t: TFunction, taxRegion: TaxRegion): Fiscal
     address: t(`${prefix}.pdf.address`),
     period: t(`${prefix}.pdf.period`),
     generated: t(`${prefix}.pdf.generated`),
+    taxRateLine: taxRate != null
+      ? t(`${prefix}.taxLine`, { taxName: t(`${prefix}.table.tax`), rate: taxRate })
+      : undefined,
     headers: [
       t(`${prefix}.table.date`),
       t(`${prefix}.table.orderId`),
@@ -37,14 +51,19 @@ export function buildFiscalPdfLabels(t: TFunction, taxRegion: TaxRegion): Fiscal
       t(`${prefix}.table.restaurantTotal`),
       t(`${prefix}.table.tip`),
       t(`${prefix}.table.collectedTotal`),
+      ...(includePaymentMethod ? [t(`${prefix}.table.paymentMethod`)] : []),
     ],
     summaryNet: t(`${prefix}.pdf.summaryNet`),
     summaryTips: t(`${prefix}.pdf.summaryTips`),
     summaryElectronicTips: t(`${prefix}.pdf.summaryElectronicTips`, { defaultValue: '' }) || undefined,
     summaryReconciliation: t(`${prefix}.pdf.summaryReconciliation`),
     footer: (count: number) => t(`${prefix}.pdf.footer`, { count }),
+    legalDisclaimer: t('reportFiscal.legalDisclaimer'),
+    noDataExport: t('reportFiscal.noData'),
     filenamePrefix: t(`${prefix}.pdf.filenamePrefix`),
-    locale: getIntlLocale(),
+    locale: getFiscalIntlLocale(defaultLocale),
+    includePaymentMethod,
+    paymentMethodHeader: includePaymentMethod ? t(`${prefix}.table.paymentMethod`) : undefined,
   }
 }
 

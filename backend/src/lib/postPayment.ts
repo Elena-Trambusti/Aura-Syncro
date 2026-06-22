@@ -13,20 +13,18 @@ export async function applyPostPaymentEffects(orderId: string, restaurantId: str
       paidAt: true,
     },
   })
-  if (!order) return
+  if (!order?.customerId) return
 
   const revenue = order.revenueAmount > 0 ? order.revenueAmount : order.total
   const paidAt = order.paidAt ?? new Date()
 
-  if (order.customerId) {
-    await prisma.customer.update({
-      where: { id: order.customerId },
-      data: {
-        totalVisits: { increment: 1 },
-        totalSpent: { increment: revenue },
-        lastVisit: paidAt,
-      },
-    })
-    await earnLoyaltyPointsForOrder(order.customerId, restaurantId, revenue, order.id)
-  }
+  await prisma.customer.update({
+    where: { id: order.customerId },
+    data: {
+      totalVisits: { increment: 1 },
+      totalSpent: { increment: revenue },
+      lastVisit: paidAt,
+    },
+  })
+  await earnLoyaltyPointsForOrder(order.customerId, restaurantId, revenue, order.id)
 }

@@ -21,10 +21,12 @@ const fiscalOrderSelect = {
   createdAt: true,
   subtotal: true,
   tax: true,
+  taxRateApplied: true,
   revenueAmount: true,
   tipAmount: true,
   total: true,
   paymentMethod: true,
+  invoice: { select: { documentNumber: true } },
 } as const
 
 async function fetchPaidOrdersInPeriod(restaurantId: string, start: Date, end: Date) {
@@ -324,10 +326,12 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
       orderId: row.orderId,
       baseImponible: row.baseImponible,
       tax: row.tax,
+      taxRateApplied: row.taxRateApplied,
       revenueAmount: row.revenueAmount,
       tipAmount: row.tipAmount,
       total: row.total,
       paymentMethod: row.paymentMethod,
+      documentNumber: o.invoice?.documentNumber ?? null,
     }
   })
 

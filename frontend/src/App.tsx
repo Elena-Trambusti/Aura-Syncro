@@ -31,6 +31,7 @@ import ReportsPage from './pages/ReportsPage'
 import ReportFiscal from './pages/ReportFiscal'
 import KitchenDisplayPage from './pages/KitchenDisplayPage'
 import PublicMenuPage from './pages/PublicMenuPage'
+import PublicReservationPage from './pages/PublicReservationPage'
 import PaymentSuccessPage from './pages/PaymentSuccessPage'
 import PaymentCancelPage from './pages/PaymentCancelPage'
 import PaymentDepositSuccessPage from './pages/PaymentDepositSuccessPage'
@@ -41,6 +42,8 @@ import BillingPage from './pages/BillingPage'
 import QRBuilderPage from './pages/QRBuilderPage'
 import OnboardingPage from './pages/OnboardingPage'
 import PlatformAdminPage from './pages/PlatformAdminPage'
+import LandingPage from './pages/LandingPage'
+import LandingRoute from './components/landing/LandingRoute'
 import RequireRole from './components/auth/RequireRole'
 import RequireProPlan from './components/auth/RequireProPlan'
 import RequirePermission from './components/auth/RequirePermission'
@@ -57,7 +60,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   if (isLoading) return <AuthLoadingScreen />
-  return user ? <Navigate to="/" replace /> : <>{children}</>
+  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>
 }
 
 function AppRoutes() {
@@ -73,6 +76,7 @@ function AppRoutes() {
       <Route path="/platform-admin" element={<PlatformAdminPage />} />
       {/* Pagine pubbliche senza auth */}
       <Route path="/menu/:slug" element={<PublicMenuPage />} />
+      <Route path="/prenota/:slug" element={<PublicReservationPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route path="/payment/cancel" element={<PaymentCancelPage />} />
       <Route path="/payment/deposit-success" element={<PaymentDepositSuccessPage />} />
@@ -89,8 +93,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
       <Route
-        path="/"
         element={
           <ProtectedRoute>
             <DashboardAccessGate>
@@ -99,7 +103,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="tavoli" element={<RequirePermission permissions={['tables.read']}><TablesPage /></RequirePermission>} />
         <Route path="checkout/:orderId" element={<RequirePermission permissions={['orders.pay']}><CheckoutPage /></RequirePermission>} />
         <Route path="ordini" element={<RequirePermission permissions={['orders.read']}><OrdersPage /></RequirePermission>} />

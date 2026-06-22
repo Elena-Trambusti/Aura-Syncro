@@ -8,7 +8,7 @@ export const ONBOARDING_PATH = '/dashboard/onboarding'
 
 /** Rotte accessibili senza abbonamento Premium (anteprima post-registrazione) */
 export const FREE_TIER_NAV_PATHS = [
-  '/',
+  '/dashboard',
   '/ordini',
   '/menu',
   '/pagamenti',
@@ -32,15 +32,15 @@ export function isFreeTierPath(pathname: string): boolean {
   const path = normalizePath(pathname)
 
   if (path === BILLING_PATH || path.startsWith(`${BILLING_PATH}/`)) return true
-  if (path === '/') return true
+  if (path === '/dashboard') return true
   if (path === '/report') return true
   if (path.startsWith('/report/')) return false
 
-  return FREE_TIER_NAV_PATHS.some(p => p !== '/' && p !== '/report' && (path === p || path.startsWith(`${p}/`)))
+  return FREE_TIER_NAV_PATHS.some(p => p !== '/dashboard' && p !== '/report' && (path === p || path.startsWith(`${p}/`)))
 }
 
 export function isFreeTierNavItem(to: string, exact?: boolean): boolean {
-  if (to === '/') return true
+  if (to === '/dashboard') return true
   if (to === '/report') return exact === true
   return (FREE_TIER_NAV_PATHS as readonly string[]).includes(to)
 }
@@ -53,7 +53,7 @@ export function getAccessRedirect(tier: AccessTier, pathname: string): string | 
 
   if (tier === 'unsubscribed') {
     if (isFreeTierPath(path)) return null
-    return '/'
+    return '/dashboard'
   }
 
   if (tier === 'onboarding') {

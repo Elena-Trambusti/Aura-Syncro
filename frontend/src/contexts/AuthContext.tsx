@@ -35,7 +35,7 @@ interface AuthContextType {
   restaurant: Restaurant | null
   token: string | null
   isLoading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, restaurantSlug?: string) => Promise<void>
   register: (data: RegisterData) => Promise<void>
   logout: () => void
   refreshRestaurant: () => Promise<void>
@@ -133,10 +133,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const refreshRestaurant = useCallback(async () => {
-    const res = await api.get('/auth/me')
-    const normalized = normalizeRestaurant(res.data.restaurant)
-    setUser(res.data.user)
-    commitRestaurant(normalized, true)
+    try {
+      const res = await api.get('/auth/me')
+      const normalized = normalizeRestaurant(res.data.restaurant)
+      setUser(res.data.user)
+      commitRestaurant(normalized, true)
+    } catch {
+      /* polling onboarding: ignora errori transitori; 401 gestito dall'interceptor */
+    }
   }, [commitRestaurant])
 
   const switchActiveRestaurant = useCallback((next: Restaurant) => {
@@ -166,8 +170,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     applyTenantCssVars(restaurant?.colorTheme)
   }, [restaurant?.colorTheme])
 
-  const login = async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password })
+  const login = async (email: string, password: string, restaurantSlug?: string) => {
+    const res = await api.post('/auth/login', {
+      email,
+      password,
+      ...(restaurantSlug ? { restaurantSlug } : {}),
+    })
     setAuth(res.data)
   }
 

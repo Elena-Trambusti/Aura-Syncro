@@ -1,11 +1,16 @@
 import { z } from 'zod'
 import { prisma } from './prisma'
 import { computeTaxForRestaurant } from './orderTax'
+import { deductInventoryForOrder } from './inventoryDeduction'
+import { resolveOrCreateCustomer } from './customerResolver'
 
 export const publicOrderSchema = z.object({
   type: z.enum(['DINE_IN', 'TAKEAWAY']).default('DINE_IN'),
   tableNumber: z.number().int().positive().optional(),
   notes: z.string().optional(),
+  guestEmail: z.string().email().optional(),
+  guestPhone: z.string().min(6).optional(),
+  guestName: z.string().min(2).optional(),
   items: z.array(z.object({
     menuItemId: z.string(),
     quantity: z.number().int().positive(),
@@ -30,7 +35,7 @@ export class PublicOrderError extends Error {
  * Valida che tutti i piatti appartengano allo stesso ristorante.
  */
 export async function createPublicOrder(input: PublicOrderInput) {
-  const { items, tableNumber, ...orderData } = input
+  const { items, tableNumber, guestEmail, guestPhone, guestName, ...orderData } = input
 
   const menuItems = await prisma.menuItem.findMany({
     where: {
@@ -65,35 +70,46 @@ export async function createPublicOrder(input: PublicOrderInput) {
     return { ...item, unitPrice: mi.price }
   })
 
-  const subtotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, subtotal)
+  const grossTotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+  const { subtotal, tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, grossTotal)
 
-  const order = await prisma.order.create({
-    data: {
-      restaurantId,
-      tableId,
-      subtotal,
-      tax,
-      total,
-      taxRateApplied,
-      revenueAmount: total,
-      tipAmount: 0,
-      type: orderData.type,
-      notes: orderData.notes,
-      status: 'PENDING',
-      items: {
-        create: itemsWithPrice.map(item => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          notes: item.notes,
-        })),
+  const customerId = await resolveOrCreateCustomer(restaurantId, {
+    email: guestEmail,
+    phone: guestPhone,
+    name: guestName,
+  })
+
+  const order = await prisma.$transaction(async tx => {
+    const created = await tx.order.create({
+      data: {
+        restaurantId,
+        tableId,
+        customerId,
+        subtotal,
+        tax,
+        total,
+        taxRateApplied,
+        revenueAmount: total,
+        tipAmount: 0,
+        type: orderData.type,
+        notes: orderData.notes,
+        status: 'PENDING',
+        items: {
+          create: itemsWithPrice.map(item => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            notes: item.notes,
+          })),
+        },
       },
-    },
-    include: {
-      table: true,
-      items: { include: { menuItem: true } },
-    },
+      include: {
+        table: true,
+        items: { include: { menuItem: true } },
+      },
+    })
+    await deductInventoryForOrder(tx, created.id, restaurantId)
+    return created
   })
 
   if (tableId) {

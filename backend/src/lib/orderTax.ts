@@ -1,16 +1,18 @@
-import { loadRestaurantFiscalConfig, computeOrderTax } from './taxEngine'
+import { loadRestaurantFiscalConfig, computeOrderTaxForRegime, scorporoTaxFromGross } from './taxEngine'
 
-export async function computeTaxForRestaurant(restaurantId: string, subtotal: number) {
-  const { taxRate } = await loadRestaurantFiscalConfig(restaurantId)
-  return computeOrderTax(subtotal, taxRate)
+/** @param grossAmount Somma prezzi menu IVA/IGIC inclusa (senza mancia) */
+export async function computeTaxForRestaurant(restaurantId: string, grossAmount: number) {
+  const config = await loadRestaurantFiscalConfig(restaurantId)
+  return computeOrderTaxForRegime(config, grossAmount, 0)
 }
 
+/** @param grossAmount Somma prezzi menu IVA/IGIC inclusa (senza mancia) */
 export async function computeTaxForExistingOrder(
   order: { restaurantId: string; taxRateApplied?: number | null },
-  subtotal: number,
+  grossAmount: number,
 ) {
   if (order.taxRateApplied != null && order.taxRateApplied > 0) {
-    return computeOrderTax(subtotal, order.taxRateApplied)
+    return scorporoTaxFromGross(grossAmount, order.taxRateApplied)
   }
-  return computeTaxForRestaurant(order.restaurantId, subtotal)
+  return computeTaxForRestaurant(order.restaurantId, grossAmount)
 }

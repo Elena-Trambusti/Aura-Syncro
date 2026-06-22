@@ -11,7 +11,7 @@ import { useRole } from '../../hooks/useRole'
 import { useTenantQueryKey } from '../../contexts/AuthContext'
 import { tq } from '../../lib/queryKeys'
 
-interface MenuItem { id: string; name: string; price: number; available: boolean; category: { name: string } }
+interface MenuItem { id: string; name: string; price: number; available: boolean; soldOut?: boolean; orderable?: boolean; category: { name: string } }
 interface Category { id: string; name: string; items: MenuItem[] }
 interface CartItem { menuItemId: string; name: string; price: number; quantity: number; notes?: string }
 
@@ -76,9 +76,16 @@ export default function OrderModal({ tableId, onClose }: { tableId: string; onCl
       queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
       queryClient.invalidateQueries({ queryKey: tq(tk, 'orders') })
       queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
+      queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
       setCart([])
       toast.success(t('orderModal.orderSent'))
       setTab('order')
+    },
+    onError: (err: { response?: { data?: { code?: string } } }) => {
+      if (err.response?.data?.code === 'MENU_ITEM_SOLD_OUT') {
+        toast.error(t('orderModal.soldOutToast'))
+        queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
+      }
     },
   })
 
@@ -88,9 +95,16 @@ export default function OrderModal({ tableId, onClose }: { tableId: string; onCl
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
       queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
+      queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
       setCart([])
       toast.success(t('orderModal.dishAdded'))
       setTab('order')
+    },
+    onError: (err: { response?: { data?: { code?: string } } }) => {
+      if (err.response?.data?.code === 'MENU_ITEM_SOLD_OUT') {
+        toast.error(t('orderModal.soldOutToast'))
+        queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
+      }
     },
   })
 
@@ -104,6 +118,10 @@ export default function OrderModal({ tableId, onClose }: { tableId: string; onCl
   })
 
   const addToCart = (item: MenuItem) => {
+    if (item.soldOut || item.orderable === false) {
+      toast.error(t('orderModal.soldOutToast'))
+      return
+    }
     setCart(prev => {
       const existing = prev.find(c => c.menuItemId === item.id)
       return existing
@@ -254,24 +272,34 @@ export default function OrderModal({ tableId, onClose }: { tableId: string; onCl
           <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
             {(currentCategory?.items || []).filter(i => i.available).map(item => {
               const inCart = cart.find(c => c.menuItemId === item.id)
+              const isSoldOut = item.soldOut || item.orderable === false
               return (
                 <div
                   key={item.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => addToCart(item)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') addToCart(item) }}
+                  role={isSoldOut ? undefined : 'button'}
+                  tabIndex={isSoldOut ? undefined : 0}
+                  onClick={() => !isSoldOut && addToCart(item)}
+                  onKeyDown={e => { if (!isSoldOut && (e.key === 'Enter' || e.key === ' ')) addToCart(item) }}
                   className={cn(
-                    'cursor-pointer rounded-xl border-2 p-3 transition-all',
-                    inCart
-                      ? 'border-amber-400 bg-amber-50'
-                      : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-slate-50',
+                    'rounded-xl border-2 p-3 transition-all',
+                    isSoldOut
+                      ? 'cursor-not-allowed border-slate-200 bg-slate-50 opacity-75'
+                      : inCart
+                        ? 'cursor-pointer border-amber-400 bg-amber-50'
+                        : 'cursor-pointer border-slate-200 bg-white hover:border-amber-300 hover:bg-slate-50',
                   )}
                 >
-                  <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className={cn('text-sm font-semibold', isSoldOut ? 'text-slate-500' : 'text-slate-900')}>{item.name}</p>
+                    {isSoldOut && (
+                      <span className="shrink-0 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-700">
+                        {t('orderModal.soldOut')}
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-2 flex items-center justify-between">
-                    <p className="text-base font-bold text-amber-600">{formatCurrency(item.price)}</p>
-                    {inCart && (
+                    <p className={cn('text-base font-bold', isSoldOut ? 'text-slate-400' : 'text-amber-600')}>{formatCurrency(item.price)}</p>
+                    {!isSoldOut && inCart && (
                       <div className="flex items-center gap-1.5 rounded-full bg-amber-500 px-2 py-0.5">
                         <button type="button" onClick={e => { e.stopPropagation(); removeFromCart(item.id) }} className="text-white">
                           <Minus className="h-3 w-3" />

@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
+import { enrichCategoriesWithStock } from '../lib/menuStock'
 
 export const menuRouter = Router()
 
@@ -42,7 +43,8 @@ menuRouter.get('/categories', requirePermission('menu.read'), async (req: AuthRe
     include: { items: { orderBy: { sortOrder: 'asc' } } },
     orderBy: { sortOrder: 'asc' },
   })
-  res.json(categories)
+  const enriched = await enrichCategoriesWithStock(categories, tenantId(req))
+  res.json(enriched)
 })
 
 menuRouter.post('/categories', requirePermission('menu.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
@@ -161,4 +163,78 @@ menuRouter.delete('/items/:id', requirePermission('menu.manage'), async (req: Au
     return
   }
   res.status(204).send()
+})
+
+// Ricetta / BOM — collegamento piatto ↔ ingredienti magazzino
+const recipeLinkSchema = z.object({
+  links: z.array(z.object({
+    inventoryItemId: z.string(),
+    quantity: z.number().positive(),
+  })),
+})
+
+menuRouter.get('/items/:id/recipe', requirePermission('menu.read'), async (req: AuthRequest, res: Response): Promise<void> => {
+  const item = await prisma.menuItem.findFirst({
+    where: scopedWhere(req, req.params.id),
+    include: {
+      inventoryLinks: {
+        include: { inventoryItem: { select: { id: true, name: true, unit: true } } },
+      },
+    },
+  })
+  if (!item) {
+    tenantNotFound(res, 'Piatto non trovato')
+    return
+  }
+  res.json(item.inventoryLinks.map(link => ({
+    id: link.id,
+    inventoryItemId: link.inventoryItemId,
+    quantity: link.quantity,
+    inventoryItem: link.inventoryItem,
+  })))
+})
+
+menuRouter.put('/items/:id/recipe', requirePermission('menu.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
+  const parsed = recipeLinkSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Dati non validi', details: parsed.error.flatten() })
+    return
+  }
+
+  const item = await prisma.menuItem.findFirst({ where: scopedWhere(req, req.params.id) })
+  if (!item) {
+    tenantNotFound(res, 'Piatto non trovato')
+    return
+  }
+
+  const restaurantId = tenantId(req)
+  const inventoryIds = parsed.data.links.map(l => l.inventoryItemId)
+  if (inventoryIds.length > 0) {
+    const validCount = await prisma.inventoryItem.count({
+      where: { id: { in: inventoryIds }, restaurantId },
+    })
+    if (validCount !== inventoryIds.length) {
+      res.status(400).json({ error: 'Uno o più ingredienti non appartengono al magazzino' })
+      return
+    }
+  }
+
+  await prisma.$transaction(async tx => {
+    await tx.inventoryItemLink.deleteMany({ where: { menuItemId: item.id } })
+    if (parsed.data.links.length > 0) {
+      await tx.inventoryItemLink.createMany({
+        data: parsed.data.links.map(link => ({
+          menuItemId: item.id,
+          inventoryItemId: link.inventoryItemId,
+          quantity: link.quantity,
+        })),
+      })
+    }
+  })
+
+  const links = await prisma.inventoryItemLink.findMany({
+    where: { menuItemId: item.id },
+    include: { inventoryItem: { select: { id: true, name: true, unit: true } } },
+  })
+  res.json(links)
 })

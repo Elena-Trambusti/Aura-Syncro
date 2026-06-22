@@ -37,7 +37,7 @@ api.interceptors.response.use(
   err => {
     if (err.response?.status === 401) {
       const path = window.location.pathname
-      const isGuestRoute = path.startsWith('/menu/') || path.startsWith('/payment/')
+      const isGuestRoute = path.startsWith('/menu/') || path.startsWith('/prenota/') || path.startsWith('/payment/')
       if (!isGuestRoute) {
         localStorage.removeItem('token')
         localStorage.removeItem(RESTAURANT_ID_KEY)

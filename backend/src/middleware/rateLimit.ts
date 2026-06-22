@@ -12,7 +12,7 @@ export const authLoginLimiter = rateLimit({
 
 export const authRegisterLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: message('Troppe registrazioni da questo indirizzo. Riprova tra un\'ora.'),
@@ -60,4 +60,14 @@ export const depositLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: message('Troppe richieste di caparra. Riprova tra qualche minuto.'),
+})
+
+/** Limite generale API (per IP) — esclude webhook Stripe */
+export const globalApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: req => req.path.startsWith('/api/webhooks/'),
+  message: message('Troppe richieste. Riprova tra un minuto.'),
 })

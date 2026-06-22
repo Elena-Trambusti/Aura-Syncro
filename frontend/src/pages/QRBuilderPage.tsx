@@ -3,45 +3,55 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useAuth } from '../contexts/AuthContext'
-import { Download, ExternalLink, Copy } from 'lucide-react'
+import { Download, ExternalLink, Copy, BookOpen, CalendarDays } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { cn } from '../lib/utils'
 
-/** Contrasto massimo — standard tipografia / stampa */
 const QR_FG = '#000000'
 const QR_BG = '#FFFFFF'
-const PREVIEW_SIZE = 320
-/** Export ≥ 1000px per tipografia professionale */
+const PREVIEW_SIZE = 280
 const EXPORT_SIZE = 2048
+
+type QrMode = 'menu' | 'booking'
 
 export default function QRBuilderPage() {
   const { t } = useTranslation()
   const { restaurant, isLoading } = useAuth()
   const exportCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [mode, setMode] = useState<QrMode>('menu')
   const [tableNumber, setTableNumber] = useState('')
 
-  const baseUrl = `${window.location.origin}/menu/${restaurant?.slug ?? ''}`
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const slug = restaurant?.slug ?? ''
+  const baseMenuUrl = `${origin}/menu/${slug}`
   const parsedTable = tableNumber.trim() ? Number.parseInt(tableNumber, 10) : NaN
   const menuUrl = Number.isFinite(parsedTable) && parsedTable > 0
-    ? `${baseUrl}?tavolo=${parsedTable}`
-    : baseUrl
+    ? `${baseMenuUrl}?tavolo=${parsedTable}`
+    : baseMenuUrl
+  const bookingUrl = `${origin}/prenota/${slug}`
+  const activeUrl = mode === 'menu' ? menuUrl : bookingUrl
 
   const downloadPng = useCallback(() => {
     const canvas = exportCanvasRef.current
-    if (!canvas || !restaurant?.slug) return
+    if (!canvas || !slug) return
 
     const pngDataUrl = canvas.toDataURL('image/png')
     const link = document.createElement('a')
-    const suffix = Number.isFinite(parsedTable) && parsedTable > 0 ? `-tavolo-${parsedTable}` : ''
-    link.download = `menu-qr-${restaurant.slug}${suffix}.png`
+    const suffix = mode === 'booking'
+      ? '-prenotazioni'
+      : Number.isFinite(parsedTable) && parsedTable > 0
+        ? `-tavolo-${parsedTable}`
+        : ''
+    link.download = `aura-${mode}-qr-${slug}${suffix}.png`
     link.href = pngDataUrl
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     toast.success(t('qrBuilder.downloadSuccess'))
-  }, [restaurant?.slug, parsedTable, t])
+  }, [slug, mode, parsedTable, t])
 
   const copyLink = () => {
-    navigator.clipboard.writeText(menuUrl)
+    navigator.clipboard.writeText(activeUrl)
     toast.success(t('common.linkCopied'))
   }
 
@@ -53,7 +63,7 @@ export default function QRBuilderPage() {
     )
   }
 
-  if (!restaurant?.slug) {
+  if (!slug) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-slate-600 max-w-md">{t('qrBuilder.slugMissing')}</p>
@@ -69,31 +79,62 @@ export default function QRBuilderPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col items-center px-4 py-6">
-      <header className="mb-8 w-full text-center">
+      <header className="mb-6 w-full text-center">
         <h1 className="text-2xl font-bold text-slate-900">{t('qrBuilder.title')}</h1>
         <p className="mt-2 text-sm text-slate-500">{t('qrBuilder.subtitle')}</p>
       </header>
 
+      <div className="mb-6 flex w-full rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setMode('menu')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-colors',
+            mode === 'menu' ? 'bg-amber-500 text-white' : 'text-slate-600 hover:bg-slate-50',
+          )}
+        >
+          <BookOpen className="h-4 w-4" />
+          {t('qrBuilder.modeMenu')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('booking')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-colors',
+            mode === 'booking' ? 'bg-amber-500 text-white' : 'text-slate-600 hover:bg-slate-50',
+          )}
+        >
+          <CalendarDays className="h-4 w-4" />
+          {t('qrBuilder.modeBooking')}
+        </button>
+      </div>
+
       <div className="w-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-6 w-full">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {t('qrBuilder.tableNumberOptional')}
-          </label>
-          <input
-            type="number"
-            min={1}
-            value={tableNumber}
-            onChange={e => setTableNumber(e.target.value)}
-            placeholder={t('qrBuilder.tableNumberPlaceholder')}
-            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-          />
-          <p className="mt-1.5 text-xs text-slate-500">{t('qrBuilder.tableNumberHint')}</p>
-        </div>
+        <p className="mb-4 text-sm text-slate-600">
+          {mode === 'menu' ? t('qrBuilder.menuModeDesc') : t('qrBuilder.bookingModeDesc')}
+        </p>
+
+        {mode === 'menu' && (
+          <div className="mb-6 w-full">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {t('qrBuilder.tableNumberOptional')}
+            </label>
+            <input
+              type="number"
+              min={1}
+              value={tableNumber}
+              onChange={e => setTableNumber(e.target.value)}
+              placeholder={t('qrBuilder.tableNumberPlaceholder')}
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">{t('qrBuilder.tableNumberHint')}</p>
+          </div>
+        )}
 
         <div className="flex flex-col items-center">
           <div className="rounded-lg border border-slate-200 bg-white p-4">
             <QRCodeCanvas
-              value={menuUrl}
+              value={activeUrl}
               size={PREVIEW_SIZE}
               level="H"
               includeMargin
@@ -107,7 +148,7 @@ export default function QRBuilderPage() {
               {t('qrBuilder.scanTarget')}
             </p>
             <p className="break-all font-mono text-sm font-medium leading-relaxed text-slate-900">
-              {menuUrl}
+              {activeUrl}
             </p>
           </div>
 
@@ -120,18 +161,16 @@ export default function QRBuilderPage() {
             {t('qrBuilder.downloadPng')}
           </button>
 
-          <p className="mt-4 text-center text-xs text-slate-500">
-            {t('qrBuilder.printHint')}
-          </p>
+          <p className="mt-4 text-center text-xs text-slate-500">{t('qrBuilder.printHint')}</p>
 
           <div className="mt-6 flex w-full flex-wrap justify-center gap-3 border-t border-slate-100 pt-6">
             <button
               type="button"
-              onClick={() => window.open(menuUrl, '_blank')}
+              onClick={() => window.open(activeUrl, '_blank')}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
             >
               <ExternalLink className="h-4 w-4" aria-hidden />
-              {t('qrBuilder.previewMenu')}
+              {mode === 'menu' ? t('qrBuilder.previewMenu') : t('qrBuilder.previewBooking')}
             </button>
             <span className="text-slate-300" aria-hidden>|</span>
             <button
@@ -149,7 +188,7 @@ export default function QRBuilderPage() {
       <div className="pointer-events-none fixed left-[-9999px] top-0 opacity-0" aria-hidden>
         <QRCodeCanvas
           ref={exportCanvasRef}
-          value={menuUrl}
+          value={activeUrl}
           size={EXPORT_SIZE}
           level="H"
           includeMargin

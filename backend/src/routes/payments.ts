@@ -11,11 +11,10 @@ import {
   type SplitBreakdown,
 } from '../lib/orderPayment'
 import { completeOrderPayment } from '../lib/completePayment'
-import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
-import { createGuestStripeCheckout, guestCheckoutSchema } from '../lib/publicCheckout'
-import { PublicOrderError } from '../lib/publicOrder'
+import { buildFiscalConfig, fiscalConfigPayload, getTipTaxTreatment } from '../lib/taxEngine'
 import { createDepositCheckoutSession } from '../lib/depositCheckout'
-import { depositLimiter } from '../middleware/rateLimit'
+import { depositLimiter, publicCheckoutLimiter } from '../middleware/rateLimit'
+import { GUEST_ORDERING_DISABLED } from '../lib/guestOrderingPolicy'
 
 export const paymentsRouter = Router()
 
@@ -90,6 +89,15 @@ paymentsRouter.get('/checkout/:orderId', authenticate, requireDashboardAccess, r
   res.json({
     order,
     fiscalRegime: fiscalConfigPayload(fiscal, restaurant?.settings?.taxId),
+    tipPolicy: {
+      treatment: getTipTaxTreatment(fiscal.taxRegion),
+      taxName: fiscal.taxName,
+      message: fiscal.taxRegion === 'ES_CANARIAS'
+        ? 'La mancia no está sujeta a IGIC'
+        : fiscal.taxRegion === 'ES_PENINSULA'
+          ? 'La propina no está sujeta a IVA'
+          : 'La mancia non concorre alla base imponibile IVA',
+    },
     restaurant: {
       name: restaurant?.name,
       taxId: restaurant?.settings?.taxId ?? null,
@@ -157,7 +165,12 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
         row: result.fiscalRow,
       },
       splitBreakdown: result.splitBreakdown,
-      pos: posResult,
+      pos: posResult ? {
+        ...posResult,
+        taxableAmount: posResult.breakdown?.taxableAmount,
+        tipAmount: posResult.breakdown?.tipAmount,
+        amountCharged: posResult.breakdown?.totalCustomerAmount ?? result.total,
+      } : null,
       receipt: {
         emailSent,
         emailTo: simulateEmail ?? null,
@@ -239,25 +252,9 @@ paymentsRouter.post('/pos-checkout', authenticate, requireDashboardAccess, requi
   }
 })
 
-// ── Checkout pubblico: crea ordine + sessione Stripe ─────────────────────────
-paymentsRouter.post('/checkout', async (req: Request, res: Response): Promise<void> => {
-  const parsed = guestCheckoutSchema.safeParse(req.body)
-  if (!parsed.success) {
-    res.status(400).json({ error: 'Dati non validi', details: parsed.error.flatten() })
-    return
-  }
-
-  try {
-    const result = await createGuestStripeCheckout(parsed.data)
-    res.json(result)
-  } catch (err) {
-    if (err instanceof PublicOrderError) {
-      res.status(err.statusCode).json({ error: err.message })
-      return
-    }
-    console.error('[payments/checkout]', err)
-    res.status(500).json({ error: 'Errore durante il checkout' })
-  }
+// ── Checkout pubblico guest: disabilitato (pilota — ordini solo via POS) ───────
+paymentsRouter.post('/checkout', publicCheckoutLimiter, async (_req: Request, res: Response): Promise<void> => {
+  res.status(403).json(GUEST_ORDERING_DISABLED)
 })
 
 // ── Verifica stato sessione (dalla pagina di successo) ────────────────────────

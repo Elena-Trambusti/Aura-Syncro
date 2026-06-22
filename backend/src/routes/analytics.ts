@@ -137,7 +137,10 @@ analyticsRouter.get('/top-items', requirePermission('analytics.read'), async (re
   })
 
   const menuItems = await prisma.menuItem.findMany({
-    where: { id: { in: items.map((i: { menuItemId: string }) => i.menuItemId) } },
+    where: {
+      restaurantId,
+      id: { in: items.map((i: { menuItemId: string }) => i.menuItemId) },
+    },
     select: { id: true, name: true, price: true, category: { select: { name: true } } },
   })
 

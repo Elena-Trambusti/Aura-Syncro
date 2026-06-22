@@ -34,14 +34,25 @@ export function tRegime(
   return t(`${fiscalRegimePrefix(taxRegion)}.${key}`, options)
 }
 
+export const REGION_DEFAULT_TAX_RATE: Record<TaxRegion, number> = {
+  IT_MAIN: 10,
+  ES_CANARIAS: 7,
+  ES_PENINSULA: 10,
+}
+
+export function defaultTaxRateForRegion(taxRegion: TaxRegion): number {
+  return REGION_DEFAULT_TAX_RATE[taxRegion]
+}
+
 export function resolveFiscalRegime(
   source?: Partial<FiscalRegime> | null,
 ): FiscalRegime {
   if (!source?.taxRegion) return DEFAULT_FISCAL_REGIME
+  const taxRegion = source.taxRegion
   return {
     countryCode: source.countryCode ?? DEFAULT_FISCAL_REGIME.countryCode,
-    taxRegion: source.taxRegion,
-    taxRate: source.taxRate ?? DEFAULT_FISCAL_REGIME.taxRate,
+    taxRegion,
+    taxRate: source.taxRate ?? defaultTaxRateForRegion(taxRegion),
     taxName: source.taxName ?? DEFAULT_FISCAL_REGIME.taxName,
     defaultLocale: source.defaultLocale ?? DEFAULT_FISCAL_REGIME.defaultLocale,
     timezone: source.timezone,
@@ -49,7 +60,9 @@ export function resolveFiscalRegime(
   }
 }
 
-export function computeCartTax(subtotal: number, taxRate: number) {
-  const tax = Math.round(subtotal * (taxRate / 100) * 100) / 100
-  return { tax, total: Math.round((subtotal + tax) * 100) / 100 }
+export function computeCartTax(grossAmount: number, taxRate: number) {
+  const rate = taxRate / 100
+  const taxableBase = Math.round((grossAmount / (1 + rate)) * 100) / 100
+  const tax = Math.round((grossAmount - taxableBase) * 100) / 100
+  return { tax, total: Math.round(grossAmount * 100) / 100 }
 }

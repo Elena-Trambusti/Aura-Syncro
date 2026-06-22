@@ -41,6 +41,7 @@ import { requirePermission } from './middleware/permissions'
 import { setupSocketHandlers } from './socket/handlers'
 import { validateEnv } from './lib/env'
 import { getVapidPublicKey } from './lib/webPush'
+import { globalApiLimiter } from './middleware/rateLimit'
 
 // In produzione (DigitalOcean) le variabili sono iniettate dalla piattaforma;
 // in locale carichiamo backend/.env tramite dotenv.
@@ -72,6 +73,7 @@ export const io = new Server(httpServer, {
 })
 
 app.use(cors(corsOptions))
+app.use(globalApiLimiter)
 
 // Webhook Stripe canonico: body grezzo prima di express.json()
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }))

@@ -111,7 +111,12 @@
     "yourName": "Your name",
     "yourNamePlaceholder": "John Smith",
     "phonePlaceholder": "+1 555 1234567",
-    "passwordMinLength": "Minimum 6 characters",
+    "passwordMinLength": "Minimum 8 characters",
+    "restaurantCode": "Restaurant code",
+    "restaurantCodePlaceholder": "e.g. my-restaurant-1234567890",
+    "restaurantCodeHint": "Find it in your welcome email or ask the owner.",
+    "selectRestaurant": "Select restaurant",
+    "multipleTenantsHint": "Your email is linked to multiple restaurants. Select the correct one.",
     "country": "Restaurant country",
     "countryIT": "Italy",
     "countryES": "Spain",
@@ -250,6 +255,7 @@
     "available": "Available",
     "featured": "Featured",
     "notAvailable": "Unavail.",
+    "soldOut": "Sold out",
     "topBadge": "★ Top",
     "dish": "Dish",
     "prep": "Prep.",
@@ -265,7 +271,19 @@
     "categoryAdded": "Category created",
     "categoryUpdated": "Category updated",
     "categoryDeleted": "Category deleted",
-    "categorySaveError": "Error saving category"
+    "categorySaveError": "Error saving category",
+    "editRecipe": "Recipe / ingredients",
+    "recipeTitle": "Dish recipe",
+    "recipeDesc": "Set how much inventory each portion of «{{dish}}» uses. When a waiter places the order, quantities are deducted automatically.",
+    "recipeIngredient": "Ingredient",
+    "recipeSelectIngredient": "Select ingredient…",
+    "recipeQty": "Quantity",
+    "recipeQtyHint": "E.g. 0.25 kg flour per 1 pizza portion.",
+    "recipeAdd": "Add ingredient",
+    "recipeEmpty": "No ingredients linked. Add a recipe to enable automatic stock deduction.",
+    "recipeSaved": "Recipe saved!",
+    "recipeSaveError": "Error saving recipe",
+    "recipeNoInventory": "Create ingredients in Inventory first, then link them to dishes here."
   },
   "settings": {
     "title": "Settings",
@@ -278,9 +296,14 @@
     "nameRequired": "Restaurant name is required",
     "saved": "Settings saved!",
     "qrMenu": "Digital Menu QR Code",
-    "qrMenuDesc": "Your customers can scan the QR code to view the digital menu",
+    "qrMenuDesc": "Browse-only digital menu — guests scan the table QR. Waiters take all orders.",
     "publicMenuLink": "Public menu link:",
     "openMenu": "Open menu",
+    "qrBooking": "Online reservations",
+    "qrBookingDesc": "Guests book a table from this link or the Reservations QR. Requests appear in Reservations.",
+    "publicBookingLink": "Booking link:",
+    "openBooking": "Open booking page",
+    "bookingQr": "Generate booking QR",
     "kds": "Kitchen Display (KDS)",
     "kdsDesc": "Open this link on a tablet or monitor in the kitchen to view orders in real time",
     "accountInfo": "Account Information",
@@ -296,7 +319,16 @@
     "taxId": "Tax ID (VAT / NIF)",
     "taxRegionIT_MAIN": "Italy",
     "taxRegionES_CANARIAS": "Canarias (IGIC)",
-    "taxRegionES_PENINSULA": "Mainland Spain (VAT)"
+    "taxRegionES_PENINSULA": "Mainland Spain (VAT)",
+    "billingTitle": "Billing details",
+    "billingDesc": "Legal name and contacts for e-invoicing (SDI) and future integrations",
+    "legalName": "Legal name",
+    "legalAddress": "Legal address",
+    "fiscalCode": "Fiscal code",
+    "pec": "PEC (certified email)",
+    "sdiRecipientCode": "SDI recipient code",
+    "invoicePrefix": "Invoice number prefix",
+    "invoicePrefixHint": "E.g. FATT → FATT-2026-001"
   },
   "reservations": {
     "title": "Reservations",
@@ -378,6 +410,13 @@
       "tags": "Tags",
       "tagsPlaceholder": "VIP, Celiac, Red Wine (comma separated)",
       "notes": "Notes / Preferences"
+    },
+    "fiscal": {
+      "title": "Fiscal data (B2B invoicing)",
+      "taxId": "VAT ID / NIF",
+      "fiscalCode": "Fiscal code",
+      "sdiRecipientCode": "SDI recipient code",
+      "pec": "PEC"
     },
     "slideOver": {
       "title": "Customer Profile",
@@ -589,7 +628,11 @@
   },
   "reportFiscal": {
     "exportPdf": "Export PDF for inspection",
+    "exportCsv": "Export CSV",
     "exporting": "Generating document...",
+    "csvGenerated": "CSV exported successfully",
+    "legalDisclaimer": "Operational document for internal management and accounting. Does not replace official fiscal registers, electronic invoicing (SDI/Verifactu), or legal record-keeping obligations.",
+    "totalTipsNote": "Total tips (all): {{total}}",
     "filterPeriod": "Period filter",
     "filterDay": "By day",
     "filterMonth": "By month",
@@ -617,19 +660,21 @@
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
           "netRevenue": { "label": "Net Billed Total", "sub": "Subject to tax (VAT)" },
-          "tips": { "label": "Total Staff Tips", "sub": "VAT exempt · Italy" },
+          "tips": { "label": "Tracked Electronic Tips", "sub": "VAT exempt · Register for 5% substitute tax" },
           "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
         },
         "table": {
           "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "VAT",
-          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected",
+          "paymentMethod": "POS method"
         },
         "pdf": {
           "title": "Tips & Billing Register — {{restaurant}}",
           "taxId": "VAT ID", "taxIdPending": "Pending configuration", "address": "Address",
           "period": "Period", "generated": "Generated",
           "summaryNet": "Net Billed Total (Subject to VAT)",
-          "summaryTips": "Total Staff Tips (VAT exempt)",
+          "summaryTips": "Total Voluntary Tips (VAT exempt)",
+          "summaryElectronicTips": "Tracked Electronic Tips — 5% substitute tax register",
           "summaryReconciliation": "POS Bank Reconciliation Total",
           "footer": "Automatically generated document · {{count}} transactions · Tips exempt from VAT (Italian regulations).",
           "filenamePrefix": "fiscal-register"
@@ -762,7 +807,12 @@
     "factors": {
       "orderHistory": "Order history",
       "dayOfWeek": "Day of week",
-      "weather": "Weather forecast"
+      "weather": "Weather forecast",
+      "reservations": "Reservations"
+    },
+    "weatherSource": {
+      "openMeteo": "Live weather (Open-Meteo)",
+      "simulated": "Estimated weather"
     },
     "days": {
       "sunday": "Sunday",
@@ -823,6 +873,8 @@
     "tax": "VAT",
     "orderSent": "Order sent to kitchen!",
     "dishAdded": "Dish added!",
+    "soldOut": "Sold out",
+    "soldOutToast": "Dish sold out — insufficient ingredients in stock",
     "paymentRegistered": "Payment registered!",
     "paymentError": "Payment error",
     "notes": "Notes",
@@ -950,11 +1002,15 @@
     "searchResults": "Results for \"{{query}}\"",
     "categories": "Categories",
     "featured": "Featured",
+    "soldOut": "Sold out",
     "allergens": "Allergens",
     "prepTime": "{{min}} min",
     "noResults": "No dishes found",
     "noResultsHint": "Try a different search term",
     "orderHint": "Select dishes and send your order to the kitchen",
+    "waiterOrderHint": "Browse the menu here. To order, please ask your waiter.",
+    "browseOnlyHint": "Digital menu for browsing only — no phone orders.",
+    "bookTable": "Book a table",
     "addToCart": "Add",
     "cart": "Your order",
     "cartEmpty": "Your cart is empty",
@@ -979,6 +1035,7 @@
     "paymentCancelled": "Payment cancelled. You can try again anytime.",
     "stripeUnavailable": "Online payment unavailable — you can order and pay at the table.",
     "subtotal": "Subtotal",
+    "taxableBase": "Taxable base",
     "total": "Total",
     "checkoutError": "Error sending your order",
     "remove": "Remove",
@@ -986,8 +1043,13 @@
     "decreaseQty": "Decrease quantity"
   },
   "qrBuilder": {
-    "title": "QR Menu Generator",
-    "subtitle": "Standard QR code for printing your showcase menu",
+    "title": "QR Generator",
+    "subtitle": "Two QR codes: in-room menu and online reservations",
+    "modeMenu": "Table menu",
+    "modeBooking": "Reservations",
+    "menuModeDesc": "Guests browse the digital menu. Waiters take orders at the table.",
+    "bookingModeDesc": "Guests book a table online. Print at the entrance or on your website.",
+    "previewBooking": "Preview booking",
     "scanTarget": "This QR code points to:",
     "downloadPng": "Download for Print (PNG)",
     "downloadSuccess": "PNG file downloaded successfully",
@@ -995,9 +1057,31 @@
     "printHint": "PNG export 2048×2048 px — black and white, ready for print shops.",
     "tableNumberOptional": "Table number (optional)",
     "tableNumberPlaceholder": "e.g. 5 — leave empty for generic menu",
-    "tableNumberHint": "With the table in the QR, guests won't need to enter it manually.",
+    "tableNumberHint": "With the table in the QR, guests see which table they are at.",
     "slugMissing": "Restaurant slug missing. Configure it in Settings to generate QR codes.",
     "goToSettings": "Go to Settings"
+  },
+  "publicBooking": {
+    "badge": "Table reservation",
+    "subtitle": "Fill in the form to request a table. We will confirm as soon as possible.",
+    "hours": "Hours: {{open}} – {{close}}",
+    "name": "Full name",
+    "phone": "Phone",
+    "emailOptional": "Email (optional)",
+    "date": "Date",
+    "time": "Time",
+    "covers": "Party size",
+    "maxCovers": "Maximum {{max}} guests per booking",
+    "notes": "Notes",
+    "notesPlaceholder": "Allergies, high chair, special occasion…",
+    "depositNotice": "A deposit of {{amount}} is required to confirm your booking.",
+    "submit": "Request reservation",
+    "success": "Reservation sent!",
+    "successTitle": "Request received",
+    "successDesc": "The restaurant has received your booking. You will get confirmation by phone or email.",
+    "viewMenu": "View digital menu",
+    "notFound": "Restaurant not found",
+    "error": "Could not send the reservation. Please try again or call the restaurant."
   },
   "payment": {
     "success": "Payment completed!",
@@ -1036,5 +1120,82 @@
     "paymentMethod": "Payment method",
     "cash": "Cash",
     "card": "Card"
+  },
+  "landing": {
+    "meta": {
+      "title": "Aura Syncro — Restaurant cloud software | Italy, Spain & Canary Islands",
+      "description": "SaaS restaurant management for Italy, Spain and the Canary Islands. QR menu, order and table management, Stripe payments, VAT/IGIC fiscal reports. Try Aura Syncro."
+    },
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "login": "Sign in",
+      "tryNow": "Try now"
+    },
+    "hero": {
+      "badge": "Italy · Spain · Canary Islands",
+      "title": "The management platform that keeps your restaurant in sync",
+      "subtitle": "{{brand}} is cloud software for structured restaurants: fast POS, QR menu, real-time orders and multi-country fiscal compliance.",
+      "ctaPrimary": "Try now",
+      "ctaSecondary": "Sign in"
+    },
+    "features": {
+      "title": "Everything you need during service",
+      "subtitle": "From dining room to kitchen, digital menu to fiscal reporting — one synchronized platform.",
+      "tables": {
+        "title": "Table management",
+        "desc": "Floor plan, table status and fast order entry for waiters — zero lag at peak hours."
+      },
+      "qrMenu": {
+        "title": "Digital QR menu",
+        "desc": "Guests browse the menu on their phone in the dining room. Waiters handle all orders."
+      },
+      "stripe": {
+        "title": "Stripe payments",
+        "desc": "Collect at the table or online with cards and digital wallets, integrated into orders."
+      },
+      "fiscal": {
+        "title": "Fiscal reports",
+        "desc": "VAT in Italy, mainland Spain and IGIC in the Canaries — exports ready for e-invoicing."
+      }
+    },
+    "pricing": {
+      "title": "Clear plans for every growth stage",
+      "subtitle": "Turnkey setup and transparent monthly billing. No surprises.",
+      "cta": "Start your trial",
+      "starter": {
+        "name": "Starter",
+        "tagline": "Daily dining room and kitchen operations",
+        "price": "Custom quote",
+        "setup": "",
+        "features": [
+          "Table and order management",
+          "Digital menu and categories",
+          "Kitchen display (KDS)",
+          "Reservations and basic inventory"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "Recommended",
+        "tagline": "Full suite for structured restaurants",
+        "price": "€199/month",
+        "setup": "€500 one-time setup",
+        "features": [
+          "Everything in Starter",
+          "CRM, loyalty and marketing",
+          "Predictive AI and analytics",
+          "Fiscal reports and Stripe payments",
+          "Turnkey onboarding support"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Cloud software for restaurants in Italy, Spain and the Canary Islands.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact",
+      "rights": "© {{year}} {{brand}}. All rights reserved."
+    }
   }
 }

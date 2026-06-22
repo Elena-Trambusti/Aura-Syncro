@@ -54,7 +54,7 @@ export default function GuestCartDrawer({
   const [loading, setLoading] = useState<'card' | 'table' | null>(null)
   const [orderSuccess, setOrderSuccess] = useState(false)
 
-  const { tax, total } = computeGuestOrderTax(subtotal, fiscal.taxRate)
+  const { subtotal: taxableBase, tax, total } = computeGuestOrderTax(subtotal, fiscal.taxRate)
 
   if (!open) return null
 
@@ -283,8 +283,8 @@ export default function GuestCartDrawer({
               <div className="border-t border-slate-100 px-5 py-4">
                 <div className="mb-4 space-y-1.5 text-sm">
                   <div className="flex justify-between text-slate-600">
-                    <span>{t('publicMenu.subtotal')}</span>
-                    <span className="tabular-nums">{formatCurrency(subtotal)}</span>
+                    <span>{t('publicMenu.taxableBase')}</span>
+                    <span className="tabular-nums">{formatCurrency(taxableBase)}</span>
                   </div>
                   {tax > 0 && (
                     <div className="flex justify-between text-slate-600">

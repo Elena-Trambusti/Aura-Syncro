@@ -5,7 +5,8 @@ import { api } from '../lib/api'
 import { useAuth, useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import type { CountryCode, TaxRegion } from '../lib/fiscalRegime'
-import { Save, QrCode, ExternalLink, MonitorCheck } from 'lucide-react'
+import { defaultTaxRateForRegion } from '../lib/fiscalRegime'
+import { Save, QrCode, ExternalLink, MonitorCheck, CalendarDays, Copy } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import { formatApiError } from '../lib/errors'
@@ -17,6 +18,12 @@ interface RestaurantSettings {
   taxRegion?: TaxRegion
   taxRate?: number
   taxId?: string | null
+  legalName?: string | null
+  legalAddress?: string | null
+  fiscalCode?: string | null
+  pec?: string | null
+  sdiRecipientCode?: string | null
+  invoicePrefix?: string
   defaultLocale?: string
 }
 
@@ -41,6 +48,12 @@ type SettingsForm = {
   taxRegion: TaxRegion
   taxRate: number
   taxId: string
+  legalName: string
+  legalAddress: string
+  fiscalCode: string
+  pec: string
+  sdiRecipientCode: string
+  invoicePrefix: string
 }
 
 function buildSavePayload(data: SettingsForm) {
@@ -56,6 +69,12 @@ function buildSavePayload(data: SettingsForm) {
       taxRegion: data.taxRegion,
       taxRate: data.taxRate,
       taxId: emptyToNull(data.taxId),
+      legalName: emptyToNull(data.legalName),
+      legalAddress: emptyToNull(data.legalAddress),
+      fiscalCode: emptyToNull(data.fiscalCode),
+      pec: emptyToNull(data.pec),
+      sdiRecipientCode: emptyToNull(data.sdiRecipientCode),
+      invoicePrefix: data.invoicePrefix.trim().toUpperCase() || 'FATT',
     },
   }
 }
@@ -81,6 +100,12 @@ export default function SettingsPage() {
     taxRegion: 'IT_MAIN' as TaxRegion,
     taxRate: 10,
     taxId: '',
+    legalName: '',
+    legalAddress: '',
+    fiscalCode: '',
+    pec: '',
+    sdiRecipientCode: '',
+    invoicePrefix: 'FATT',
   })
 
   useEffect(() => {
@@ -95,18 +120,36 @@ export default function SettingsPage() {
       taxRegion: restaurantData.settings?.taxRegion || 'IT_MAIN',
       taxRate: restaurantData.settings?.taxRate ?? 10,
       taxId: restaurantData.settings?.taxId || '',
+      legalName: restaurantData.settings?.legalName || '',
+      legalAddress: restaurantData.settings?.legalAddress || '',
+      fiscalCode: restaurantData.settings?.fiscalCode || '',
+      pec: restaurantData.settings?.pec || '',
+      sdiRecipientCode: restaurantData.settings?.sdiRecipientCode || '',
+      invoicePrefix: restaurantData.settings?.invoicePrefix || 'FATT',
     })
   }, [restaurantData, restaurant?.name])
 
   const update = (k: string, v: string | number) => setForm(f => ({ ...f, [k]: v }))
 
   const onCountryChange = (countryCode: CountryCode) => {
+    setForm(f => {
+      const taxRegion: TaxRegion = countryCode === 'ES'
+        ? (f.taxRegion.startsWith('ES_') ? f.taxRegion : 'ES_PENINSULA')
+        : 'IT_MAIN'
+      return {
+        ...f,
+        countryCode,
+        taxRegion,
+        taxRate: defaultTaxRateForRegion(taxRegion),
+      }
+    })
+  }
+
+  const onTaxRegionChange = (taxRegion: TaxRegion) => {
     setForm(f => ({
       ...f,
-      countryCode,
-      taxRegion: countryCode === 'ES'
-        ? (f.taxRegion.startsWith('ES_') ? f.taxRegion : 'ES_CANARIAS')
-        : 'IT_MAIN',
+      taxRegion,
+      taxRate: defaultTaxRateForRegion(taxRegion),
     }))
   }
 
@@ -131,7 +174,13 @@ export default function SettingsPage() {
   }
 
   const menuUrl = `${window.location.origin}/menu/${restaurant?.slug}`
+  const bookingUrl = `${window.location.origin}/prenota/${restaurant?.slug}`
   const kitchenUrl = `${window.location.origin}/cucina`
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success(t('common.linkCopied'))
+  }
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -166,7 +215,7 @@ export default function SettingsPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxRegion')}</label>
             <select
               value={form.taxRegion}
-              onChange={e => update('taxRegion', e.target.value)}
+              onChange={e => onTaxRegionChange(e.target.value as TaxRegion)}
               className="w-full px-4 py-2.5 saas-input"
             >
               {form.countryCode === 'IT' ? (
@@ -201,6 +250,65 @@ export default function SettingsPage() {
           </div>
         </div>
         <p className="text-xs text-slate-500 mt-4">{t('settings.saveHint')}</p>
+      </div>
+
+      <div className="glass-card p-6">
+        <h2 className="text-base font-semibold text-slate-900 mb-1">{t('settings.billingTitle')}</h2>
+        <p className="text-sm text-slate-500 mb-4">{t('settings.billingDesc')}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.legalName')}</label>
+            <input
+              value={form.legalName}
+              onChange={e => update('legalName', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.legalAddress')}</label>
+            <input
+              value={form.legalAddress}
+              onChange={e => update('legalAddress', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.fiscalCode')}</label>
+            <input
+              value={form.fiscalCode}
+              onChange={e => update('fiscalCode', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.pec')}</label>
+            <input
+              type="email"
+              value={form.pec}
+              onChange={e => update('pec', e.target.value)}
+              className="w-full px-4 py-2.5 saas-input"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.sdiRecipientCode')}</label>
+            <input
+              value={form.sdiRecipientCode}
+              onChange={e => update('sdiRecipientCode', e.target.value.toUpperCase().slice(0, 7))}
+              maxLength={7}
+              className="w-full px-4 py-2.5 saas-input font-mono"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.invoicePrefix')}</label>
+            <input
+              value={form.invoicePrefix}
+              onChange={e => update('invoicePrefix', e.target.value.toUpperCase().slice(0, 12))}
+              maxLength={12}
+              className="w-full px-4 py-2.5 saas-input font-mono"
+            />
+            <p className="text-xs text-slate-500 mt-1">{t('settings.invoicePrefixHint')}</p>
+          </div>
+        </div>
       </div>
 
       <div className="glass-card p-6">
@@ -240,10 +348,20 @@ export default function SettingsPage() {
       <div className="glass-card p-6">
         <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.qrMenu')}</h2>
         <p className="text-sm text-slate-500 mb-4">{t('settings.qrMenuDesc')}</p>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
             <p className="text-xs font-medium text-slate-500 mb-1">{t('settings.publicMenuLink')}</p>
-            <code className="text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 block break-all">{menuUrl}</code>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 block break-all">{menuUrl}</code>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(menuUrl)}
+                className="shrink-0 rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+                aria-label={t('common.copyLink')}
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
@@ -257,6 +375,41 @@ export default function SettingsPage() {
               className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors">
               <ExternalLink className="w-4 h-4" />
               {t('settings.openMenu')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card p-6">
+        <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.qrBooking')}</h2>
+        <p className="text-sm text-slate-500 mb-4">{t('settings.qrBookingDesc')}</p>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-medium text-slate-500 mb-1">{t('settings.publicBookingLink')}</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 block break-all">{bookingUrl}</code>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(bookingUrl)}
+                className="shrink-0 rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+                aria-label={t('common.copyLink')}
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/dashboard/qr-builder"
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              <CalendarDays className="w-4 h-4" />
+              {t('settings.bookingQr')}
+            </Link>
+            <button onClick={() => window.open(bookingUrl, '_blank')}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors">
+              <ExternalLink className="w-4 h-4" />
+              {t('settings.openBooking')}
             </button>
           </div>
         </div>

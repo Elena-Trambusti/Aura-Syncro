@@ -4,6 +4,8 @@ import { stripe, STRIPE_ENABLED } from './stripe'
 import { computeTaxForRestaurant } from './orderTax'
 import { PublicOrderError } from './publicOrder'
 import { resolvePrimaryFrontendUrl } from './frontendUrl'
+import { deductInventoryForOrder } from './inventoryDeduction'
+import { resolveOrCreateCustomer } from './customerResolver'
 
 export const guestCheckoutSchema = z.object({
   slug: z.string().min(1),
@@ -70,31 +72,41 @@ export async function createGuestStripeCheckout(
     return { ...item, unitPrice: mi.price, name: mi.name }
   })
 
-  const subtotal = itemsWithPrice.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-  const { tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, subtotal)
+  const grossTotal = itemsWithPrice.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
+  const { subtotal, tax, total, taxRateApplied } = await computeTaxForRestaurant(restaurantId, grossTotal)
 
-  const order = await prisma.order.create({
-    data: {
-      restaurantId,
-      tableId,
-      subtotal,
-      tax,
-      total,
-      taxRateApplied,
-      revenueAmount: total,
-      tipAmount: 0,
-      type: orderData.type,
-      notes: orderData.notes,
-      status: 'PENDING',
-      items: {
-        create: itemsWithPrice.map(item => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          notes: item.notes,
-        })),
+  const customerId = await resolveOrCreateCustomer(restaurantId, {
+    email: customerEmail,
+    name: customerName,
+  })
+
+  const order = await prisma.$transaction(async tx => {
+    const created = await tx.order.create({
+      data: {
+        restaurantId,
+        tableId,
+        customerId,
+        subtotal,
+        tax,
+        total,
+        taxRateApplied,
+        revenueAmount: total,
+        tipAmount: 0,
+        type: orderData.type,
+        notes: orderData.notes,
+        status: 'PENDING',
+        items: {
+          create: itemsWithPrice.map(item => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            notes: item.notes,
+          })),
+        },
       },
-    },
+    })
+    await deductInventoryForOrder(tx, created.id, restaurantId)
+    return created
   })
 
   if (tableId) {
@@ -132,6 +144,7 @@ export async function createGuestStripeCheckout(
       restaurantId,
       tableNumber: tableNumber?.toString() || '',
       customerName: customerName || '',
+      customerEmail: customerEmail || '',
     },
     line_items: lineItems,
     success_url: `${frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,

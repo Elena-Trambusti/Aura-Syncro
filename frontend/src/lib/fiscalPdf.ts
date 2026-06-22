@@ -10,6 +10,7 @@ export interface FiscalRow {
   revenueAmount: number
   tipAmount: number
   total: number
+  paymentMethod?: string | null
 }
 
 export interface FiscalReportData {
@@ -47,7 +48,7 @@ const fileDate = (start: string) => {
 
 export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabels): void {
   if (!data.rows.length) {
-    throw new Error('No data to export')
+    throw new Error(labels.noDataExport)
   }
 
   const { locale } = labels
@@ -69,6 +70,10 @@ export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabel
     metaY += 5
   }
   doc.text(`${labels.period}: ${fmtPeriod(period.start, period.end, locale)}`, 14, metaY)
+  if (labels.taxRateLine) {
+    metaY += 5
+    doc.text(labels.taxRateLine, 14, metaY)
+  }
   doc.text(
     `${labels.generated}: ${new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date())}`,
     pageW - 14,
@@ -79,15 +84,21 @@ export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabel
   autoTable(doc, {
     startY: metaY + 6,
     head: [labels.headers],
-    body: rows.map(r => [
-      r.fecha ? toDateStr(r.fecha, locale) : '—',
-      r.orderId.slice(-6).toUpperCase(),
-      fmtEur(r.baseImponible, locale),
-      fmtEur(r.tax, locale),
-      fmtEur(r.revenueAmount, locale),
-      fmtEur(r.tipAmount, locale),
-      fmtEur(r.total, locale),
-    ]),
+    body: rows.map(r => {
+      const base = [
+        r.fecha ? toDateStr(r.fecha, locale) : '—',
+        r.orderId.slice(-6).toUpperCase(),
+        fmtEur(r.baseImponible, locale),
+        fmtEur(r.tax, locale),
+        fmtEur(r.revenueAmount, locale),
+        fmtEur(r.tipAmount, locale),
+        fmtEur(r.total, locale),
+      ]
+      if (labels.includePaymentMethod) {
+        base.push(r.paymentMethod ?? '—')
+      }
+      return base
+    }),
     styles: { fontSize: 8, cellPadding: 2.5 },
     headStyles: { fillColor: [249, 115, 22], textColor: 255, fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248, 250, 252] },
@@ -105,7 +116,7 @@ export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabel
   const finalY = docWithTable.lastAutoTable?.finalY ?? metaY + 6
 
   autoTable(doc, {
-    startY: Math.min(finalY + 8, pageH - 40),
+    startY: Math.min(finalY + 8, pageH - 48),
     body: [
       [labels.summaryNet, fmtEur(summary.totalFacturadoNeto, locale)],
       [labels.summaryTips, fmtEur(summary.totalPropinas, locale)],
@@ -126,7 +137,11 @@ export function generateFiscalPdf(data: FiscalReportData, labels: FiscalPdfLabel
 
   doc.setFontSize(7)
   doc.setTextColor(120)
-  doc.text(labels.footer(summary.transactionCount), pageW / 2, pageH - 8, { align: 'center' })
+  doc.text(labels.footer(summary.transactionCount), pageW / 2, pageH - 14, { align: 'center' })
+  doc.setFontSize(6)
+  doc.setTextColor(100)
+  const disclaimerLines = doc.splitTextToSize(labels.legalDisclaimer, pageW - 28)
+  doc.text(disclaimerLines, pageW / 2, pageH - 8, { align: 'center' })
 
   doc.save(`${labels.filenamePrefix}-${fileDate(period.start)}.pdf`)
 }

@@ -5,6 +5,7 @@ import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
+import { formatApiError } from '../lib/errors'
 import { BRAND } from '../lib/brand'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -43,10 +44,7 @@ export default function BillingPage() {
       }
       window.location.href = data.checkoutUrl
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-        ?? (err instanceof Error ? err.message : t('billing.checkoutError'))
-      setError(message)
+      setError(formatApiError(err))
       setLoadingPremium(false)
     }
   }

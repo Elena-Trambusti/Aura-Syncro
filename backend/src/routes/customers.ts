@@ -25,6 +25,10 @@ function serializeCustomer(customer: {
   totalSpent: number
   lastVisit: Date | null
   loyaltyTierId: string | null
+  taxId: string | null
+  fiscalCode: string | null
+  sdiRecipientCode: string | null
+  pec: string | null
   createdAt: Date
   updatedAt: Date
 }) {
@@ -106,6 +110,16 @@ customersRouter.get('/:id', requirePermission('customers.read'), async (req: Aut
   res.json({ ...serializeCustomer(base), orders, reservations })
 })
 
+const emptyToNull = (val: unknown) =>
+  val === '' || val === null || val === undefined ? null : val
+
+const fiscalFieldsSchema = {
+  taxId: z.preprocess(emptyToNull, z.string().max(32).nullable().optional()),
+  fiscalCode: z.preprocess(emptyToNull, z.string().max(32).nullable().optional()),
+  sdiRecipientCode: z.preprocess(emptyToNull, z.string().max(7).nullable().optional()),
+  pec: z.preprocess(emptyToNull, z.string().email().nullable().optional()),
+}
+
 customersRouter.post('/', requirePermission('customers.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
   const emptyToUndefined = (val: unknown) =>
     val === '' || val === null || val === undefined ? undefined : val
@@ -120,6 +134,7 @@ customersRouter.post('/', requirePermission('customers.manage'), async (req: Aut
     notes: z.preprocess(emptyToUndefined, z.string().optional()),
     allergens: z.preprocess(emptyToUndefined, z.string().optional()),
     tags: z.array(z.string().trim().min(1)).optional(),
+    ...fiscalFieldsSchema,
   })
   const result = schema.safeParse(req.body)
   if (!result.success) {
@@ -147,6 +162,10 @@ customersRouter.post('/', requirePermission('customers.manage'), async (req: Aut
         notes: result.data.notes,
         allergens: result.data.allergens,
         tags: result.data.tags ?? [],
+        taxId: result.data.taxId ?? null,
+        fiscalCode: result.data.fiscalCode ?? null,
+        sdiRecipientCode: result.data.sdiRecipientCode ?? null,
+        pec: result.data.pec ?? null,
         restaurantId: req.restaurantId!,
         totalVisits: 0,
         totalSpent: 0,
@@ -175,6 +194,7 @@ customersRouter.put('/:id', requirePermission('customers.manage'), async (req: A
     allergens: z.string().optional().nullable(),
     tags: z.array(z.string().trim().min(1)).optional(),
     birthDate: z.string().datetime().optional().nullable(),
+    ...fiscalFieldsSchema,
   })
   const result = schema.safeParse(req.body)
   if (!result.success) {
@@ -203,6 +223,10 @@ customersRouter.put('/:id', requirePermission('customers.manage'), async (req: A
       notes: result.data.notes,
       allergens: result.data.allergens,
       tags: result.data.tags,
+      taxId: result.data.taxId,
+      fiscalCode: result.data.fiscalCode,
+      sdiRecipientCode: result.data.sdiRecipientCode,
+      pec: result.data.pec,
       ...(result.data.birthDate !== undefined
         ? { birthdate: result.data.birthDate ? new Date(result.data.birthDate) : null }
         : {}),

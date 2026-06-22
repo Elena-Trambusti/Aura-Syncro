@@ -6,7 +6,7 @@ import { formatCurrency, cn, toLocalDateInput } from '../lib/utils'
 import { generateFiscalPdf, type FiscalReportData } from '../lib/fiscalPdf'
 import { buildFiscalPdfLabels } from '../lib/fiscalLabels'
 import { downloadCSV } from '../lib/export'
-import { getIntlLocale } from '../i18n'
+import { getFiscalIntlLocale } from '../i18n'
 import { useAuth, useFiscalRegime, useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import AccessDenied from '../components/AccessDenied'
@@ -54,18 +54,19 @@ function ReportFiscalContent() {
   const [rangeTo, setRangeTo] = useState(() => toLocalDateInput())
   const [isExporting, setIsExporting] = useState(false)
 
-  const intlLocale = getIntlLocale()
-
   const { data, isLoading, isFetching, isError } = useQuery<FiscalApiResponse>({
     queryKey: tq(tenantQueryKey, 'reports', 'fiscal', mode, dayDate, year, month, rangeFrom, rangeTo),
     queryFn: () => api.get(`/reports/fiscal?${queryParams(mode, dayDate, year, month, rangeFrom, rangeTo)}`).then(r => r.data),
     enabled: !!restaurant?.id,
   })
 
-  /** Regime fiscale SOLO dal tenant DB — mai da cache API né da i18n.language */
-  const taxRegion: TaxRegion = fiscalRegime.taxRegion
-  const taxName = fiscalRegime.taxName
-  const countryCode = fiscalRegime.countryCode
+  /** Regime fiscale dal tenant DB; se l'API risponde, usa fiscalRegime della risposta (più aggiornato). */
+  const activeRegime = data?.fiscalRegime ?? fiscalRegime
+  const taxRegion: TaxRegion = activeRegime.taxRegion
+  const taxName = activeRegime.taxName
+  const taxRate = activeRegime.taxRate
+  const countryCode = activeRegime.countryCode
+  const fiscalLocale = getFiscalIntlLocale(activeRegime.defaultLocale)
 
   const months = useMemo(
     () => t('reportFiscal.months', { returnObjects: true }) as string[],
@@ -128,12 +129,18 @@ function ReportFiscalContent() {
   )
 
   const fmtDate = (d: string | Date) =>
-    new Intl.DateTimeFormat(intlLocale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(d))
+    new Intl.DateTimeFormat(fiscalLocale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(d))
 
   const hasExportData = Boolean(data && !isLoading && data.rows.length > 0)
 
   const summaryValues = data
-    ? [data.summary.totalFacturadoNeto, data.summary.totalPropinas, data.summary.totalConciliacion]
+    ? [
+        data.summary.totalFacturadoNeto,
+        taxRegion === 'IT_MAIN'
+          ? (data.summary.electronicTipsTotal ?? 0)
+          : data.summary.totalPropinas,
+        data.summary.totalConciliacion,
+      ]
     : [0, 0, 0]
 
   const handleExportCSV = () => {
@@ -141,9 +148,8 @@ function ReportFiscalContent() {
       toast.error(t('reportFiscal.noData'))
       return
     }
-    const labels = buildFiscalPdfLabels(t, taxRegion)
+    const labels = buildFiscalPdfLabels(t, taxRegion, activeRegime.defaultLocale, taxRate)
     const headers = [...labels.headers]
-    if (taxRegion === 'IT_MAIN') headers.push(tRegime(t, taxRegion, 'table.paymentMethod', { defaultValue: 'Metodo' }))
     downloadCSV(
       `${labels.filenamePrefix}-${data.period.start.slice(0, 10)}.csv`,
       headers,
@@ -163,7 +169,7 @@ function ReportFiscalContent() {
         return base
       }),
     )
-    toast.success(t('reportFiscal.csvGenerated', { defaultValue: 'CSV esportato' }))
+    toast.success(t('reportFiscal.csvGenerated'))
   }
 
   const handleExportPDF = async () => {
@@ -186,7 +192,7 @@ function ReportFiscalContent() {
             fecha: r.fecha ? (typeof r.fecha === 'string' ? r.fecha : new Date(r.fecha).toISOString()) : null,
           })),
         },
-        buildFiscalPdfLabels(t, taxRegion),
+        buildFiscalPdfLabels(t, taxRegion, activeRegime.defaultLocale, taxRate),
       )
       toast.success(t('reportFiscal.pdfGenerated'), {
         icon: '📄',
@@ -238,6 +244,9 @@ function ReportFiscalContent() {
             <p className="max-w-xl text-sm text-slate-500/90">
               {tRegime(t, taxRegion, 'subtitle', { taxName })}
             </p>
+            <p className="max-w-xl text-xs text-slate-400">
+              {tRegime(t, taxRegion, 'tipExemptNote')}
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -280,6 +289,10 @@ function ReportFiscalContent() {
           </div>
         </div>
 
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+          {t('reportFiscal.legalDisclaimer')}
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {summaryCards.map((card, i) => {
             const Icon = card.icon
@@ -303,6 +316,13 @@ function ReportFiscalContent() {
                       {isLoading ? '—' : formatCurrency(summaryValues[i])}
                     </p>
                     <p className="mt-1 text-xs text-slate-600">{card.sub}</p>
+                    {card.key === 'propinas' && taxRegion === 'IT_MAIN' && data && data.summary.totalPropinas !== (data.summary.electronicTipsTotal ?? 0) && (
+                      <p className="mt-1 text-[10px] text-slate-500">
+                        {t('reportFiscal.totalTipsNote', {
+                          total: formatCurrency(data.summary.totalPropinas),
+                        })}
+                      </p>
+                    )}
                   </div>
                   <div className={cn('rounded-xl glass-card p-3 shadow-sm', card.iconColor)}>
                     <Icon className="h-6 w-6" />

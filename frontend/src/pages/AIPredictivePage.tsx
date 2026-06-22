@@ -111,7 +111,7 @@ export default function AIPredictivePage() {
 
 function AIPredictivePageContent() {
   const { t, i18n } = useTranslation()
-  const { forecast, alerts, factorsUsed, engineVersion, generatedAt, isLoading, isError, refetch } = usePredictiveAI()
+  const { forecast, alerts, factorsUsed, engineVersion, generatedAt, weatherSource, isLoading, isError, refetch } = usePredictiveAI()
 
   const chartData = forecast.map(day => ({
     ...day,
@@ -123,6 +123,7 @@ function AIPredictivePageContent() {
     orderHistory: t('aiPredictive.factors.orderHistory'),
     dayOfWeek: t('aiPredictive.factors.dayOfWeek'),
     weather: t('aiPredictive.factors.weather'),
+    reservations: t('aiPredictive.factors.reservations'),
   }
 
   return (
@@ -142,6 +143,11 @@ function AIPredictivePageContent() {
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm">
               <Brain className="h-3 w-3 text-amber-500" />
               {t('aiPredictive.engineLabel', { version: engineVersion })}
+              {weatherSource && (
+                <span className="text-slate-500">
+                  · {t(`aiPredictive.weatherSource.${weatherSource === 'open-meteo' ? 'openMeteo' : 'simulated'}`)}
+                </span>
+              )}
             </span>
           )}
           {factorsUsed.length > 0 && (

@@ -53,7 +53,7 @@ staffRouter.put('/:id', requirePermission('staff.manage'), async (req: AuthReque
   const schema = z.object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
-    password: z.string().min(6).optional(),
+    password: z.string().min(8).optional(),
     role: z.enum(assignableRoles).optional(),
     phone: z.string().optional().nullable(),
     active: z.boolean().optional(),
@@ -88,6 +88,13 @@ staffRouter.put('/:id', requirePermission('staff.manage'), async (req: AuthReque
   if (updated.count === 0) {
     tenantNotFound(res, 'Utente non trovato')
     return
+  }
+
+  if (result.data.active === false) {
+    await prisma.user.updateMany({
+      where: scopedWhere(req, req.params.id),
+      data: { tokenVersion: { increment: 1 } },
+    })
   }
 
   const user = await prisma.user.findFirst({

@@ -22,7 +22,7 @@ export default function AccessDenied({ message }: Props) {
         </p>
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/dashboard')}
           className="mt-8 w-full rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white hover:bg-slate-800"
         >
           {t('rbac.backToDashboard')}

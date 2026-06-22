@@ -7,14 +7,15 @@ import { ui } from '../lib/ui'
 import { useRole } from '../hooks/useRole'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
-import { Plus, Edit2, Trash2, BookOpen } from 'lucide-react'
+import { Plus, Edit2, Trash2, BookOpen, Package } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ModalPortal from '../components/ModalPortal'
 import QueryErrorBanner from '../components/QueryErrorBanner'
+import RecipeEditorModal from '../components/menu/RecipeEditorModal'
 
 interface MenuItem {
   id: string; name: string; description?: string; price: number
-  available: boolean; featured: boolean; allergens?: string
+  available: boolean; soldOut?: boolean; orderable?: boolean; featured: boolean; allergens?: string
   preparationTime?: number; calories?: number
   category: { id: string; name: string }
 }
@@ -118,6 +119,7 @@ export default function MenuPage() {
   const [showForm, setShowForm] = useState(false)
   const [selectedCat, setSelectedCat] = useState<string | null>(null)
   const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string } | null>(null)
+  const [recipeItem, setRecipeItem] = useState<{ id: string; name: string } | null>(null)
 
   const { data: categories = [], isError } = useQuery<Category[]>({
     queryKey: tq(tk, 'menu', 'categories'),
@@ -279,7 +281,11 @@ export default function MenuPage() {
                   {item.preparationTime ? `${item.preparationTime} ${t('common.minutes')}` : '-'}
                 </td>
                 <td className="px-4 py-4 align-top">
-                  {canToggleAvailability ? (
+                  {item.soldOut ? (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-medium border border-rose-200 bg-rose-50 text-rose-700">
+                      {t('menu.soldOut')}
+                    </span>
+                  ) : canToggleAvailability ? (
                   <button onClick={() => toggleAvail.mutate({ id: item.id, available: !item.available })}
                     className={`text-xs px-2.5 py-1 rounded-full font-medium border ${item.available ? ui.badgeSuccess : ui.badgeMuted}`}>
                     {item.available ? `● ${t('menu.available')}` : `○ ${t('menu.notAvailable')}`}
@@ -293,6 +299,13 @@ export default function MenuPage() {
                 <td className="px-4 py-4 align-top">
                   {canManageMenu && (
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setRecipeItem({ id: item.id, name: item.name })}
+                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-slate-500 hover:text-amber-700`}
+                      title={t('menu.editRecipe')}
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                    </button>
                     <button onClick={() => { setEditingItem({ ...item, categoryId: item.category.id }); }}
                       className={`p-1.5 ${ui.chipInactive} rounded-lg text-slate-500 hover:text-slate-900`}>
                       <Edit2 className="w-3.5 h-3.5" />
@@ -331,6 +344,15 @@ export default function MenuPage() {
           categories={categories}
           onSave={data => updateItem.mutate({ id: editingItem.id!, data })}
           onCancel={() => setEditingItem(null)}
+        />
+      )}
+
+      {recipeItem && (
+        <RecipeEditorModal
+          itemId={recipeItem.id}
+          itemName={recipeItem.name}
+          onClose={() => setRecipeItem(null)}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: tq(tk, 'menu') })}
         />
       )}
 

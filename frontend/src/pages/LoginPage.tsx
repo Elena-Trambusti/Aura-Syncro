@@ -15,6 +15,8 @@ export default function LoginPage() {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [restaurantSlug, setRestaurantSlug] = useState('')
+  const [tenantOptions, setTenantOptions] = useState<Array<{ name: string; slug: string }>>([])
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -22,10 +24,16 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await login(email, password)
+      await login(email, password, restaurantSlug || undefined)
       toast.success(t('auth.welcomeBack'))
     } catch (err: unknown) {
-      toast.error(formatApiError(err))
+      const data = (err as { response?: { data?: { code?: string; restaurants?: Array<{ name: string; slug: string }> } } })?.response?.data
+      if (data?.code === 'MULTIPLE_TENANTS' && data.restaurants?.length) {
+        setTenantOptions(data.restaurants)
+        toast.error(t('auth.multipleTenantsHint'))
+      } else {
+        toast.error(formatApiError(err))
+      }
     } finally {
       setLoading(false)
     }
@@ -77,6 +85,38 @@ export default function LoginPage() {
                   required
                 />
               </div>
+
+              {(tenantOptions.length > 0 || restaurantSlug) && (
+                <div>
+                  <label htmlFor="login-restaurant" className={ui.label}>
+                    {t('auth.restaurantCode')}
+                  </label>
+                  {tenantOptions.length > 0 ? (
+                    <select
+                      id="login-restaurant"
+                      value={restaurantSlug}
+                      onChange={e => setRestaurantSlug(e.target.value)}
+                      className={ui.input}
+                      required
+                    >
+                      <option value="">{t('auth.selectRestaurant')}</option>
+                      {tenantOptions.map(r => (
+                        <option key={r.slug} value={r.slug}>{r.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="login-restaurant"
+                      type="text"
+                      value={restaurantSlug}
+                      onChange={e => setRestaurantSlug(e.target.value)}
+                      className={ui.input}
+                      placeholder={t('auth.restaurantCodePlaceholder')}
+                    />
+                  )}
+                  <p className="mt-1 text-xs text-slate-500">{t('auth.restaurantCodeHint')}</p>
+                </div>
+              )}
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">

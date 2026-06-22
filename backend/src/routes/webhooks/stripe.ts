@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { stripe } from '../../lib/stripe'
 import { handleCheckoutSessionCompleted } from '../../lib/stripeCheckoutWebhook'
 import { syncRestaurantSubscriptionStatus } from '../../lib/stripeSubscriptionWebhook'
+import { asyncHandler } from '../../lib/asyncHandler'
 
 export const stripeWebhookRouter = Router()
 
@@ -10,7 +11,7 @@ export const stripeWebhookRouter = Router()
  * Notifiche Stripe: abbonamento SaaS, Pro, ordini guest e caparre.
  * Richiede body raw — vedi index.ts.
  */
-stripeWebhookRouter.post('/', async (req: Request, res: Response): Promise<void> => {
+stripeWebhookRouter.post('/', asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature']
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
@@ -61,9 +62,31 @@ stripeWebhookRouter.post('/', async (req: Request, res: Response): Promise<void>
       }
     }
 
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object as { subscription?: string | { id: string } | null }
+      const subId = typeof invoice.subscription === 'string'
+        ? invoice.subscription
+        : invoice.subscription?.id
+      if (subId) {
+        const subscription = await stripe.subscriptions.retrieve(subId)
+        const result = await syncRestaurantSubscriptionStatus({
+          id: subscription.id,
+          status: subscription.status,
+          metadata: subscription.metadata as Record<string, string>,
+        })
+        if (result) {
+          console.warn(
+            '[stripe-webhook] Pagamento abbonamento fallito',
+            result.restaurantId,
+            subscription.status,
+          )
+        }
+      }
+    }
+
     res.status(200).json({ received: true })
   } catch (err) {
     console.error('[stripe-webhook] Errore elaborazione evento:', err)
     res.status(500).json({ error: 'Errore interno webhook' })
   }
-})
+}))

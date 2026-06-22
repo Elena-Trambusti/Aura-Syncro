@@ -1,5 +1,40 @@
 import { prisma } from './prisma'
 
+const DEFAULT_TIERS = [
+  { name: 'Bronze', minPoints: 0, color: '#cd7f32', pointsPerEuro: 1, discountPct: 0, sortOrder: 0 },
+  { name: 'Silver', minPoints: 200, color: '#94a3b8', pointsPerEuro: 1.2, discountPct: 5, sortOrder: 1 },
+  { name: 'Gold', minPoints: 500, color: '#f59e0b', pointsPerEuro: 1.5, discountPct: 10, sortOrder: 2 },
+] as const
+
+/** Crea livelli fedeltà predefiniti se il ristorante non ne ha ancora */
+export async function ensureDefaultLoyaltyTiers(restaurantId: string): Promise<void> {
+  const count = await prisma.loyaltyTier.count({ where: { restaurantId } })
+  if (count > 0) return
+  await prisma.loyaltyTier.createMany({
+    data: DEFAULT_TIERS.map(t => ({ ...t, restaurantId })),
+  })
+}
+
+/** Assegna il livello entry al cliente se non ha ancora un tier */
+export async function ensureLoyaltyEnrollment(restaurantId: string, customerId: string): Promise<void> {
+  const customer = await prisma.customer.findFirst({
+    where: { id: customerId, restaurantId },
+    select: { loyaltyTierId: true, loyaltyPoints: true },
+  })
+  if (!customer || customer.loyaltyTierId) return
+
+  const entryTier = await prisma.loyaltyTier.findFirst({
+    where: { restaurantId },
+    orderBy: { minPoints: 'asc' },
+  })
+  if (!entryTier) return
+
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: { loyaltyTierId: entryTier.id },
+  })
+}
+
 export async function updateCustomerTier(
   restaurantId: string,
   customerId: string,
@@ -33,6 +68,13 @@ export async function earnLoyaltyPointsForOrder(
       where: { restaurantId },
       orderBy: { minPoints: 'asc' },
     })
+
+  if (!customer.loyaltyTierId && tier) {
+    await prisma.customer.update({
+      where: { id: customerId },
+      data: { loyaltyTierId: tier.id },
+    })
+  }
 
   const pointsPerEuro = tier?.pointsPerEuro ?? 1
   const points = Math.floor(Math.max(0, revenueAmount) * pointsPerEuro)

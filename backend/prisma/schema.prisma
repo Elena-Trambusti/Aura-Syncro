@@ -59,6 +59,8 @@ model Restaurant {
   campaigns            Campaign[]
   marketingAutomations MarketingAutomation[]
   waitlist       WaitlistEntry[]
+  invoices       Invoice[]
+  fiscalSequences FiscalSequence[]
 }
 
 model RestaurantSettings {
@@ -78,6 +80,21 @@ model RestaurantSettings {
   noShowDepositRequired   Boolean @default(false)
   depositAmount    Float       @default(0.0)
   taxId            String?
+  /** Ragione sociale per fatturazione elettronica */
+  legalName        String?
+  /** Indirizzo legale della sede fiscale */
+  legalAddress     String?
+  /** Coordinate per previsioni meteo (Open-Meteo) */
+  latitude         Float?
+  longitude        Float?
+  /** Codice fiscale (Italia) */
+  fiscalCode       String?
+  /** PEC per fatturazione elettronica */
+  pec              String?
+  /** Codice destinatario SDI (7 caratteri, es. M5UXCR1) */
+  sdiRecipientCode String?
+  /** Prefisso numerazione documenti (es. FATT → FATT-2026-001) */
+  invoicePrefix    String      @default("FATT")
   /** Abbonamento SaaS Aura Syncro Premium */
   hasActiveSubscription Boolean  @default(false)
   stripeSubscriptionId  String?
@@ -99,6 +116,7 @@ model User {
   avatar       String?
   phone        String?
   active       Boolean  @default(true)
+  tokenVersion Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -232,10 +250,17 @@ model Order {
   paymentMethod       PaymentMethod?
   stripeSessionId     String?
   stripePaymentIntent String?
+  /** Snapshot dati fatturazione B2B al momento del pagamento */
+  billingLegalName   String?
+  billingTaxId       String?
+  billingFiscalCode  String?
+  billingSdiCode     String?
+  billingPec         String?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 
   items        OrderItem[]
+  invoice      Invoice?
 }
 
 model OrderItem {
@@ -248,6 +273,8 @@ model OrderItem {
   unitPrice  Float
   notes      String?
   status     ItemStatus  @default(PENDING)
+  /** Ingredienti già scalati dal magazzino per questa riga */
+  inventoryDeducted Boolean @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
@@ -337,6 +364,14 @@ model Customer {
   totalVisits    Int      @default(0)
   totalSpent     Float    @default(0)
   lastVisit      DateTime?
+  /** P.IVA / NIF cliente (fatturazione B2B) */
+  taxId          String?
+  /** Codice fiscale (Italia) */
+  fiscalCode     String?
+  /** Codice destinatario SDI (7 caratteri) */
+  sdiRecipientCode String?
+  /** PEC cliente */
+  pec            String?
   loyaltyTierId  String?
   loyaltyTier    LoyaltyTier? @relation(fields: [loyaltyTierId], references: [id])
   createdAt      DateTime @default(now())
@@ -521,4 +556,39 @@ model InventoryItemLink {
   quantity        Float         @default(1)
 
   @@unique([menuItemId, inventoryItemId])
+}
+
+// ===== FATTURAZIONE (preparazione SDI / Registratori Telematici) =====
+
+/** Contatore progressivo annuale per ristorante (thread-safe via transazione). */
+model FiscalSequence {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  fiscalYear   Int
+  lastSequence Int        @default(0)
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([restaurantId, fiscalYear])
+}
+
+/** Documento fiscale emesso al pagamento (es. FATT-2026-001). */
+model Invoice {
+  id             String     @id @default(cuid())
+  restaurantId   String
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+  orderId        String     @unique
+  order          Order      @relation(fields: [orderId], references: [id])
+  /** Numero leggibile: {prefix}-{anno}-{seq} */
+  documentNumber String
+  prefix         String     @default("FATT")
+  fiscalYear     Int
+  sequence       Int
+  issuedAt       DateTime   @default(now())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([restaurantId, fiscalYear, sequence])
+  @@unique([restaurantId, documentNumber])
+  @@index([restaurantId, issuedAt])
 }

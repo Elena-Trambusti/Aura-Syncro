@@ -11,6 +11,10 @@ import {
   type SmartAlert,
   type AffluenceForecastDay,
 } from './predictiveEngine'
+import {
+  fetchOpenMeteoForecast,
+  resolveRestaurantCoordinates,
+} from './weatherService'
 
 export type {
   WeatherCondition,
@@ -25,9 +29,10 @@ export { getDayI18nKey } from './predictiveEngine'
 export interface PredictiveAIResult {
   forecast: AffluenceForecastDay[]
   alerts: SmartAlert[]
-  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather')[]
+  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather' | 'reservations')[]
   engineVersion: string
   generatedAt: string
+  weatherSource?: 'open-meteo' | 'simulated'
 }
 
 function weeksAgo(n: number) {
@@ -37,22 +42,37 @@ function weeksAgo(n: number) {
   return d
 }
 
+function toDateKey(d: Date): string {
+  return d.toISOString().split('T')[0]!
+}
+
 /**
- * Carica dati dal DB e delega al motore statistico puro `predictiveEngine`.
+ * Carica dati dal DB, meteo Open-Meteo (gratuito) e delega al motore statistico.
  */
 export async function runPredictiveAnalysis(restaurantId: string): Promise<PredictiveAIResult> {
-  const windowStart = weeksAgo(4)
+  const windowStart = weeksAgo(8)
+  const forecastEnd = new Date()
+  forecastEnd.setDate(forecastEnd.getDate() + 7)
 
-  const [orders, inventoryRows, orderItems, menuItems] = await Promise.all([
+  const [
+    paidOrders,
+    inventoryRows,
+    orderItems,
+    menuItems,
+    reservations,
+    restaurant,
+  ] = await Promise.all([
     prisma.order.findMany({
       where: {
         restaurantId,
         createdAt: { gte: windowStart },
-        status: { notIn: ['CANCELLED'] },
+        status: 'PAID',
       },
       select: {
         createdAt: true,
-        items: { select: { menuItemId: true, quantity: true } },
+        type: true,
+        tableId: true,
+        table: { select: { seats: true } },
       },
     }),
     prisma.inventoryItem.findMany({
@@ -65,7 +85,7 @@ export async function runPredictiveAnalysis(restaurantId: string): Promise<Predi
       where: {
         order: {
           restaurantId,
-          createdAt: { gte: weeksAgo(8) },
+          createdAt: { gte: windowStart },
           status: { notIn: ['CANCELLED'] },
         },
       },
@@ -80,16 +100,63 @@ export async function runPredictiveAnalysis(restaurantId: string): Promise<Predi
       where: { restaurantId },
       select: { id: true, name: true },
     }),
+    prisma.reservation.findMany({
+      where: {
+        restaurantId,
+        date: { gte: weeksAgo(12) },
+        status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+      },
+      select: { date: true, covers: true, status: true },
+    }),
+    prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+      include: { settings: true },
+    }),
   ])
 
-  // Storico coperti per affluenza (1 record = coperti di un ordine)
-  const coverHistory: PastSaleRecord[] = orders.map(order => ({
-    date: order.createdAt,
-    quantity: order.items.reduce((sum, it) => sum + it.quantity, 0),
-    dayOfWeek: order.createdAt.getDay(),
-  }))
+  // Storico coperti reali: tavoli (seats) per dine-in, 1 per asporto, prenotazioni completate
+  const coverHistory: PastSaleRecord[] = []
 
-  // Storico vendite per menuItemId
+  for (const order of paidOrders) {
+    let covers = 1
+    if (order.type === 'DINE_IN' && order.table?.seats) {
+      covers = order.table.seats
+    }
+    coverHistory.push({
+      date: order.createdAt,
+      quantity: covers,
+      dayOfWeek: order.createdAt.getDay(),
+    })
+  }
+
+  for (const res of reservations.filter(r => ['COMPLETED', 'SEATED'].includes(r.status))) {
+    coverHistory.push({
+      date: res.date,
+      quantity: res.covers,
+      dayOfWeek: res.date.getDay(),
+    })
+  }
+
+  const reservationHistory: PastSaleRecord[] = reservations
+    .filter(r => ['COMPLETED', 'SEATED', 'CONFIRMED'].includes(r.status))
+    .map(r => ({
+      date: r.date,
+      quantity: r.covers,
+      dayOfWeek: r.date.getDay(),
+    }))
+
+  const upcomingReservations: Record<string, number> = {}
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  for (const res of reservations.filter(r => ['CONFIRMED', 'PENDING', 'SEATED'].includes(r.status))) {
+    const resDate = new Date(res.date)
+    resDate.setHours(0, 0, 0, 0)
+    if (resDate >= today && resDate <= forecastEnd) {
+      const key = toDateKey(resDate)
+      upcomingReservations[key] = (upcomingReservations[key] ?? 0) + res.covers
+    }
+  }
+
   const salesByMenuItem = new Map<string, PastSaleRecord[]>()
   for (const oi of orderItems) {
     const list = salesByMenuItem.get(oi.menuItemId) ?? []
@@ -101,7 +168,6 @@ export async function runPredictiveAnalysis(restaurantId: string): Promise<Predi
     salesByMenuItem.set(oi.menuItemId, list)
   }
 
-  // Demand inventario aggregato da ricette (BOM)
   const expectedDemand: ExpectedDemandMap = {}
   const inventory: InventoryInput[] = inventoryRows.map(row => ({
     id: row.id,
@@ -122,34 +188,50 @@ export async function runPredictiveAnalysis(restaurantId: string): Promise<Predi
           pastSales: salesByMenuItem.get(link.menuItemId) ?? [],
         })),
       )
-    } else {
-      // Fallback: stima da consumo storico ordini se non collegato a piatti
-      const syntheticSales: PastSaleRecord[] = orders
-        .filter(() => row.quantity > 0)
-        .map(o => ({
-          date: o.createdAt,
-          quantity: Math.max(0.1, row.minQuantity / 7),
-          dayOfWeek: o.createdAt.getDay(),
-        }))
-      expectedDemand[row.id] = aggregateInventoryDemand(row.id, [{
-        menuItemId: row.id,
-        recipeQty: 1,
-        pastSales: syntheticSales,
-      }])
     }
   }
 
-  // Trend piatti (ultime 2 settimane vs precedenti 2)
   const dishTrends = menuItems.map(m =>
     computeDishTrend(m.id, m.name, salesByMenuItem.get(m.id) ?? []),
   )
+
+  // Meteo reale via Open-Meteo (gratuito)
+  let weatherForecast = buildWeatherForecast()
+  let weatherSource: 'open-meteo' | 'simulated' = 'simulated'
+
+  const settings = restaurant?.settings
+  let coords = await resolveRestaurantCoordinates({
+    legalAddress: settings?.legalAddress,
+    address: restaurant?.address,
+    countryCode: settings?.countryCode,
+    latitude: settings?.latitude,
+    longitude: settings?.longitude,
+  })
+
+  if (coords && settings && (settings.latitude == null || settings.longitude == null)) {
+    await prisma.restaurantSettings.update({
+      where: { restaurantId },
+      data: { latitude: coords.lat, longitude: coords.lon },
+    })
+  }
+
+  if (coords) {
+    const liveForecast = await fetchOpenMeteoForecast(coords)
+    if (liveForecast) {
+      weatherForecast = liveForecast
+      weatherSource = 'open-meteo'
+    }
+  }
 
   const result = runPredictiveEngine({
     inventory,
     expectedDemand,
     coverHistory,
+    reservationHistory,
+    upcomingReservations,
     dishTrends,
-    weatherForecast: buildWeatherForecast(),
+    weatherForecast,
+    weatherSource,
   })
 
   return {
@@ -158,5 +240,6 @@ export async function runPredictiveAnalysis(restaurantId: string): Promise<Predi
     factorsUsed: result.factorsUsed,
     engineVersion: result.engineVersion,
     generatedAt: result.generatedAt,
+    weatherSource: result.weatherSource,
   }
 }

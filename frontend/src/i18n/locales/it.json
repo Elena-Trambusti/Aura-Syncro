@@ -111,7 +111,12 @@
     "yourName": "Il tuo nome",
     "yourNamePlaceholder": "Mario Rossi",
     "phonePlaceholder": "+39 333 1234567",
-    "passwordMinLength": "Minimo 6 caratteri",
+    "passwordMinLength": "Minimo 8 caratteri",
+    "restaurantCode": "Codice ristorante",
+    "restaurantCodePlaceholder": "es. mio-ristorante-1234567890",
+    "restaurantCodeHint": "Lo trovi nell'email di benvenuto o chiedi al titolare.",
+    "selectRestaurant": "Seleziona il ristorante",
+    "multipleTenantsHint": "La tua email è collegata a più ristoranti. Seleziona quello corretto.",
     "country": "Paese del ristorante",
     "countryIT": "Italia",
     "countryES": "Spagna",
@@ -250,6 +255,7 @@
     "available": "Disponibile",
     "featured": "In evidenza",
     "notAvailable": "Non disp.",
+    "soldOut": "Esaurito",
     "topBadge": "★ Top",
     "dish": "Piatto",
     "prep": "Prep.",
@@ -265,7 +271,19 @@
     "categoryAdded": "Categoria creata",
     "categoryUpdated": "Categoria aggiornata",
     "categoryDeleted": "Categoria eliminata",
-    "categorySaveError": "Errore nel salvataggio della categoria"
+    "categorySaveError": "Errore nel salvataggio della categoria",
+    "editRecipe": "Ricetta / ingredienti",
+    "recipeTitle": "Ricetta del piatto",
+    "recipeDesc": "Indica quanto magazzino consuma ogni porzione di «{{dish}}». Quando il cameriere inserisce l'ordine, le quantità vengono scalate automaticamente.",
+    "recipeIngredient": "Ingrediente",
+    "recipeSelectIngredient": "Seleziona ingrediente…",
+    "recipeQty": "Quantità",
+    "recipeQtyHint": "Es. 0,25 kg di farina per 1 porzione di pizza.",
+    "recipeAdd": "Aggiungi ingrediente",
+    "recipeEmpty": "Nessun ingrediente collegato. Aggiungi la ricetta per attivare lo scalamento automatico dal magazzino.",
+    "recipeSaved": "Ricetta salvata!",
+    "recipeSaveError": "Errore nel salvataggio della ricetta",
+    "recipeNoInventory": "Crea prima gli ingredienti in Magazzino, poi torna qui a collegarli ai piatti."
   },
   "settings": {
     "title": "Impostazioni",
@@ -278,9 +296,14 @@
     "nameRequired": "Il nome del ristorante è obbligatorio",
     "saved": "Impostazioni salvate!",
     "qrMenu": "Menu Digitale QR Code",
-    "qrMenuDesc": "I tuoi clienti possono scansionare il QR code per vedere il menu digitale",
+    "qrMenuDesc": "Menu digitale in sola consultazione — i clienti scansionano il QR al tavolo. Gli ordini li prendono i camerieri.",
     "publicMenuLink": "Link menu pubblico:",
     "openMenu": "Apri menu",
+    "qrBooking": "Prenotazioni online",
+    "qrBookingDesc": "I clienti prenotano un tavolo da questo link o dal QR Prenotazioni. Le richieste arrivano in Prenotazioni.",
+    "publicBookingLink": "Link prenotazioni:",
+    "openBooking": "Apri prenotazioni",
+    "bookingQr": "Genera QR prenotazioni",
     "kds": "Schermo Cucina (KDS)",
     "kdsDesc": "Apri questo link su un tablet o monitor in cucina per visualizzare gli ordini in tempo reale",
     "accountInfo": "Informazioni Account",
@@ -296,7 +319,16 @@
     "taxId": "Identificativo fiscale (P.IVA / NIF)",
     "taxRegionIT_MAIN": "Italia",
     "taxRegionES_CANARIAS": "Canarie (IGIC)",
-    "taxRegionES_PENINSULA": "Spagna peninsulare (IVA)"
+    "taxRegionES_PENINSULA": "Spagna peninsulare (IVA)",
+    "billingTitle": "Dati di fatturazione",
+    "billingDesc": "Ragione sociale e recapiti per fatturazione elettronica (SDI) e integrazioni future",
+    "legalName": "Ragione sociale",
+    "legalAddress": "Indirizzo legale",
+    "fiscalCode": "Codice fiscale",
+    "pec": "PEC",
+    "sdiRecipientCode": "Codice destinatario SDI",
+    "invoicePrefix": "Prefisso numerazione fatture",
+    "invoicePrefixHint": "Es. FATT → FATT-2026-001"
   },
   "reservations": {
     "title": "Prenotazioni",
@@ -378,6 +410,13 @@
       "tags": "Tag",
       "tagsPlaceholder": "VIP, Celiaco, Vino Rosso (separati da virgola)",
       "notes": "Note / Preferenze"
+    },
+    "fiscal": {
+      "title": "Dati fiscali (fatturazione B2B)",
+      "taxId": "P.IVA / NIF",
+      "fiscalCode": "Codice fiscale",
+      "sdiRecipientCode": "Codice destinatario SDI",
+      "pec": "PEC"
     },
     "slideOver": {
       "title": "Scheda Cliente",
@@ -589,7 +628,11 @@
   },
   "reportFiscal": {
     "exportPdf": "Esporta PDF per ispezione",
+    "exportCsv": "Esporta CSV",
     "exporting": "Generazione documento...",
+    "csvGenerated": "CSV esportato correttamente",
+    "legalDisclaimer": "Documento operativo per gestione interna e contabilità. Non sostituisce registri fiscali ufficiali, fatturazione elettronica (SDI/Verifactu) né obblighi di conservazione sostitutiva previsti dalla legge.",
+    "totalTipsNote": "Totale mance (tutte): {{total}}",
     "filterPeriod": "Filtro periodo",
     "filterDay": "Per giorno",
     "filterMonth": "Per mese",
@@ -630,8 +673,8 @@
           "taxId": "P.IVA", "taxIdPending": "Da configurare", "address": "Sede",
           "period": "Periodo", "generated": "Generato",
           "summaryNet": "Totale Fatturato Netto (Soggetto a IVA)",
-          "summaryTips": "Totale Mance Elettroniche Tracciate (Esente da IVA)",
-          "summaryElectronicTips": "Registro Mance POS/App (imposta sostitutiva 5%)",
+          "summaryTips": "Totale Mance Volontarie (Esente da IVA)",
+          "summaryElectronicTips": "Mance Elettroniche Tracciate — Registro imposta sostitutiva 5%",
           "summaryReconciliation": "Totale Conciliazione Bancaria POS",
           "footer": "Documento generato automaticamente · {{count}} transazioni · Mance esenti da IVA (normativa italiana).",
           "filenamePrefix": "libro-registro"
@@ -765,7 +808,12 @@
     "factors": {
       "orderHistory": "Storico ordini",
       "dayOfWeek": "Giorno settimana",
-      "weather": "Meteo previsto"
+      "weather": "Meteo previsto",
+      "reservations": "Prenotazioni"
+    },
+    "weatherSource": {
+      "openMeteo": "Meteo live (Open-Meteo)",
+      "simulated": "Meteo stimato"
     },
     "days": {
       "sunday": "Domenica",
@@ -826,6 +874,8 @@
     "tax": "IVA",
     "orderSent": "Ordine inviato in cucina!",
     "dishAdded": "Piatto aggiunto!",
+    "soldOut": "Esaurito",
+    "soldOutToast": "Piatto esaurito — ingredienti insufficienti in magazzino",
     "paymentRegistered": "Pagamento registrato!",
     "paymentError": "Errore durante il pagamento",
     "notes": "Note",
@@ -953,11 +1003,15 @@
     "searchResults": "Risultati per \"{{query}}\"",
     "categories": "Categorie",
     "featured": "In evidenza",
+    "soldOut": "Esaurito",
     "allergens": "Allergeni",
     "prepTime": "{{min}} min",
     "noResults": "Nessun piatto trovato",
     "noResultsHint": "Prova con un altro termine di ricerca",
     "orderHint": "Seleziona i piatti e invia l'ordine dalla cucina",
+    "waiterOrderHint": "Consulta il menu qui. Per ordinare, rivolgiti al cameriere.",
+    "browseOnlyHint": "Menu digitale in sola consultazione — nessun ordine dal telefono.",
+    "bookTable": "Prenota un tavolo",
     "addToCart": "Aggiungi",
     "cart": "Il tuo ordine",
     "cartEmpty": "Il carrello è vuoto",
@@ -982,6 +1036,7 @@
     "paymentCancelled": "Pagamento annullato. Puoi riprovare quando vuoi.",
     "stripeUnavailable": "Pagamento online non disponibile — puoi ordinare e pagare al tavolo.",
     "subtotal": "Subtotale",
+    "taxableBase": "Imponibile",
     "total": "Totale",
     "checkoutError": "Errore durante l'invio dell'ordine",
     "remove": "Rimuovi",
@@ -989,8 +1044,13 @@
     "decreaseQty": "Diminuisci quantità"
   },
   "qrBuilder": {
-    "title": "Generatore Menu QR",
-    "subtitle": "Codice QR per ordinare dal tavolo o consultare il menu",
+    "title": "Generatore QR",
+    "subtitle": "Due codici QR: menu in sala e prenotazioni online",
+    "modeMenu": "Menu tavolo",
+    "modeBooking": "Prenotazioni",
+    "menuModeDesc": "Il cliente consulta il menu digitale. Gli ordini li prende il cameriere al tavolo.",
+    "bookingModeDesc": "Il cliente prenota un tavolo online. Stampalo all'ingresso o sul sito.",
+    "previewBooking": "Anteprima prenotazioni",
     "scanTarget": "Questo QR punta a:",
     "downloadPng": "Scarica per la Stampa (PNG)",
     "downloadSuccess": "File PNG scaricato con successo",
@@ -998,9 +1058,31 @@
     "printHint": "Esportazione PNG 2048×2048 px — bianco e nero, pronto per tipografia.",
     "tableNumberOptional": "Numero tavolo (opzionale)",
     "tableNumberPlaceholder": "Es. 5 — lascia vuoto per menu generico",
-    "tableNumberHint": "Con il tavolo nel QR, il cliente non deve inserirlo manualmente.",
+    "tableNumberHint": "Con il tavolo nel QR, il cliente vede subito a quale tavolo è seduto.",
     "slugMissing": "Slug del ristorante mancante. Configuralo in Impostazioni per generare i QR.",
     "goToSettings": "Vai alle Impostazioni"
+  },
+  "publicBooking": {
+    "badge": "Prenotazione tavolo",
+    "subtitle": "Compila il modulo per richiedere un tavolo. Ti confermeremo al più presto.",
+    "hours": "Orari: {{open}} – {{close}}",
+    "name": "Nome e cognome",
+    "phone": "Telefono",
+    "emailOptional": "Email (opzionale)",
+    "date": "Data",
+    "time": "Ora",
+    "covers": "Numero di persone",
+    "maxCovers": "Massimo {{max}} persone per prenotazione",
+    "notes": "Note",
+    "notesPlaceholder": "Allergie, seggiolone, occasione speciale…",
+    "depositNotice": "È richiesta una caparra di {{amount}} per confermare la prenotazione.",
+    "submit": "Richiedi prenotazione",
+    "success": "Prenotazione inviata!",
+    "successTitle": "Richiesta ricevuta",
+    "successDesc": "Il ristorante ha ricevuto la tua prenotazione. Riceverai conferma telefonica o via email.",
+    "viewMenu": "Vedi il menu digitale",
+    "notFound": "Ristorante non trovato",
+    "error": "Impossibile inviare la prenotazione. Riprova o chiama il ristorante."
   },
   "payment": {
     "success": "Pagamento completato!",
@@ -1039,5 +1121,82 @@
     "paymentMethod": "Metodo pagamento",
     "cash": "Contanti",
     "card": "Carta"
+  },
+  "landing": {
+    "meta": {
+      "title": "Aura Syncro — Software cloud ristorazione | Gestionale Italia, Spagna e Canarie",
+      "description": "Gestionale ristoranti SaaS per Italia, Spagna e Isole Canarie. Menu QR, gestione comande e tavoli, pagamenti Stripe, report fiscale IVA/IGIC. Prova Aura Syncro."
+    },
+    "nav": {
+      "features": "Funzionalità",
+      "pricing": "Prezzi",
+      "login": "Accedi",
+      "tryNow": "Prova ora"
+    },
+    "hero": {
+      "badge": "Italia · Spagna · Isole Canarie",
+      "title": "Il gestionale che mette in sincrono il tuo ristorante",
+      "subtitle": "{{brand}} è il software cloud per ristorazione strutturata: POS veloce, menu QR, comande in tempo reale e fiscalità multi-paese.",
+      "ctaPrimary": "Prova ora",
+      "ctaSecondary": "Accedi"
+    },
+    "features": {
+      "title": "Tutto ciò che serve durante il servizio",
+      "subtitle": "Dalla sala alla cucina, dal menu digitale alla reportistica fiscale — un'unica piattaforma sincronizzata.",
+      "tables": {
+        "title": "Gestione tavoli",
+        "desc": "Mappa sala, stati tavolo e comande rapide per camerieri — zero lag nel momento di punta."
+      },
+      "qrMenu": {
+        "title": "Menu QR digitale",
+        "desc": "I clienti consultano il menu dal telefono in sala. Gli ordini li gestiscono i camerieri."
+      },
+      "stripe": {
+        "title": "Pagamenti con Stripe",
+        "desc": "Incassa al tavolo o online con carte e wallet digitali, integrati nel flusso ordini."
+      },
+      "fiscal": {
+        "title": "Report fiscale",
+        "desc": "IVA in Italia, IVA peninsulare e IGIC nelle Canarie — export e numerazione pronti per SDI."
+      }
+    },
+    "pricing": {
+      "title": "Piani chiari per ogni fase di crescita",
+      "subtitle": "Setup chiavi in mano e canone mensile trasparente. Nessuna sorpresa.",
+      "cta": "Inizia la prova",
+      "starter": {
+        "name": "Starter",
+        "tagline": "Operatività quotidiana in sala e cucina",
+        "price": "Su misura",
+        "setup": "",
+        "features": [
+          "Gestione tavoli e comande",
+          "Menu digitale e categorie",
+          "Schermo cucina (KDS)",
+          "Prenotazioni e magazzino base"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "Consigliato",
+        "tagline": "Suite completa per ristoranti strutturati",
+        "price": "€199/mese",
+        "setup": "€500 setup iniziale (una tantum)",
+        "features": [
+          "Tutto lo Starter incluso",
+          "CRM, fedeltà e marketing",
+          "AI predittiva e analytics",
+          "Report fiscale e pagamenti Stripe",
+          "Supporto onboarding chiavi in mano"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Software cloud per la ristorazione in Italia, Spagna e Isole Canarie.",
+      "privacy": "Privacy Policy",
+      "terms": "Termini di servizio",
+      "contact": "Contatti",
+      "rights": "© {{year}} {{brand}}. Tutti i diritti riservati."
+    }
   }
 }

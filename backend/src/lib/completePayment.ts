@@ -8,6 +8,8 @@ import {
 } from './orderPayment'
 import { chargePosCard } from './posCharge'
 import { sendEmail } from './email'
+import { loadRestaurantFiscalConfig } from './taxEngine'
+import { computePosPaymentAmounts } from './tipFiscal'
 
 const posOrderInclude = {
   table: true,
@@ -27,9 +29,19 @@ export async function completeOrderPayment(input: {
 
   let posResult = null
   if (input.finalize.paymentMethod === 'CARD') {
-    const amount = (orderPreview?.total ?? 0) + (input.finalize.tipAmount ?? 0)
+    const fiscal = await loadRestaurantFiscalConfig(input.finalize.restaurantId)
+    const posAmounts = orderPreview
+      ? computePosPaymentAmounts(fiscal, orderPreview, input.finalize.tipAmount)
+      : null
+
     posResult = await chargePosCard(
-      amount,
+      {
+        taxableAmount: posAmounts?.taxableChargeAmount ?? (orderPreview?.total ?? 0),
+        tipAmount: posAmounts?.tipChargeAmount ?? 0,
+        totalCustomerAmount: posAmounts?.totalCustomerAmount
+          ?? (orderPreview?.total ?? 0) + (input.finalize.tipAmount ?? 0),
+        taxRegion: fiscal.taxRegion,
+      },
       { orderId: input.finalize.orderId, restaurantId: input.finalize.restaurantId },
       input.stripePaymentIntentId,
     )

@@ -2,10 +2,10 @@ import { Router, Response } from 'express'
 import { z } from 'zod'
 import { CountryCode, TaxRegion } from '@prisma/client'
 import { prisma } from '../lib/prisma'
-import { AuthRequest } from '../middleware/auth'
+import { AuthRequest, authenticate, requireRole } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { requireFullDashboardAccess } from '../middleware/dashboardAccess'
-import { buildFiscalConfig, resolveTaxRegion } from '../lib/taxEngine'
+import { buildFiscalConfig, resolveTaxRegion, type RestaurantSettingsLike } from '../lib/taxEngine'
 
 export const restaurantRouter = Router()
 
@@ -18,6 +18,15 @@ const settingsSchema = z.object({
   defaultLocale: z.string().min(2).max(5).optional(),
   taxRate: z.number().min(0).max(100).optional(),
   taxId: z.preprocess(emptyToNull, z.string().max(32).nullable().optional()),
+  legalName: z.preprocess(emptyToNull, z.string().max(200).nullable().optional()),
+  legalAddress: z.preprocess(emptyToNull, z.string().max(500).nullable().optional()),
+  fiscalCode: z.preprocess(emptyToNull, z.string().max(32).nullable().optional()),
+  pec: z.preprocess(emptyToNull, z.string().email().max(200).nullable().optional()),
+  sdiRecipientCode: z.preprocess(emptyToNull, z.string().max(7).nullable().optional()),
+  invoicePrefix: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() ? v.trim().toUpperCase().slice(0, 12) : undefined),
+    z.string().min(2).max(12).optional(),
+  ),
   openTime: z.string().optional(),
   closeTime: z.string().optional(),
   maxCoversPerSlot: z.number().int().positive().optional(),
@@ -38,7 +47,7 @@ const updateSchema = z.object({
   settings: settingsSchema,
 })
 
-restaurantRouter.get('/', async (req: AuthRequest, res: Response): Promise<void> => {
+restaurantRouter.get('/', requireRole('OWNER', 'MANAGER'), async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurant = await prisma.restaurant.findUnique({
     where: { id: req.restaurantId! },
     include: { settings: true },
@@ -60,7 +69,14 @@ restaurantRouter.put('/', requirePermission('settings.manage'), requireFullDashb
     const current = await prisma.restaurantSettings.findUnique({ where: { restaurantId } })
     const countryCode = settings.countryCode ?? current?.countryCode ?? 'IT'
     const taxRegion = resolveTaxRegion(countryCode, settings.taxRegion ?? current?.taxRegion)
-    const fiscal = buildFiscalConfig({ ...current, ...settings, countryCode, taxRegion })
+    const regionOrCountryChanged =
+      (settings.taxRegion != null && settings.taxRegion !== current?.taxRegion) ||
+      (settings.countryCode != null && settings.countryCode !== current?.countryCode)
+    const settingsForFiscal: RestaurantSettingsLike = { ...current, ...settings, countryCode, taxRegion }
+    if (regionOrCountryChanged && settings.taxRate === undefined) {
+      settingsForFiscal.taxRate = null
+    }
+    const fiscal = buildFiscalConfig(settingsForFiscal)
 
     await prisma.restaurantSettings.upsert({
       where: { restaurantId },

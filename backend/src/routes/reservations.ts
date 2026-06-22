@@ -4,9 +4,10 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { io } from '../index'
-import { validateReservationSlot, ReservationValidationError, requiresDeposit } from '../lib/reservationRules'
+import { ReservationValidationError } from '../lib/reservationRules'
 import { createDepositCheckoutSession } from '../lib/depositCheckout'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
+import { createReservation } from '../lib/createReservation'
 
 export const reservationsRouter = Router()
 
@@ -101,31 +102,23 @@ reservationsRouter.post('/', requirePermission('reservations.manage'), async (re
     }
   }
 
-  let customerId: string | undefined
-  if (result.data.guestEmail) {
-    const customer = await prisma.customer.upsert({
-      where: { restaurantId_email: { restaurantId: tenantId(req), email: result.data.guestEmail } },
-      update: { name: result.data.guestName, phone: result.data.guestPhone },
-      create: {
-        restaurantId: tenantId(req),
-        name: result.data.guestName,
-        email: result.data.guestEmail,
-        phone: result.data.guestPhone,
-      },
-    })
-    customerId = customer.id
-  }
-
   const reservationDate = new Date(result.data.date)
-  let slotStatus: 'PENDING' | 'CONFIRMED' = 'PENDING'
   try {
-    const slot = await validateReservationSlot(tenantId(req), {
-      date: reservationDate,
+    const { reservation, depositRequired } = await createReservation({
+      restaurantId: tenantId(req),
+      guestName: result.data.guestName,
+      guestPhone: result.data.guestPhone,
+      guestEmail: result.data.guestEmail,
       covers: result.data.covers,
+      date: reservationDate,
       duration: result.data.duration,
       tableId: result.data.tableId,
+      notes: result.data.notes,
+      internalNotes: result.data.internalNotes,
     })
-    slotStatus = slot.status
+
+    io.to(tenantId(req)).emit('reservation:created', reservation)
+    res.status(201).json({ ...reservation, depositRequired })
   } catch (err) {
     if (err instanceof ReservationValidationError) {
       res.status(409).json({ error: err.message, code: err.code })
@@ -133,23 +126,6 @@ reservationsRouter.post('/', requirePermission('reservations.manage'), async (re
     }
     throw err
   }
-
-  const settings = await prisma.restaurantSettings.findUnique({ where: { restaurantId: tenantId(req) } })
-  const depositRequired = requiresDeposit(settings)
-
-  const reservation = await prisma.reservation.create({
-    data: {
-      ...result.data,
-      date: reservationDate,
-      status: slotStatus,
-      restaurantId: tenantId(req),
-      customerId,
-    },
-    include: { table: true, customer: true },
-  })
-
-  io.to(tenantId(req)).emit('reservation:created', reservation)
-  res.status(201).json({ ...reservation, depositRequired })
 })
 
 reservationsRouter.put('/:id', requirePermission('reservations.manage'), async (req: AuthRequest, res: Response): Promise<void> => {

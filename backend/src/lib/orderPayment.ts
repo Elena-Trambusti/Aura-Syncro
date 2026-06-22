@@ -1,7 +1,10 @@
 import type { Prisma, Table } from '@prisma/client'
 import { prisma } from './prisma'
 import { buildFiscalTransactionRow, computePaymentSplit, type FiscalTransactionRow } from './tipFiscal'
+import { loadRestaurantFiscalConfig } from './taxEngine'
 import { applyPostPaymentEffects } from './postPayment'
+import { issueInvoiceForOrder, snapshotOrderBillingFromCustomer } from './fiscalInvoice'
+import { decrementInventoryForUnpaidItems } from './inventoryDeduction'
 
 export interface FinalizePaymentInput {
   orderId: string
@@ -63,7 +66,8 @@ export async function finalizeOrderPayment(
     throw new Error('ORDER_CANCELLED')
   }
 
-  const split = computePaymentSplit(order, input.tipAmount)
+  const fiscal = await loadRestaurantFiscalConfig(input.restaurantId)
+  const split = computePaymentSplit(order, input.tipAmount, fiscal)
   const transactionId = generateTransactionId()
   const paidAt = split.paidAt
 
@@ -92,7 +96,10 @@ export async function finalizeOrderPayment(
       },
     })
 
-    await decrementInventoryForOrder(tx, order.id, input.restaurantId)
+    await snapshotOrderBillingFromCustomer(tx, order.id, order.customerId)
+    await issueInvoiceForOrder(tx, order.id, input.restaurantId, paidAt)
+
+    await decrementInventoryForUnpaidItems(tx, order.id, input.restaurantId)
     return paid
   })
 
@@ -116,29 +123,7 @@ export async function decrementInventoryForOrder(
   orderId: string,
   restaurantId: string,
 ): Promise<void> {
-  const orderItems = await tx.orderItem.findMany({
-    where: { orderId },
-    include: {
-      menuItem: { include: { inventoryLinks: true } },
-    },
-  })
-
-  const deductions = new Map<string, number>()
-  for (const item of orderItems) {
-    if (item.status === 'CANCELLED') continue
-    for (const link of item.menuItem.inventoryLinks) {
-      const amount = link.quantity * item.quantity
-      deductions.set(link.inventoryItemId, (deductions.get(link.inventoryItemId) ?? 0) + amount)
-    }
-  }
-
-  for (const [inventoryItemId, amount] of deductions) {
-    if (amount <= 0) continue
-    await tx.inventoryItem.updateMany({
-      where: { id: inventoryItemId, restaurantId },
-      data: { quantity: { decrement: amount } },
-    })
-  }
+  await decrementInventoryForUnpaidItems(tx, orderId, restaurantId)
 }
 
 export async function releaseTableIfEmpty(tableId: string | null | undefined): Promise<Table | null> {

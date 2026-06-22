@@ -45,4 +45,10 @@ export function getIntlLocale(): string {
   return LOCALE_MAP[code] || 'it-IT'
 }
 
+/** Locale per formattazione fiscale (date/valuta) — legge dal regime del ristorante, non dalla lingua UI. */
+export function getFiscalIntlLocale(defaultLocale?: string | null): string {
+  const code = (defaultLocale || 'it').split('-')[0]
+  return LOCALE_MAP[code] || 'it-IT'
+}
+
 export default i18n

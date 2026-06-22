@@ -29,6 +29,10 @@ export interface CustomerDetail {
   lastVisit?: string | null
   allergens?: string | null
   notes?: string | null
+  taxId?: string | null
+  fiscalCode?: string | null
+  sdiRecipientCode?: string | null
+  pec?: string | null
   orders?: CustomerOrder[]
 }
 
@@ -40,6 +44,10 @@ export interface CustomerEditData {
   notes: string
   allergens: string
   tags: string
+  taxId: string
+  fiscalCode: string
+  sdiRecipientCode: string
+  pec: string
 }
 
 interface CustomerSlideOverProps {
@@ -59,6 +67,10 @@ function toEditForm(customer: CustomerDetail): CustomerEditData {
     notes: customer.notes || '',
     allergens: customer.allergens || '',
     tags: customer.tags.join(', '),
+    taxId: customer.taxId || '',
+    fiscalCode: customer.fiscalCode || '',
+    sdiRecipientCode: customer.sdiRecipientCode || '',
+    pec: customer.pec || '',
   }
 }
 
@@ -67,6 +79,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<CustomerEditData>({
     firstName: '', lastName: '', email: '', phone: '', notes: '', allergens: '', tags: '',
+    taxId: '', fiscalCode: '', sdiRecipientCode: '', pec: '',
   })
 
   useEffect(() => {
@@ -199,6 +212,32 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
                 className={ui.textarea}
               />
             </div>
+            <div className="border-t border-slate-200 pt-4">
+              <p className="text-sm font-semibold text-slate-900 mb-3">{t('crm.fiscal.title')}</p>
+              <div className="space-y-3">
+                <div>
+                  <label className={ui.label}>{t('crm.fiscal.taxId')}</label>
+                  <input value={form.taxId} onChange={e => setForm(p => ({ ...p, taxId: e.target.value }))} className={ui.input} />
+                </div>
+                <div>
+                  <label className={ui.label}>{t('crm.fiscal.fiscalCode')}</label>
+                  <input value={form.fiscalCode} onChange={e => setForm(p => ({ ...p, fiscalCode: e.target.value }))} className={ui.input} />
+                </div>
+                <div>
+                  <label className={ui.label}>{t('crm.fiscal.sdiRecipientCode')}</label>
+                  <input
+                    value={form.sdiRecipientCode}
+                    onChange={e => setForm(p => ({ ...p, sdiRecipientCode: e.target.value.toUpperCase().slice(0, 7) }))}
+                    maxLength={7}
+                    className={cn(ui.input, 'font-mono')}
+                  />
+                </div>
+                <div>
+                  <label className={ui.label}>{t('crm.fiscal.pec')}</label>
+                  <input type="email" value={form.pec} onChange={e => setForm(p => ({ ...p, pec: e.target.value }))} className={ui.input} />
+                </div>
+              </div>
+            </div>
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
@@ -244,6 +283,28 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
                 )}
               </div>
             </div>
+
+            {(customer.taxId || customer.fiscalCode || customer.sdiRecipientCode || customer.pec) && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  {t('crm.fiscal.title')}
+                </p>
+                <dl className="space-y-1 text-sm text-slate-600">
+                  {customer.taxId && (
+                    <div><span className="font-medium">{t('crm.fiscal.taxId')}: </span>{customer.taxId}</div>
+                  )}
+                  {customer.fiscalCode && (
+                    <div><span className="font-medium">{t('crm.fiscal.fiscalCode')}: </span><span className="font-mono">{customer.fiscalCode}</span></div>
+                  )}
+                  {customer.sdiRecipientCode && (
+                    <div><span className="font-medium">{t('crm.fiscal.sdiRecipientCode')}: </span><span className="font-mono">{customer.sdiRecipientCode}</span></div>
+                  )}
+                  {customer.pec && (
+                    <div><span className="font-medium">{t('crm.fiscal.pec')}: </span>{customer.pec}</div>
+                  )}
+                </dl>
+              </div>
+            )}
 
             {customer.tags.length > 0 && (
               <div>

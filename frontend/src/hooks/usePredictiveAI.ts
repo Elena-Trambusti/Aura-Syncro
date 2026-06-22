@@ -37,9 +37,10 @@ export interface PredictiveAlert {
 export interface PredictiveAIData {
   forecast: AffluenceForecastDay[]
   alerts: PredictiveAlert[]
-  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather')[]
+  factorsUsed: ('orderHistory' | 'dayOfWeek' | 'weather' | 'reservations')[]
   engineVersion?: string
   generatedAt: string
+  weatherSource?: 'open-meteo' | 'simulated'
 }
 
 /**
@@ -61,6 +62,7 @@ export function usePredictiveAI() {
     factorsUsed: query.data?.factorsUsed ?? [],
     engineVersion: query.data?.engineVersion,
     generatedAt: query.data?.generatedAt,
+    weatherSource: query.data?.weatherSource,
     isLoading: query.isLoading,
     isError: query.isError,
     refetch: query.refetch,

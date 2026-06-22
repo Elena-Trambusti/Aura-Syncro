@@ -1,26 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
-import { computeGuestOrderTax } from '../lib/guestOrderTax'
-import { useGuestCart } from '../hooks/useGuestCart'
 import PublicLanguageSwitcher from '../components/public/PublicLanguageSwitcher'
-import GuestCartBar from '../components/public/GuestCartBar'
-import GuestCartDrawer from '../components/public/GuestCartDrawer'
 import {
   AlertCircle, Search, X, Star, Wheat, Milk, Egg, Fish, Shell,
-  Nut, Bean, Clock, Flame, Plus, Minus,
+  Nut, Bean, Clock, Flame, UtensilsCrossed, CalendarDays,
 } from 'lucide-react'
 
 interface MenuItem {
-  id: string
-  name: string
-  description?: string | null
+  id: string; name: string; description?: string | null
   price: number
-  available: boolean
+  available: boolean; soldOut?: boolean; orderable?: boolean
   allergens?: string | null
   calories?: number | null
   preparationTime?: number | null
@@ -35,32 +28,12 @@ interface Category {
   items: MenuItem[]
 }
 
-interface FiscalInfo {
-  taxRate: number
-  taxName: string
-}
-
 const ALLERGEN_ICONS: Record<string, typeof Wheat> = {
-  glutine: Wheat,
-  gluten: Wheat,
-  latte: Milk,
-  milk: Milk,
-  latticini: Milk,
-  uova: Egg,
-  egg: Egg,
-  eggs: Egg,
-  pesce: Fish,
-  fish: Fish,
-  crostacei: Shell,
-  shellfish: Shell,
-  crustaceans: Shell,
-  arachidi: Nut,
-  peanut: Nut,
-  peanuts: Nut,
-  frutta: Nut,
-  nuts: Nut,
-  soia: Bean,
-  soy: Bean,
+  glutine: Wheat, gluten: Wheat, latte: Milk, milk: Milk, latticini: Milk,
+  uova: Egg, egg: Egg, eggs: Egg, pesce: Fish, fish: Fish,
+  crostacei: Shell, shellfish: Shell, crustaceans: Shell,
+  arachidi: Nut, peanut: Nut, peanuts: Nut, frutta: Nut, nuts: Nut,
+  soia: Bean, soy: Bean,
 }
 
 function AllergenBadge({ allergen }: { allergen: string }) {
@@ -74,15 +47,7 @@ function AllergenBadge({ allergen }: { allergen: string }) {
   )
 }
 
-interface MenuItemCardProps {
-  item: MenuItem
-  quantity: number
-  onAdd: () => void
-  onIncrement: () => void
-  onDecrement: () => void
-}
-
-function MenuItemCard({ item, quantity, onAdd, onIncrement, onDecrement }: MenuItemCardProps) {
+function MenuItemCard({ item }: { item: MenuItem }) {
   const { t } = useTranslation()
   const allergenList = item.allergens?.split(',').map(a => a.trim()).filter(Boolean) ?? []
 
@@ -108,6 +73,11 @@ function MenuItemCard({ item, quantity, onAdd, onIncrement, onDecrement }: MenuI
                     {t('publicMenu.featured')}
                   </span>
                 )}
+                {item.soldOut && (
+                  <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-rose-700">
+                    {t('publicMenu.soldOut')}
+                  </span>
+                )}
               </div>
               {item.description && (
                 <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{item.description}</p>
@@ -129,51 +99,18 @@ function MenuItemCard({ item, quantity, onAdd, onIncrement, onDecrement }: MenuI
             </div>
           )}
 
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-              {item.calories != null && item.calories > 0 && (
-                <span className="inline-flex items-center gap-1">
-                  <Flame className="h-3.5 w-3.5" aria-hidden />
-                  {item.calories} kcal
-                </span>
-              )}
-              {item.preparationTime != null && item.preparationTime > 0 && (
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" aria-hidden />
-                  {t('publicMenu.prepTime', { min: item.preparationTime })}
-                </span>
-              )}
-            </div>
-
-            {quantity === 0 ? (
-              <button
-                type="button"
-                onClick={onAdd}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-600"
-              >
-                <Plus className="h-4 w-4" aria-hidden />
-                {t('publicMenu.addToCart')}
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-1">
-                <button
-                  type="button"
-                  onClick={onDecrement}
-                  className="rounded-lg p-1.5 text-slate-600 hover:bg-white"
-                  aria-label={t('publicMenu.decreaseQty')}
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-[1.5rem] text-center text-sm font-bold tabular-nums">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={onIncrement}
-                  className="rounded-lg p-1.5 text-slate-600 hover:bg-white"
-                  aria-label={t('publicMenu.increaseQty')}
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+            {item.calories != null && item.calories > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Flame className="h-3.5 w-3.5" aria-hidden />
+                {item.calories} kcal
+              </span>
+            )}
+            {item.preparationTime != null && item.preparationTime > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" aria-hidden />
+                {t('publicMenu.prepTime', { min: item.preparationTime })}
+              </span>
             )}
           </div>
         </div>
@@ -191,15 +128,12 @@ function parseTableFromSearch(params: URLSearchParams): number | null {
 
 export default function PublicMenuPage() {
   const { slug } = useParams<{ slug: string }>()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [cartOpen, setCartOpen] = useState(false)
 
   const tableNumber = useMemo(() => parseTableFromSearch(searchParams), [searchParams])
-
-  const cart = useGuestCart(slug)
 
   const { data, isLoading, error } = useQuery<{
     restaurant: {
@@ -208,8 +142,6 @@ export default function PublicMenuPage() {
       description?: string | null
       colorTheme?: string
       slug: string
-      stripeEnabled: boolean
-      fiscal: FiscalInfo
     }
     categories: Category[]
   }>({
@@ -219,29 +151,12 @@ export default function PublicMenuPage() {
     retry: 1,
   })
 
-  useEffect(() => {
-    if (searchParams.get('payment') === 'cancelled') {
-      toast.error(t('publicMenu.paymentCancelled'))
-      const next = new URLSearchParams(searchParams)
-      next.delete('payment')
-      setSearchParams(next, { replace: true })
-    }
-  }, [searchParams, setSearchParams, t])
-
   const categories = useMemo(() => {
     if (!data?.categories) return []
-    return data.categories
-      .map(cat => ({
-        ...cat,
-        items: cat.items.filter(item => item.available),
-      }))
-      .filter(cat => cat.items.length > 0)
+    return data.categories.filter(cat => cat.items.length > 0)
   }, [data?.categories])
 
-  const allItems = useMemo(
-    () => categories.flatMap(c => c.items),
-    [categories],
-  )
+  const allItems = useMemo(() => categories.flatMap(c => c.items), [categories])
 
   const filteredItems = useMemo(() => {
     if (!search.trim()) return null
@@ -259,9 +174,6 @@ export default function PublicMenuPage() {
   const displayTitle = search.trim()
     ? t('publicMenu.searchResults', { query: search })
     : activeCategory?.name ?? t('publicMenu.title')
-
-  const fiscal = data?.restaurant.fiscal ?? { taxRate: 10, taxName: 'IVA' }
-  const { total: cartTotal } = computeGuestOrderTax(cart.subtotal, fiscal.taxRate)
 
   if (isLoading) {
     return (
@@ -304,7 +216,14 @@ export default function PublicMenuPage() {
           <PublicLanguageSwitcher />
         </div>
 
-        <div className="px-4 pb-3">
+        <div className="border-t border-slate-100 bg-amber-50 px-4 py-3">
+          <div className="flex items-start gap-2.5">
+            <UtensilsCrossed className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" aria-hidden />
+            <p className="text-sm font-medium text-amber-900">{t('publicMenu.waiterOrderHint')}</p>
+          </div>
+        </div>
+
+        <div className="px-4 py-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
             <input
@@ -330,7 +249,7 @@ export default function PublicMenuPage() {
 
       {!search.trim() && categories.length > 1 && (
         <nav
-          className="sticky top-[7.5rem] z-10 border-b border-slate-200 bg-white"
+          className="sticky top-[11.5rem] z-10 border-b border-slate-200 bg-white"
           aria-label={t('publicMenu.categories')}
         >
           <div className="flex gap-2 overflow-x-auto px-4 py-2.5 scrollbar-none">
@@ -355,30 +274,16 @@ export default function PublicMenuPage() {
         </nav>
       )}
 
-      <main className={`px-4 py-4 ${cart.itemCount > 0 ? 'pb-28' : 'pb-8'}`}>
+      <main className="px-4 py-4 pb-8">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
           {displayTitle}
         </h2>
 
         {displayItems.length > 0 ? (
           <div className="space-y-3">
-            {displayItems.map(item => {
-              const qty = cart.getQuantity(item.id)
-              return (
-                <MenuItemCard
-                  key={item.id}
-                  item={item}
-                  quantity={qty}
-                  onAdd={() => cart.addItem({
-                    menuItemId: item.id,
-                    name: item.name,
-                    price: item.price,
-                  })}
-                  onIncrement={() => cart.setQuantity(item.id, qty + 1)}
-                  onDecrement={() => cart.setQuantity(item.id, qty - 1)}
-                />
-              )
-            })}
+            {displayItems.map(item => (
+              <MenuItemCard key={item.id} item={item} />
+            ))}
           </div>
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white py-12 text-center shadow-sm">
@@ -388,31 +293,17 @@ export default function PublicMenuPage() {
           </div>
         )}
 
-        <p className="mt-8 text-center text-xs text-slate-400">
-          {t('publicMenu.orderHint')}
-        </p>
+        <div className="mt-8 space-y-3">
+          <p className="text-center text-xs text-slate-400">{t('publicMenu.browseOnlyHint')}</p>
+          <Link
+            to={`/prenota/${slug}`}
+            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
+          >
+            <CalendarDays className="h-4 w-4 text-amber-600" />
+            {t('publicMenu.bookTable')}
+          </Link>
+        </div>
       </main>
-
-      <GuestCartBar
-        itemCount={cart.itemCount}
-        total={cartTotal}
-        onOpen={() => setCartOpen(true)}
-      />
-
-      <GuestCartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        slug={slug}
-        restaurantName={data.restaurant.name}
-        stripeEnabled={data.restaurant.stripeEnabled}
-        fiscal={fiscal}
-        tableNumber={tableNumber}
-        items={cart.items}
-        subtotal={cart.subtotal}
-        onSetQuantity={cart.setQuantity}
-        onRemoveItem={cart.removeItem}
-        onClearCart={cart.clearCart}
-      />
     </div>
   )
 }

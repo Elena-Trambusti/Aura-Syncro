@@ -32,7 +32,7 @@ const navItems: Array<{
 }> = [
   { to: BILLING_PATH, icon: Crown, labelKey: 'nav.billing', billingOnly: true },
   { to: ONBOARDING_PATH, icon: Sparkles, labelKey: 'nav.onboarding', onboardingOnly: true },
-  { to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard', exact: true },
+  { to: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard', exact: true },
   { to: '/tavoli', icon: UtensilsCrossed, labelKey: 'nav.tables', permission: 'tables.read' },
   { to: '/ordini', icon: ClipboardList, labelKey: 'nav.orders', permission: 'orders.read' },
   { to: '/prenotazioni', icon: CalendarDays, labelKey: 'nav.reservations', permission: 'reservations.read' },

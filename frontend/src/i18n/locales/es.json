@@ -111,7 +111,12 @@
     "yourName": "Tu nombre",
     "yourNamePlaceholder": "Mario Rossi",
     "phonePlaceholder": "+34 612 345 678",
-    "passwordMinLength": "Mínimo 6 caracteres",
+    "passwordMinLength": "Mínimo 8 caracteres",
+    "restaurantCode": "Código del restaurante",
+    "restaurantCodePlaceholder": "ej. mi-restaurante-1234567890",
+    "restaurantCodeHint": "Lo encontrarás en el email de bienvenida o pide al titular.",
+    "selectRestaurant": "Selecciona el restaurante",
+    "multipleTenantsHint": "Tu email está vinculado a varios restaurantes. Selecciona el correcto.",
     "country": "País del restaurante",
     "countryIT": "Italia",
     "countryES": "España",
@@ -250,6 +255,7 @@
     "available": "Disponible",
     "featured": "Destacado",
     "notAvailable": "No disp.",
+    "soldOut": "Agotado",
     "topBadge": "★ Top",
     "dish": "Plato",
     "prep": "Prep.",
@@ -265,7 +271,19 @@
     "categoryAdded": "Categoría creada",
     "categoryUpdated": "Categoría actualizada",
     "categoryDeleted": "Categoría eliminada",
-    "categorySaveError": "Error al guardar la categoría"
+    "categorySaveError": "Error al guardar la categoría",
+    "editRecipe": "Receta / ingredientes",
+    "recipeTitle": "Receta del plato",
+    "recipeDesc": "Indica cuánto inventario consume cada ración de «{{dish}}». Al pedir, las cantidades se descuentan automáticamente.",
+    "recipeIngredient": "Ingrediente",
+    "recipeSelectIngredient": "Seleccionar ingrediente…",
+    "recipeQty": "Cantidad",
+    "recipeQtyHint": "Ej. 0,25 kg de harina por 1 porción de pizza.",
+    "recipeAdd": "Añadir ingrediente",
+    "recipeEmpty": "Sin ingredientes vinculados. Añade la receta para activar el descuento de stock.",
+    "recipeSaved": "¡Receta guardada!",
+    "recipeSaveError": "Error al guardar la receta",
+    "recipeNoInventory": "Crea primero los ingredientes en Inventario."
   },
   "settings": {
     "title": "Ajustes",
@@ -276,9 +294,14 @@
     "saveChanges": "Guardar cambios",
     "saved": "¡Ajustes guardados!",
     "qrMenu": "Menú Digital QR",
-    "qrMenuDesc": "Tus clientes pueden escanear el código QR para ver el menú digital",
+    "qrMenuDesc": "Menú digital solo consulta — los clientes escanean el QR en mesa. Los camareros toman los pedidos.",
     "publicMenuLink": "Enlace del menú público:",
     "openMenu": "Abrir menú",
+    "qrBooking": "Reservas online",
+    "qrBookingDesc": "Los clientes reservan mesa desde este enlace o el QR de Reservas.",
+    "publicBookingLink": "Enlace reservas:",
+    "openBooking": "Abrir reservas",
+    "bookingQr": "Generar QR reservas",
     "kds": "Pantalla Cocina (KDS)",
     "kdsDesc": "Abre este enlace en una tablet o monitor en cocina para ver los pedidos en tiempo real",
     "accountInfo": "Información de la Cuenta",
@@ -294,7 +317,16 @@
     "taxId": "Identificador fiscal (P.IVA / NIF)",
     "taxRegionIT_MAIN": "Italia",
     "taxRegionES_CANARIAS": "Canarias (IGIC)",
-    "taxRegionES_PENINSULA": "España peninsular (IVA)"
+    "taxRegionES_PENINSULA": "España peninsular (IVA)",
+    "billingTitle": "Datos de facturación",
+    "billingDesc": "Razón social y datos para facturación electrónica (SDI) e integraciones futuras",
+    "legalName": "Razón social",
+    "legalAddress": "Domicilio fiscal",
+    "fiscalCode": "Código fiscal",
+    "pec": "PEC",
+    "sdiRecipientCode": "Código destinatario SDI",
+    "invoicePrefix": "Prefijo numeración facturas",
+    "invoicePrefixHint": "Ej. FATT → FATT-2026-001"
   },
   "reservations": {
     "title": "Reservas",
@@ -376,6 +408,13 @@
       "tags": "Etiquetas",
       "tagsPlaceholder": "VIP, Celíaco, Vino Tinto (separados por coma)",
       "notes": "Notas / Preferencias"
+    },
+    "fiscal": {
+      "title": "Datos fiscales (facturación B2B)",
+      "taxId": "P.IVA / NIF",
+      "fiscalCode": "Código fiscal",
+      "sdiRecipientCode": "Código destinatario SDI",
+      "pec": "PEC"
     },
     "slideOver": {
       "title": "Ficha del Cliente",
@@ -587,7 +626,11 @@
   },
   "reportFiscal": {
     "exportPdf": "Exportar PDF para Inspección",
+    "exportCsv": "Exportar CSV",
     "exporting": "Generando documento...",
+    "csvGenerated": "CSV exportado correctamente",
+    "legalDisclaimer": "Documento operativo para gestión interna y contabilidad. No sustituye registros fiscales oficiales, facturación electrónica (SDI/Verifactu) ni obligaciones legales de conservación.",
+    "totalTipsNote": "Total propinas (todas): {{total}}",
     "filterPeriod": "Filtro de periodo",
     "filterDay": "Por Día",
     "filterMonth": "Por Mes",
@@ -632,8 +675,8 @@
             "sub": "Sujeto a IVA"
           },
           "tips": {
-            "label": "Total Propinas Personal",
-            "sub": "Exento de IVA · Italia"
+            "label": "Propinas Electrónicas Rastreadas",
+            "sub": "Exento de IVA · Registro impuesto sustitutivo 5%"
           },
           "reconciliation": {
             "label": "Conciliación Bancaria POS",
@@ -647,7 +690,8 @@
           "tax": "IVA",
           "restaurantTotal": "Total Restaurante",
           "tip": "Propina",
-          "collectedTotal": "Total Cobrado"
+          "collectedTotal": "Total Cobrado",
+          "paymentMethod": "Método TPV"
         },
         "pdf": {
           "title": "Libro de Registro de Propinas y Facturación — {{restaurant}}",
@@ -657,7 +701,8 @@
           "period": "Periodo",
           "generated": "Generado",
           "summaryNet": "Total Facturado Neto (Sujeto a IVA)",
-          "summaryTips": "Total Propinas Personal (Exento de IVA)",
+          "summaryTips": "Total Propinas Voluntarias (Exento de IVA)",
+          "summaryElectronicTips": "Propinas Electrónicas Rastreadas — Registro impuesto sustitutivo 5%",
           "summaryReconciliation": "Total Conciliación Bancaria POS",
           "footer": "Documento generado automáticamente · {{count}} transacciones · Propinas exentas de IVA (normativa italiana).",
           "filenamePrefix": "libro-registro"
@@ -824,7 +869,12 @@
     "factors": {
       "orderHistory": "Historial de pedidos",
       "dayOfWeek": "Día de la semana",
-      "weather": "Clima previsto"
+      "weather": "Clima previsto",
+      "reservations": "Reservas"
+    },
+    "weatherSource": {
+      "openMeteo": "Clima en vivo (Open-Meteo)",
+      "simulated": "Clima estimado"
     },
     "days": {
       "sunday": "Domingo",
@@ -885,6 +935,8 @@
     "tax": "IVA",
     "orderSent": "¡Pedido enviado a cocina!",
     "dishAdded": "¡Plato añadido!",
+    "soldOut": "Agotado",
+    "soldOutToast": "Plato agotado — ingredientes insuficientes en almacén",
     "paymentRegistered": "¡Pago registrado!",
     "paymentError": "Error durante el pago",
     "notes": "Notas",
@@ -1012,6 +1064,7 @@
     "searchResults": "Resultados para \"{{query}}\"",
     "categories": "Categorías",
     "featured": "Destacado",
+    "soldOut": "Agotado",
     "allergens": "Alérgenos",
     "prepTime": "{{min}} min",
     "noResults": "No se encontraron platos",
@@ -1041,6 +1094,7 @@
     "paymentCancelled": "Pago cancelado. Puedes intentarlo de nuevo.",
     "stripeUnavailable": "Pago online no disponible — puedes pedir y pagar en mesa.",
     "subtotal": "Subtotal",
+    "taxableBase": "Base imponible",
     "total": "Total",
     "checkoutError": "Error al enviar el pedido",
     "remove": "Eliminar",
@@ -1098,5 +1152,82 @@
     "paymentMethod": "Método de pago",
     "cash": "Efectivo",
     "card": "Tarjeta"
+  },
+  "landing": {
+    "meta": {
+      "title": "Aura Syncro — Software cloud restauración | Italia, España e Islas Canarias",
+      "description": "Gestión de restaurantes SaaS para Italia, España e Islas Canarias. Menú QR, comandas y mesas, pagos Stripe, informes fiscales IVA/IGIC. Prueba Aura Syncro."
+    },
+    "nav": {
+      "features": "Funciones",
+      "pricing": "Precios",
+      "login": "Acceder",
+      "tryNow": "Probar ahora"
+    },
+    "hero": {
+      "badge": "Italia · España · Islas Canarias",
+      "title": "El gestional que sincroniza tu restaurante",
+      "subtitle": "{{brand}} es software en la nube para restauración estructurada: TPV rápido, menú QR, comandas en tiempo real y fiscalidad multi-país.",
+      "ctaPrimary": "Probar ahora",
+      "ctaSecondary": "Acceder"
+    },
+    "features": {
+      "title": "Todo lo que necesitas en servicio",
+      "subtitle": "Desde sala a cocina, menú digital a informes fiscales — una plataforma sincronizada.",
+      "tables": {
+        "title": "Gestión de mesas",
+        "desc": "Plano de sala, estados de mesa y comandas rápidas para camareros — sin retrasos en hora punta."
+      },
+      "qrMenu": {
+        "title": "Menú QR digital",
+        "desc": "Los clientes piden desde el móvil con carta actualizada y envío directo a cocina."
+      },
+      "stripe": {
+        "title": "Pagos con Stripe",
+        "desc": "Cobra en mesa u online con tarjetas y wallets digitales, integrados en el flujo de pedidos."
+      },
+      "fiscal": {
+        "title": "Informe fiscal",
+        "desc": "IVA en Italia y península, IGIC en Canarias — exportaciones listas para facturación electrónica."
+      }
+    },
+    "pricing": {
+      "title": "Planes claros para cada etapa",
+      "subtitle": "Setup llave en mano y cuota mensual transparente. Sin sorpresas.",
+      "cta": "Empezar prueba",
+      "starter": {
+        "name": "Starter",
+        "tagline": "Operativa diaria en sala y cocina",
+        "price": "A medida",
+        "setup": "",
+        "features": [
+          "Gestión de mesas y comandas",
+          "Menú digital y categorías",
+          "Pantalla cocina (KDS)",
+          "Reservas e inventario básico"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "Recomendado",
+        "tagline": "Suite completa para restaurantes estructurados",
+        "price": "199 €/mes",
+        "setup": "500 € setup inicial (único)",
+        "features": [
+          "Todo lo del Starter",
+          "CRM, fidelización y marketing",
+          "IA predictiva y analytics",
+          "Informe fiscal y pagos Stripe",
+          "Onboarding llave en mano"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Software cloud para restauración en Italia, España e Islas Canarias.",
+      "privacy": "Política de privacidad",
+      "terms": "Términos de servicio",
+      "contact": "Contacto",
+      "rights": "© {{year}} {{brand}}. Todos los derechos reservados."
+    }
   }
 }

@@ -8,6 +8,7 @@ import { ui } from '../lib/ui'
 import BrandLogo from '../components/brand/BrandLogo'
 import LanguageSwitcher from '../components/layout/LanguageSwitcher'
 import toast from 'react-hot-toast'
+import { formatApiError } from '../lib/errors'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
@@ -30,8 +31,7 @@ export default function RegisterPage() {
       await register(form)
       toast.success(t('auth.welcome'))
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: string } } }
-      toast.error(error.response?.data?.error || t('auth.registerError'))
+      toast.error(formatApiError(err))
     } finally {
       setLoading(false)
     }
@@ -40,11 +40,16 @@ export default function RegisterPage() {
   const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }))
 
   const onCountryChange = (countryCode: CountryCode) => {
+    const taxRegion: TaxRegion = countryCode === 'ES' ? 'ES_PENINSULA' : 'IT_MAIN'
     setForm(f => ({
       ...f,
       countryCode,
-      taxRegion: countryCode === 'ES' ? 'ES_CANARIAS' : 'IT_MAIN',
+      taxRegion,
     }))
+  }
+
+  const onTaxRegionChange = (taxRegion: TaxRegion) => {
+    setForm(f => ({ ...f, taxRegion }))
   }
 
   return (
@@ -82,7 +87,7 @@ export default function RegisterPage() {
                 <label className={ui.label}>{t('auth.taxRegion')}</label>
                 <select
                   value={form.taxRegion}
-                  onChange={e => update('taxRegion', e.target.value)}
+                  onChange={e => onTaxRegionChange(e.target.value as TaxRegion)}
                   className={ui.input}
                 >
                   <option value="ES_CANARIAS">{t('auth.taxRegionCanarias')}</option>
@@ -104,7 +109,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label className={ui.label}>{t('common.password')}</label>
-              <input type="password" value={form.password} onChange={e => update('password', e.target.value)} className={ui.input} placeholder={t('auth.passwordMinLength')} minLength={6} required />
+              <input type="password" value={form.password} onChange={e => update('password', e.target.value)} className={ui.input} placeholder={t('auth.passwordMinLength')} minLength={8} required />
             </div>
             <button
               type="submit"

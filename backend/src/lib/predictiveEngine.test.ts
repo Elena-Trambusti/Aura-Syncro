@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   calculateExpectedDemand,
   calculateAffluenceForecast,
+  calculateAffluenceForecastAdvanced,
   generateSmartAlerts,
   computeDishTrend,
   buildWeatherForecast,
@@ -149,5 +150,24 @@ describe('predictiveEngine', () => {
     assert.equal(forecast[0].baseCovers, 100)
     assert.equal(forecast[0].predictedCovers, 75)
     assert.equal(forecast[0].weatherImpactPct, -25)
+  })
+
+  it('calculateAffluenceForecastAdvanced — include prenotazioni e walk-in', () => {
+    const now = new Date('2026-06-20T12:00:00')
+    const covers = salesOnDow(now, 6, 4, 100)
+    const reservations = salesOnDow(now, 6, 4, 40)
+    const weather = [{ date: '2026-06-21', dayOfWeek: 6, condition: 'sunny' as const }]
+
+    const forecast = calculateAffluenceForecastAdvanced(
+      covers,
+      reservations,
+      weather,
+      { '2026-06-21': 50 },
+    )
+
+    assert.equal(forecast[0].reservedCovers, 50)
+    assert.equal(forecast[0].walkInCovers, 60)
+    assert.equal(forecast[0].baseCovers, 110)
+    assert.equal(forecast[0].predictedCovers, 110)
   })
 })
