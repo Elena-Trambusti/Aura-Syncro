@@ -1,4 +1,11 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_API_URL": "https://aura-syncro-s98ae.ondigitalocean.app",
+    "BACKEND_URL": "https://aura-syncro-s98ae.ondigitalocean.app"
+  },
   "rewrites": [
     {
       "source": "/((?!api/|assets/|pwa/|manifest\\.json|sw\\.js|favicon\\.svg|workbox-).*)",

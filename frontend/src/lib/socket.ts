@@ -1,10 +1,10 @@
 import { io, Socket } from 'socket.io-client'
+import { resolveBackendUrl } from './backendUrl'
 
 let socket: Socket | null = null
 
 function getSocketUrl(): string | undefined {
-  const envUrl = import.meta.env.VITE_API_URL as string | undefined
-  return envUrl ? envUrl.replace(/\/$/, '') : undefined
+  return resolveBackendUrl()
 }
 
 export function getSocket(): Socket {

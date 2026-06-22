@@ -174,7 +174,7 @@
     "apiNotConfigured": "Server API non configurato su Vercel (manca BACKEND_URL).",
     "backendUnreachable": "Backend non raggiungibile. Verifica che DigitalOcean sia online.",
     "apiBlocked": "Richiesta API bloccata. Rideploya il frontend con la configurazione aggiornata.",
-    "networkError": "Impossibile contattare il server. Controlla connessione e configurazione BACKEND_URL."
+    "networkError": "Impossibile contattare il server. Verifica la connessione e riprova tra qualche minuto."
   },
   "dashboard": {
     "title": "Dashboard — {{name}}",

@@ -1,13 +1,10 @@
 import axios from 'axios'
+import { resolveApiBaseUrl } from './backendUrl'
 
 const RESTAURANT_ID_KEY = 'restaurantId'
 
 function getApiBaseUrl(): string {
-  const envUrl = import.meta.env.VITE_API_URL as string | undefined
-  if (envUrl) {
-    return `${envUrl.replace(/\/$/, '')}/api`
-  }
-  return '/api'
+  return resolveApiBaseUrl()
 }
 
 export { getApiBaseUrl }

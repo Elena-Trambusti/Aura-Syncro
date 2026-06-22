@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getApiBaseUrl } from './api'
+import { resolveBackendUrl } from './backendUrl'
 
 const ADMIN_KEY_STORAGE = 'aura_platform_admin_key'
 
@@ -16,7 +16,7 @@ export function clearStoredAdminKey(): void {
 }
 
 function adminBase() {
-  return getApiBaseUrl().replace(/\/api$/, '')
+  return resolveBackendUrl() ?? ''
 }
 
 function adminHeaders(adminKey: string) {
