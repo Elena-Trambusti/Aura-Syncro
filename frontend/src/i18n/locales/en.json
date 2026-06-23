@@ -1130,6 +1130,7 @@
   "publicBooking": {
     "badge": "Table reservation",
     "subtitle": "Fill in the form to request a table. We will confirm as soon as possible.",
+    "welcome": "Welcome to {{name}}. We are happy to host you: tell us your booking details in a few seconds.",
     "hours": "Hours: {{open}} – {{close}}",
     "name": "Full name",
     "phone": "Phone",
@@ -1205,7 +1206,13 @@
       "title": "The management platform that keeps your restaurant in sync",
       "subtitle": "{{brand}} is cloud software for structured restaurants: fast POS, QR menu, real-time orders and multi-country fiscal compliance.",
       "ctaPrimary": "Try now",
-      "ctaSecondary": "Sign in"
+      "ctaSecondary": "Watch demo",
+      "previewKpi1": "Revenue vs last month",
+      "previewKpi2": "Covers today",
+      "previewChart": "Service trend (demo)"
+    },
+    "trust": {
+      "title": "Chosen by top restaurants in:"
     },
     "features": {
       "title": "Everything you need during service",
@@ -1225,6 +1232,14 @@
       "fiscal": {
         "title": "Fiscal reports",
         "desc": "VAT in Italy, mainland Spain and IGIC in the Canaries — exports ready for e-invoicing."
+      },
+      "crm": {
+        "title": "CRM and loyalty",
+        "desc": "Customer profiles, tags, allergies and targeted campaigns to boost repeat visits and average spend."
+      },
+      "ai": {
+        "title": "Predictive AI",
+        "desc": "Forecast covers and consumption to plan staffing, purchasing and production with better accuracy."
       }
     },
     "pricing": {

@@ -72,6 +72,9 @@ publicRouter.get('/booking/:slug', async (req: Request, res: Response): Promise<
       slug: restaurant.slug,
       description: restaurant.description,
       phone: restaurant.phone,
+      logo: restaurant.logoUrl ?? restaurant.logo,
+      coverImage: restaurant.coverImage,
+      colorTheme: restaurant.colorTheme,
     },
     settings: {
       openTime: s?.openTime ?? '12:00',

@@ -1140,6 +1140,7 @@
   "publicBooking": {
     "badge": "Prenotazione tavolo",
     "subtitle": "Compila il modulo per richiedere un tavolo. Ti confermeremo al più presto.",
+    "welcome": "Benvenuto da {{name}}. Saremo felici di accoglierti: raccontaci in pochi secondi la tua prenotazione.",
     "hours": "Orari: {{open}} – {{close}}",
     "name": "Nome e cognome",
     "phone": "Telefono",
@@ -1215,7 +1216,13 @@
       "title": "Il gestionale che mette in sincrono il tuo ristorante",
       "subtitle": "{{brand}} è il software cloud per ristorazione strutturata: POS veloce, menu QR, comande in tempo reale e fiscalità multi-paese.",
       "ctaPrimary": "Prova ora",
-      "ctaSecondary": "Accedi"
+      "ctaSecondary": "Guarda demo",
+      "previewKpi1": "Ricavi vs mese scorso",
+      "previewKpi2": "Coperti oggi",
+      "previewChart": "Andamento servizio (demo)"
+    },
+    "trust": {
+      "title": "Scelto dai migliori ristoranti a:"
     },
     "features": {
       "title": "Tutto ciò che serve durante il servizio",
@@ -1235,6 +1242,14 @@
       "fiscal": {
         "title": "Report fiscale",
         "desc": "IVA in Italia, IVA peninsulare e IGIC nelle Canarie — export e numerazione pronti per SDI."
+      },
+      "crm": {
+        "title": "CRM e fidelizzazione",
+        "desc": "Profili cliente, tag, allergie e campagne mirate per aumentare ritorni e scontrino medio."
+      },
+      "ai": {
+        "title": "AI predittiva",
+        "desc": "Previsioni coperti e consumi per pianificare personale, acquisti e produzione con più precisione."
       }
     },
     "pricing": {
