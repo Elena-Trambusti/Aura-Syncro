@@ -8,9 +8,9 @@ interface QueryErrorBannerProps {
 export default function QueryErrorBanner({ message }: QueryErrorBannerProps) {
   const { t } = useTranslation()
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-8 flex flex-col items-center gap-3 text-center">
-      <AlertCircle className="w-10 h-10 text-red-400" />
-      <p className="text-sm text-red-700">{message ?? t('common.loadError')}</p>
+    <div className="premium-alert-error flex flex-col items-center gap-3 p-8 text-center">
+      <AlertCircle className="h-10 w-10 text-red-400" />
+      <p className="text-sm text-red-300">{message ?? t('common.loadError')}</p>
     </div>
   )
 }

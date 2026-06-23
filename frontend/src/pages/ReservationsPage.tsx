@@ -50,39 +50,39 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-bold text-slate-900 mb-5">{t('reservations.formTitle')}</h3>
+      <div className="w-full max-w-md rounded-xl premium-card p-6 shadow-lg" onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-bold text-pietra mb-5">{t('reservations.formTitle')}</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('reservations.formGuestName')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('reservations.formGuestName')}</label>
               <input value={form.guestName} onChange={e => update('guestName', e.target.value)}
                 className="saas-input w-full py-2.5"
                 placeholder={t('reservations.formGuestNamePlaceholder')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('reservations.formPhone')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('reservations.formPhone')}</label>
               <input value={form.guestPhone} onChange={e => update('guestPhone', e.target.value)}
                 className="saas-input w-full py-2.5"
                 placeholder={t('reservations.formPhonePlaceholder')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('reservations.formCovers')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('reservations.formCovers')}</label>
               <input type="number" min={1} max={20} value={form.covers} onChange={e => update('covers', parseInt(e.target.value))}
                 className="saas-input w-full py-2.5" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('reservations.formDateTime')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('reservations.formDateTime')}</label>
               <input type="datetime-local" value={form.date} onChange={e => update('date', e.target.value)}
                 className="saas-input w-full py-2.5" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.email')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('common.email')}</label>
               <input type="email" value={form.guestEmail} onChange={e => update('guestEmail', e.target.value)}
                 className="saas-input w-full py-2.5" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('reservations.formDuration')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('reservations.formDuration')}</label>
               <select value={form.duration} onChange={e => update('duration', parseInt(e.target.value))}
                 className="saas-input w-full py-2.5">
                 <option value={60}>{t('reservations.formDuration1h')}</option>
@@ -92,7 +92,7 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">{t('waitlist.notes')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1">{t('waitlist.notes')}</label>
               <textarea value={form.notes} onChange={e => update('notes', e.target.value)}
                 className="saas-input w-full py-2.5 resize-none"
                 rows={2} placeholder={t('reservations.formNotesPlaceholder')} />
@@ -100,9 +100,9 @@ function ReservationForm({ onSave, onCancel }: { onSave: (data: Record<string, s
           </div>
         </div>
         <div className="flex gap-3 mt-5">
-          <button onClick={onCancel} className="flex-1 py-2.5 border border-slate-300 rounded-xl text-sm font-medium">{t('common.cancel')}</button>
+          <button onClick={onCancel} className="flex-1 py-2.5 border border-white/[0.1] rounded-xl text-sm font-medium">{t('common.cancel')}</button>
           <button onClick={() => onSave({ ...form, date: new Date(form.date).toISOString() })}
-            className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold">
+            className="flex-1 py-2.5 bg-aura-gold hover:bg-aura-gold text-navy font-semibold rounded-xl text-sm font-semibold">
             {t('reservations.formConfirm')}
           </button>
         </div>
@@ -138,12 +138,12 @@ const STATUS_ACCENT: Record<string, string> = {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-800 border-amber-200',
-  CONFIRMED: 'bg-blue-50 text-blue-800 border-blue-200',
-  SEATED: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-  COMPLETED: 'bg-slate-50 text-slate-600 border-slate-200',
-  CANCELLED: 'bg-red-50 text-red-700 border-red-200',
-  NO_SHOW: 'bg-slate-50 text-slate-500 border-slate-200',
+  PENDING: 'bg-aura-gold/10 text-amber-800 border-aura-gold/25',
+  CONFIRMED: 'bg-blue-500/10 text-blue-800 border-blue-500/25',
+  SEATED: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/25',
+  COMPLETED: 'bg-navy-surface/50 text-fumo border-white/[0.08]',
+  CANCELLED: 'bg-red-500/10 text-red-400 border-red-500/25',
+  NO_SHOW: 'bg-navy-surface/50 text-fumo border-white/[0.08]',
 }
 
 export default function ReservationsPage() {
@@ -240,13 +240,13 @@ export default function ReservationsPage() {
           </div>
           <p className="aura-page-subtitle">{t('reservations.subtitle', { count: activeReservations.length, covers: totalCovers })}</p>
           {bookingUrl && activeTab === 'bookings' && (
-            <div className="mt-2 flex max-w-xl items-center gap-1.5 text-xs text-slate-500">
-              <Link2 className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <div className="mt-2 flex max-w-xl items-center gap-1.5 text-xs text-fumo">
+              <Link2 className="h-3.5 w-3.5 shrink-0 text-fumo" />
               <span className="truncate">{bookingUrl.replace(/^https?:\/\//, '')}</span>
               <button
                 type="button"
                 onClick={copyBookingLink}
-                className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="shrink-0 rounded-md p-1 text-fumo hover:bg-white/[0.05] hover:text-fumo"
                 title={t('common.copyLink')}
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -254,7 +254,7 @@ export default function ReservationsPage() {
               <button
                 type="button"
                 onClick={() => window.open(bookingUrl, '_blank')}
-                className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="shrink-0 rounded-md p-1 text-fumo hover:bg-white/[0.05] hover:text-fumo"
                 title={t('reservations.openPublicBooking')}
               >
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -272,7 +272,7 @@ export default function ReservationsPage() {
 
       <div className={`${ui.card} px-4 py-3`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+          <div className="flex gap-1 rounded-xl border border-white/[0.08] bg-navy-surface/50 p-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('bookings')}
@@ -339,59 +339,59 @@ export default function ReservationsPage() {
           <div
             key={res.id}
             className={cn(
-              'rounded-xl border border-slate-200 border-l-4 bg-white p-4 shadow-sm transition-colors hover:border-slate-300',
+              'rounded-xl border border-white/[0.08] border-l-4 bg-navy-elevated p-4 shadow-sm transition-colors hover:border-white/[0.1]',
               STATUS_ACCENT[res.status] ?? 'border-l-slate-300',
               isArchivedStatus(res.status) && 'opacity-75',
             )}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-                <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-lg font-bold leading-none text-slate-900">{formatTime(res.date)}</span>
-                  <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-slate-400">{res.duration}′</span>
+                <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-navy-surface/50 border border-white/[0.08]">
+                  <span className="text-lg font-bold leading-none text-pietra">{formatTime(res.date)}</span>
+                  <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-fumo">{res.duration}′</span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-base font-semibold text-slate-900">{res.guestName}</p>
+                    <p className="text-base font-semibold text-pietra">{res.guestName}</p>
                     {res.customer && res.customer.totalVisits > 3 && (
-                      <span className="rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-xs font-semibold text-violet-700">VIP</span>
+                      <span className="rounded-full border border-violet-200 bg-violet-500/10 px-2 py-0.5 text-xs font-semibold text-violet-400">VIP</span>
                     )}
                     <span className={cn('rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[res.status])}>
                       {getReservationStatusLabel(res.status)}
                     </span>
                     {res.depositPaid && (
-                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                      <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
                         {t('reservations.depositPaid')}
                       </span>
                     )}
                     {needsDeposit(res) && (
-                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+                      <span className="rounded-full border border-aura-gold/25 bg-aura-gold/10 px-2 py-0.5 text-xs font-medium text-amber-800">
                         {t('reservations.depositRequired')}
                       </span>
                     )}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fumo">
                     <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" />{res.covers} {t('reservations.guests')}</span>
                     <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{res.guestPhone}</span>
                     {res.table && (
-                      <span className="inline-flex items-center gap-1 font-medium text-amber-700">
+                      <span className="inline-flex items-center gap-1 font-medium text-aura-gold">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         T{res.table.number}
                       </span>
                     )}
                   </div>
-                  {res.notes && <p className="mt-1.5 text-sm text-slate-600 line-clamp-2">{res.notes}</p>}
+                  {res.notes && <p className="mt-1.5 text-sm text-fumo line-clamp-2">{res.notes}</p>}
                 </div>
               </div>
 
               {canManageReservations && !isArchivedStatus(res.status) && (
-                <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 sm:border-t-0 sm:pt-0 sm:pl-2">
+                <div className="flex flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-3 sm:border-t-0 sm:pt-0 sm:pl-2">
                   {needsDeposit(res) && (
                     <button
                       type="button"
                       onClick={() => copyDepositLink.mutate(res.id)}
                       disabled={copyDepositLink.isPending}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-aura-gold/25 bg-aura-gold/10 px-2.5 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
                       title={t('reservations.copyDepositLink')}
                     >
                       <CreditCard className="h-4 w-4" />
@@ -413,7 +413,7 @@ export default function ReservationsPage() {
                     <button
                       type="button"
                       onClick={() => updateStatus.mutate({ id: res.id, status: 'NO_SHOW' })}
-                      className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                      className="rounded-lg p-2 text-fumo hover:bg-white/[0.05] hover:text-fumo"
                       title={t('reservations.markNoShow')}
                     >
                       <LogOut className="h-4 w-4" />
@@ -423,7 +423,7 @@ export default function ReservationsPage() {
                     <button
                       type="button"
                       onClick={() => updateStatus.mutate({ id: res.id, status: 'COMPLETED' })}
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      className="inline-flex items-center gap-1 rounded-lg premium-card px-2.5 py-2 text-xs font-semibold text-fumo hover:bg-white/[0.05]"
                       title={t('reservations.markCompleted')}
                     >
                       <CheckCircle2 className="h-4 w-4" />
@@ -433,7 +433,7 @@ export default function ReservationsPage() {
                   <button
                     type="button"
                     onClick={() => updateStatus.mutate({ id: res.id, status: 'CANCELLED' })}
-                    className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-2 text-fumo hover:bg-red-500/10 hover:text-red-400"
                     title={t('common.cancel')}
                   >
                     <XCircle className="h-4 w-4" />
@@ -445,14 +445,14 @@ export default function ReservationsPage() {
         ))}
 
         {displayedReservations.length === 0 && (
-          <div className="flex flex-col items-center rounded-xl border border-dashed border-slate-200 bg-white px-6 py-14 text-center">
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-white/[0.08] bg-navy-elevated px-6 py-14 text-center">
             <CalendarDays className="mb-3 h-12 w-12 text-slate-300" />
-            <p className="font-semibold text-slate-900">
+            <p className="font-semibold text-pietra">
               {showArchived || archivedReservations.length === 0
                 ? t('reservations.noReservations')
                 : t('reservations.activeEmptyTitle')}
             </p>
-            <p className="mt-1 max-w-md text-sm text-slate-500">
+            <p className="mt-1 max-w-md text-sm text-fumo">
               {showArchived || archivedReservations.length === 0
                 ? t('reservations.noReservationsHint')
                 : t('reservations.activeEmptyHint')}
@@ -465,7 +465,7 @@ export default function ReservationsPage() {
         <button
           type="button"
           onClick={() => setShowArchived(v => !v)}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl premium-card px-4 py-2.5 text-sm font-medium text-fumo hover:bg-white/[0.05]"
         >
           <ChevronDown className={cn('h-4 w-4 transition-transform', showArchived && 'rotate-180')} />
           {showArchived

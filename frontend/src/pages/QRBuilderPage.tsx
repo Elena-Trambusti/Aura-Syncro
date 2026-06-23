@@ -58,7 +58,7 @@ export default function QRBuilderPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <p className="text-fumo">{t('common.loading')}</p>
       </div>
     )
   }
@@ -66,10 +66,10 @@ export default function QRBuilderPage() {
   if (!slug) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="text-slate-600 max-w-md">{t('qrBuilder.slugMissing')}</p>
+        <p className="text-fumo max-w-md">{t('qrBuilder.slugMissing')}</p>
         <Link
           to="/impostazioni"
-          className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-aura-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-aura-gold-light transition-colors"
         >
           {t('qrBuilder.goToSettings')}
         </Link>
@@ -80,17 +80,17 @@ export default function QRBuilderPage() {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col items-center px-4 py-6">
       <header className="mb-6 w-full text-center">
-        <h1 className="text-2xl font-bold text-slate-900">{t('qrBuilder.title')}</h1>
-        <p className="mt-2 text-sm text-slate-500">{t('qrBuilder.subtitle')}</p>
+        <h1 className="text-2xl font-bold text-pietra">{t('qrBuilder.title')}</h1>
+        <p className="mt-2 text-sm text-fumo">{t('qrBuilder.subtitle')}</p>
       </header>
 
-      <div className="mb-6 flex w-full rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+      <div className="mb-6 flex w-full rounded-xl premium-card p-1 shadow-sm">
         <button
           type="button"
           onClick={() => setMode('menu')}
           className={cn(
             'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-colors',
-            mode === 'menu' ? 'bg-amber-500 text-white' : 'text-slate-600 hover:bg-slate-50',
+            mode === 'menu' ? 'bg-aura-gold text-navy font-semibold' : 'text-fumo hover:bg-white/[0.05]',
           )}
         >
           <BookOpen className="h-4 w-4" />
@@ -101,7 +101,7 @@ export default function QRBuilderPage() {
           onClick={() => setMode('booking')}
           className={cn(
             'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-colors',
-            mode === 'booking' ? 'bg-amber-500 text-white' : 'text-slate-600 hover:bg-slate-50',
+            mode === 'booking' ? 'bg-aura-gold text-navy font-semibold' : 'text-fumo hover:bg-white/[0.05]',
           )}
         >
           <CalendarDays className="h-4 w-4" />
@@ -109,14 +109,14 @@ export default function QRBuilderPage() {
         </button>
       </div>
 
-      <div className="w-full rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="mb-4 text-sm text-slate-600">
+      <div className="w-full rounded-xl premium-card p-8 shadow-sm">
+        <p className="mb-4 text-sm text-fumo">
           {mode === 'menu' ? t('qrBuilder.menuModeDesc') : t('qrBuilder.bookingModeDesc')}
         </p>
 
         {mode === 'menu' && (
           <div className="mb-6 w-full">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-fumo">
               {t('qrBuilder.tableNumberOptional')}
             </label>
             <input
@@ -125,14 +125,14 @@ export default function QRBuilderPage() {
               value={tableNumber}
               onChange={e => setTableNumber(e.target.value)}
               placeholder={t('qrBuilder.tableNumberPlaceholder')}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+              className="w-full rounded-xl border border-white/[0.08] px-4 py-2.5 text-sm focus:border-aura-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
             />
-            <p className="mt-1.5 text-xs text-slate-500">{t('qrBuilder.tableNumberHint')}</p>
+            <p className="mt-1.5 text-xs text-fumo">{t('qrBuilder.tableNumberHint')}</p>
           </div>
         )}
 
         <div className="flex flex-col items-center">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-lg premium-card p-4">
             <QRCodeCanvas
               value={activeUrl}
               size={PREVIEW_SIZE}
@@ -144,10 +144,10 @@ export default function QRBuilderPage() {
           </div>
 
           <div className="mt-8 w-full text-center">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-fumo">
               {t('qrBuilder.scanTarget')}
             </p>
-            <p className="break-all font-mono text-sm font-medium leading-relaxed text-slate-900">
+            <p className="break-all font-mono text-sm font-medium leading-relaxed text-pietra">
               {activeUrl}
             </p>
           </div>
@@ -161,13 +161,13 @@ export default function QRBuilderPage() {
             {t('qrBuilder.downloadPng')}
           </button>
 
-          <p className="mt-4 text-center text-xs text-slate-500">{t('qrBuilder.printHint')}</p>
+          <p className="mt-4 text-center text-xs text-fumo">{t('qrBuilder.printHint')}</p>
 
-          <div className="mt-6 flex w-full flex-wrap justify-center gap-3 border-t border-slate-100 pt-6">
+          <div className="mt-6 flex w-full flex-wrap justify-center gap-3 border-t border-white/[0.06] pt-6">
             <button
               type="button"
               onClick={() => window.open(activeUrl, '_blank')}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-fumo transition-colors hover:text-pietra"
             >
               <ExternalLink className="h-4 w-4" aria-hidden />
               {mode === 'menu' ? t('qrBuilder.previewMenu') : t('qrBuilder.previewBooking')}
@@ -176,7 +176,7 @@ export default function QRBuilderPage() {
             <button
               type="button"
               onClick={copyLink}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-fumo transition-colors hover:text-pietra"
             >
               <Copy className="h-4 w-4" aria-hidden />
               {t('common.copyLink')}

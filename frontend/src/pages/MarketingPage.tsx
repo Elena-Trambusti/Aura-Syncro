@@ -44,10 +44,10 @@ const AUTOMATION_META: Record<
 }
 
 const CAMPAIGN_STATUS_CLASS: Record<Campaign['status'], string> = {
-  DRAFT: 'bg-slate-100 text-slate-600',
+  DRAFT: 'bg-navy-surface text-fumo',
   SCHEDULED: 'bg-blue-100 text-blue-800',
   SENT: 'bg-emerald-100 text-emerald-800',
-  CANCELLED: 'bg-red-100 text-red-600',
+  CANCELLED: 'bg-red-100 text-red-400',
 }
 
 function CampaignFormModal({
@@ -189,15 +189,15 @@ export default function MarketingPage() {
         <p className={ui.pageSubtitle}>{t('marketing.subtitle')}</p>
       </div>
 
-      <div className="flex gap-2 border-b border-slate-200">
+      <div className="flex gap-2 border-b border-white/[0.08]">
         <button
           type="button"
           onClick={() => setActiveTab('automations')}
           className={cn(
             'border-b-2 px-4 py-2.5 text-sm font-medium transition-colors -mb-px',
             activeTab === 'automations'
-              ? 'border-amber-500 text-amber-700'
-              : 'border-transparent text-slate-500 hover:text-slate-800',
+              ? 'border-amber-500 text-aura-gold'
+              : 'border-transparent text-fumo hover:text-pietra',
           )}
         >
           {t('marketing.tabAutomations')}
@@ -208,8 +208,8 @@ export default function MarketingPage() {
           className={cn(
             'border-b-2 px-4 py-2.5 text-sm font-medium transition-colors -mb-px',
             activeTab === 'campaigns'
-              ? 'border-amber-500 text-amber-700'
-              : 'border-transparent text-slate-500 hover:text-slate-800',
+              ? 'border-amber-500 text-aura-gold'
+              : 'border-transparent text-fumo hover:text-pietra',
           )}
         >
           {t('marketing.tabCampaigns')}
@@ -219,12 +219,12 @@ export default function MarketingPage() {
       {activeTab === 'automations' ? (
         <section className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">{t('marketing.automations.sectionTitle')}</h2>
-            <p className="text-sm text-slate-500 mt-1">{t('marketing.automations.sectionSubtitle')}</p>
+            <h2 className="text-base font-semibold text-pietra">{t('marketing.automations.sectionTitle')}</h2>
+            <p className="text-sm text-fumo mt-1">{t('marketing.automations.sectionSubtitle')}</p>
           </div>
 
           {isLoading ? (
-            <div className={`${ui.cardSm} p-8 text-center text-sm text-slate-500`}>
+            <div className={`${ui.cardSm} p-8 text-center text-sm text-fumo`}>
               {t('common.loading')}
             </div>
           ) : automationsError ? (
@@ -266,13 +266,13 @@ export default function MarketingPage() {
         <section className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-slate-900">{t('marketing.campaignsSectionTitle')}</h2>
-              <p className="text-sm text-slate-500 mt-1">{t('marketing.campaignsSectionSubtitle')}</p>
+              <h2 className="text-base font-semibold text-pietra">{t('marketing.campaignsSectionTitle')}</h2>
+              <p className="text-sm text-fumo mt-1">{t('marketing.campaignsSectionSubtitle')}</p>
             </div>
             <button
               type="button"
               onClick={() => setShowCampaignForm(true)}
-              className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold"
+              className="flex items-center justify-center gap-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold px-4 py-2 rounded-xl text-sm font-semibold"
             >
               <Plus className="w-4 h-4" />
               {t('marketing.newCampaign')}
@@ -280,13 +280,13 @@ export default function MarketingPage() {
           </div>
 
           {campaignsLoading ? (
-            <div className={`${ui.cardSm} p-8 text-center text-sm text-slate-500`}>
+            <div className={`${ui.cardSm} p-8 text-center text-sm text-fumo`}>
               {t('common.loading')}
             </div>
           ) : campaignsError ? (
             <QueryErrorBanner />
           ) : campaigns.length === 0 ? (
-            <div className={`${ui.cardSm} p-8 text-center text-sm text-slate-500`}>
+            <div className={`${ui.cardSm} p-8 text-center text-sm text-fumo`}>
               {t('common.noData')}
             </div>
           ) : (
@@ -295,15 +295,15 @@ export default function MarketingPage() {
                 <div key={campaign.id} className={`${ui.cardSm} p-4 flex flex-col sm:flex-row sm:items-center gap-4`}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-slate-900">{campaign.name}</p>
+                      <p className="font-semibold text-pietra">{campaign.name}</p>
                       <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', CAMPAIGN_STATUS_CLASS[campaign.status])}>
                         {campaign.status}
                       </span>
                     </div>
                     {campaign.subject && (
-                      <p className="text-sm text-slate-500 mt-1 truncate">{campaign.subject}</p>
+                      <p className="text-sm text-fumo mt-1 truncate">{campaign.subject}</p>
                     )}
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-fumo mt-1">
                       {new Date(campaign.createdAt).toLocaleDateString()}
                       {campaign.status === 'SENT' && ` · ${campaign.recipientCount} ${t('common.pieces')}`}
                     </p>
@@ -314,7 +314,7 @@ export default function MarketingPage() {
                         type="button"
                         onClick={() => sendCampaign.mutate(campaign.id)}
                         disabled={sendCampaign.isPending}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold rounded-lg text-sm font-medium disabled:opacity-50"
                       >
                         <Send className="w-4 h-4" />
                         {t('marketing.sendCampaign')}
@@ -326,7 +326,7 @@ export default function MarketingPage() {
                         onClick={() => {
                           if (confirm(t('marketing.confirmDeleteCampaign'))) deleteCampaign.mutate(campaign.id)
                         }}
-                        className="p-2 hover:bg-red-50 rounded-lg text-slate-600 hover:text-red-600"
+                        className="p-2 hover:bg-red-500/10 rounded-lg text-fumo hover:text-red-400"
                         title={t('common.delete')}
                       >
                         <Trash2 className="w-4 h-4" />

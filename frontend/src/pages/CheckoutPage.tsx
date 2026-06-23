@@ -160,9 +160,9 @@ export default function CheckoutPage() {
 
   if (isError || !order || order.status === 'PAID') {
     return (
-      <div className="mx-auto max-w-lg rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-slate-900 font-medium">{t('checkout.notAvailable')}</p>
-        <button type="button" onClick={() => navigate(-1)} className="mt-4 text-sm text-amber-600 hover:underline">
+      <div className="mx-auto max-w-lg rounded-xl premium-card p-8 text-center shadow-sm">
+        <p className="text-pietra font-medium">{t('checkout.notAvailable')}</p>
+        <button type="button" onClick={() => navigate(-1)} className="mt-4 text-sm text-aura-gold hover:underline">
           {t('checkout.back')}
         </button>
       </div>
@@ -178,13 +178,13 @@ export default function CheckoutPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50"
+            className="rounded-lg premium-card p-2 text-fumo hover:bg-white/[0.05]"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{t('checkout.title')}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-pietra">{t('checkout.title')}</h1>
+            <p className="text-sm text-fumo">
               {t('checkout.orderRef', { ref: order.id.slice(-6).toUpperCase() })}
               {order.table ? ` · ${t('checkout.table', { number: order.table.number })}` : ''}
             </p>
@@ -192,8 +192,8 @@ export default function CheckoutPage() {
         </div>
 
         {/* Riepilogo piatti */}
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+        <section className="rounded-xl premium-card p-5 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-pietra">
             <Receipt className="h-5 w-5 text-amber-500" />
             {t('checkout.summary')}
           </h2>
@@ -201,29 +201,29 @@ export default function CheckoutPage() {
             {activeItems.map(item => (
               <div key={item.id} className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-900">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-surface text-xs font-bold text-pietra">
                     {item.quantity}
                   </span>
-                  <span className="truncate text-sm font-medium text-slate-900">{item.menuItem.name}</span>
-                  <span className="text-xs text-slate-400">{item.status}</span>
+                  <span className="truncate text-sm font-medium text-pietra">{item.menuItem.name}</span>
+                  <span className="text-xs text-fumo">{item.status}</span>
                 </div>
-                <span className="shrink-0 text-sm font-medium tabular-nums text-slate-900">
+                <span className="shrink-0 text-sm font-medium tabular-nums text-pietra">
                   {formatCurrency(item.unitPrice * item.quantity)}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 space-y-2 border-t border-slate-100 pt-4 text-sm">
-            <div className="flex justify-between text-slate-600">
+          <div className="mt-5 space-y-2 border-t border-white/[0.06] pt-4 text-sm">
+            <div className="flex justify-between text-fumo">
               <span>{t('checkout.subtotal')}</span>
               <span className="tabular-nums">{formatCurrency(order.subtotal)}</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex justify-between text-fumo">
               <span>{taxLabel} ({order.taxRateApplied ?? fiscal.taxRate}%)</span>
               <span className="tabular-nums">{formatCurrency(order.tax)}</span>
             </div>
-            <div className="flex justify-between font-semibold text-slate-900">
+            <div className="flex justify-between font-semibold text-pietra">
               <span>{t('checkout.foodTotal')}</span>
               <span className="tabular-nums">{formatCurrency(order.total)}</span>
             </div>
@@ -231,21 +231,21 @@ export default function CheckoutPage() {
         </section>
 
         {/* Mancia */}
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl premium-card p-5 shadow-sm">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-medium text-slate-900">{t('checkout.tip')}</span>
+            <span className="text-sm font-medium text-pietra">{t('checkout.tip')}</span>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => { setWantsTip(false); setTipAmount('') }}
-                className={cn('rounded-lg px-3 py-1.5 text-xs font-semibold', !wantsTip ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700')}
+                className={cn('rounded-lg px-3 py-1.5 text-xs font-semibold', !wantsTip ? 'bg-slate-900 text-white' : 'bg-navy-surface text-fumo')}
               >
                 {t('checkout.tipNo')}
               </button>
               <button
                 type="button"
                 onClick={() => setWantsTip(true)}
-                className={cn('rounded-lg px-3 py-1.5 text-xs font-semibold', wantsTip ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700')}
+                className={cn('rounded-lg px-3 py-1.5 text-xs font-semibold', wantsTip ? 'bg-slate-900 text-white' : 'bg-navy-surface text-fumo')}
               >
                 {t('checkout.tipYes')}
               </button>
@@ -259,15 +259,15 @@ export default function CheckoutPage() {
               value={tipAmount}
               onChange={e => setTipAmount(e.target.value)}
               placeholder="0.00"
-              className="saas-input mt-3 w-full py-3 text-center text-sm text-slate-900"
+              className="saas-input mt-3 w-full py-3 text-center text-sm text-pietra"
             />
           )}
-          <p className="mt-4 text-xs text-slate-500">{tRegime(t, fiscal.taxRegion, 'tipExemptNote')}</p>
+          <p className="mt-4 text-xs text-fumo">{tRegime(t, fiscal.taxRegion, 'tipExemptNote')}</p>
         </section>
 
         {/* Metodo pagamento */}
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">{t('checkout.paymentMethod')}</h2>
+        <section className="rounded-xl premium-card p-5 shadow-sm">
+          <h2 className="mb-4 text-base font-semibold text-pietra">{t('checkout.paymentMethod')}</h2>
           <div className="grid grid-cols-3 gap-2">
             {([
               { key: 'CARD' as const, icon: CreditCard, label: t('checkout.card') },
@@ -283,8 +283,8 @@ export default function CheckoutPage() {
                   className={cn(
                     'flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-sm font-semibold transition-colors',
                     paymentMethod === opt.key
-                      ? 'border-amber-500 bg-amber-50 text-amber-800'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                      ? 'border-amber-500 bg-aura-gold/10 text-amber-800'
+                      : 'border-white/[0.08] bg-navy-surface text-fumo hover:bg-white/[0.05]',
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -295,25 +295,25 @@ export default function CheckoutPage() {
           </div>
 
           {paymentMethod === 'SPLIT' && (
-            <div className="mt-5 space-y-4 border-t border-slate-100 pt-4">
+            <div className="mt-5 space-y-4 border-t border-white/[0.06] pt-4">
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setSplitMode('equal')}
-                  className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitMode === 'equal' ? 'bg-slate-900 text-white' : 'bg-slate-100')}
+                  className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitMode === 'equal' ? 'bg-slate-900 text-white' : 'bg-navy-surface')}
                 >
                   {t('checkout.splitEqual')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSplitMode('by_items')}
-                  className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitMode === 'by_items' ? 'bg-slate-900 text-white' : 'bg-slate-100')}
+                  className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitMode === 'by_items' ? 'bg-slate-900 text-white' : 'bg-navy-surface')}
                 >
                   {t('checkout.splitByItems')}
                 </button>
               </div>
 
-              <label className="block text-sm text-slate-600">
+              <label className="block text-sm text-fumo">
                 {t('checkout.guestCount')}
                 <input
                   type="number"
@@ -328,12 +328,12 @@ export default function CheckoutPage() {
               {splitMode === 'by_items' && (
                 <div className="space-y-2">
                   {activeItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2">
-                      <span className="truncate text-sm text-slate-900">{item.menuItem.name}</span>
+                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg bg-navy-surface/50 px-3 py-2">
+                      <span className="truncate text-sm text-pietra">{item.menuItem.name}</span>
                       <select
                         value={itemAssignments[item.id] ?? 0}
                         onChange={e => assignItem(item.id, parseInt(e.target.value, 10))}
-                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs"
+                        className="rounded-lg premium-card px-2 py-1 text-xs"
                       >
                         {Array.from({ length: guestCount }, (_, i) => (
                           <option key={i} value={i}>{t('checkout.guest', { n: i + 1 })}</option>
@@ -345,26 +345,26 @@ export default function CheckoutPage() {
               )}
 
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase text-slate-500">{t('checkout.splitPreview')}</p>
+                <p className="mb-2 text-xs font-semibold uppercase text-fumo">{t('checkout.splitPreview')}</p>
                 <div className="space-y-2">
                   {splitPreview?.map(g => (
-                    <div key={g.index} className="flex justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
-                      <span className="font-medium text-slate-900">{g.label}</span>
-                      <span className="tabular-nums text-slate-900">{formatCurrency(g.total)}</span>
+                    <div key={g.index} className="flex justify-between rounded-lg border border-white/[0.08] px-3 py-2 text-sm">
+                      <span className="font-medium text-pietra">{g.label}</span>
+                      <span className="tabular-nums text-pietra">{formatCurrency(g.total)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="mb-2 text-xs text-slate-500">{t('checkout.splitSettlementHint')}</p>
+                <p className="mb-2 text-xs text-fumo">{t('checkout.splitSettlementHint')}</p>
                 <div className="flex gap-2">
                   {(['CARD', 'CASH'] as const).map(m => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => setSplitSettlement(m)}
-                      className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitSettlement === m ? 'bg-slate-900 text-white' : 'bg-slate-100')}
+                      className={cn('flex-1 rounded-lg py-2 text-xs font-semibold', splitSettlement === m ? 'bg-slate-900 text-white' : 'bg-navy-surface')}
                     >
                       {m === 'CARD' ? t('checkout.card') : t('checkout.cash')}
                     </button>
@@ -376,8 +376,8 @@ export default function CheckoutPage() {
         </section>
 
         {/* Email ricevuta (simulata) */}
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <label className="block text-sm font-medium text-slate-900">
+        <section className="rounded-xl premium-card p-5 shadow-sm">
+          <label className="block text-sm font-medium text-pietra">
             {t('checkout.receiptEmail')}
             <input
               type="email"
@@ -390,16 +390,16 @@ export default function CheckoutPage() {
         </section>
 
         {/* Totale e finalizza */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl premium-card p-5 shadow-sm">
           <div className="mb-4 flex items-end justify-between">
-            <span className="text-lg font-bold text-slate-900">{t('checkout.grandTotal')}</span>
-            <span className="text-2xl font-black tabular-nums text-slate-900">{formatCurrency(grandTotal)}</span>
+            <span className="text-lg font-bold text-pietra">{t('checkout.grandTotal')}</span>
+            <span className="text-2xl font-black tabular-nums text-pietra">{formatCurrency(grandTotal)}</span>
           </div>
           <button
             type="button"
             onClick={() => finalize.mutate()}
             disabled={finalize.isPending}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-4 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-aura-gold py-4 text-sm font-semibold text-white hover:bg-aura-gold-light disabled:opacity-60"
           >
             {finalize.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
             {t('checkout.finalize')}

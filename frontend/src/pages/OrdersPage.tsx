@@ -111,7 +111,7 @@ export default function OrdersPage() {
               ])
             )
           }}
-          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors w-full sm:w-auto shrink-0"
+          className="aura-btn-ghost flex w-full shrink-0 items-center justify-center gap-1.5 sm:w-auto"
         >
           <Download className="w-4 h-4" />
           {t('orders.exportCsv')}
@@ -123,11 +123,11 @@ export default function OrdersPage() {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ${filter === f.key ? 'bg-amber-600 text-white' : 'glass-chip text-slate-700 hover:bg-slate-50'}`}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ${filter === f.key ? 'bg-aura-gold text-navy font-semibold' : 'glass-chip text-fumo hover:bg-white/[0.05]'}`}
           >
             {f.label}
             {f.count !== undefined && (
-              <span className={`text-xs px-1.5 rounded-full ${filter === f.key ? 'bg-white/25 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <span className={`text-xs px-1.5 rounded-full ${filter === f.key ? 'bg-navy/30 text-navy' : 'bg-navy-surface text-fumo'}`}>
                 {f.count}
               </span>
             )}
@@ -148,30 +148,30 @@ export default function OrdersPage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">
+                    <span className="font-bold text-pietra">
                       {order.table ? `${t('common.table')} ${order.table.number}` : t('common.takeaway')}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ORDER_STATUS_COLORS[order.status]}`}>
                       {ORDER_STATUS_LABELS[order.status]}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 mt-1 text-xs text-slate-600">
+                  <div className="flex items-center gap-1 mt-1 text-xs text-fumo">
                     <Clock className="w-3 h-3" />
                     {formatDateTime(order.createdAt)}
                     {order.waiter && <span className="ml-2">· {order.waiter.name}</span>}
                   </div>
                 </div>
-                <span className="text-lg font-bold text-slate-900">{formatCurrency(order.total)}</span>
+                <span className="text-lg font-bold text-pietra">{formatCurrency(order.total)}</span>
               </div>
 
               <div className="space-y-1 mb-4">
                 {order.items.map(item => (
                   <div key={item.id} className="flex items-center gap-2 text-sm">
-                    <span className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">
+                    <span className="w-5 h-5 bg-navy-surface rounded-full flex items-center justify-center text-xs font-bold text-fumo">
                       {item.quantity}
                     </span>
-                    <span className="text-slate-700 flex-1">{item.menuItem.name}</span>
-                    <span className="text-slate-500">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                    <span className="text-fumo flex-1">{item.menuItem.name}</span>
+                    <span className="text-fumo">{formatCurrency(item.unitPrice * item.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -180,7 +180,7 @@ export default function OrdersPage() {
                 {STATUS_FLOW[order.status] && canSetOrderStatus(STATUS_FLOW[order.status]) && (
                   <button
                     onClick={() => updateStatus.mutate({ id: order.id, status: STATUS_FLOW[order.status] })}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold py-2 rounded-lg transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-aura-gold hover:bg-aura-gold text-navy font-semibold text-xs font-semibold py-2 rounded-lg transition-colors"
                   >
                     <ChefHat className="w-3.5 h-3.5" />
                     {ORDER_STATUS_LABELS[STATUS_FLOW[order.status]]}
@@ -189,7 +189,7 @@ export default function OrdersPage() {
                 {can('orders.cancel') && !['PAID', 'CANCELLED'].includes(order.status) && (
                   <button
                     onClick={() => updateStatus.mutate({ id: order.id, status: 'CANCELLED' })}
-                    className="p-2 hover:bg-red-50 rounded-lg text-slate-600 hover:text-red-500 transition-colors"
+                    className="p-2 hover:bg-red-500/10 rounded-lg text-fumo hover:text-red-500 transition-colors"
                     title={t('orders.cancel')}
                   >
                     <XCircle className="w-4 h-4" />
@@ -197,13 +197,13 @@ export default function OrdersPage() {
                 )}
                 {order.status === 'PAID' && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-emerald-600 text-xs font-medium">
+                    <div className="flex items-center gap-1 text-emerald-400 text-xs font-medium">
                       <CheckCircle2 className="w-4 h-4" />
                       {t('common.paid')}
                     </div>
                     <button
                       onClick={() => printReceipt(order, restaurant?.name || t('common.restaurant'))}
-                      className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-700 transition-colors"
+                      className="p-1.5 hover:bg-white/[0.05] rounded-lg text-fumo hover:text-fumo transition-colors"
                       title={t('common.printReceipt')}
                     >
                       <Printer className="w-4 h-4" />
@@ -214,7 +214,7 @@ export default function OrdersPage() {
             </div>
           ))}
           {orders.length === 0 && (
-            <div className="col-span-full flex flex-col items-center py-16 text-slate-600">
+            <div className="col-span-full flex flex-col items-center py-16 text-fumo">
               <ChefHat className="w-12 h-12 mb-3 opacity-30" />
               <p className="font-medium">{t('orders.noOrders')}</p>
             </div>

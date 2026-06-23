@@ -29,7 +29,7 @@ interface FiscalApiResponse extends FiscalReportData {
 const glassPanel = 'glass-card'
 
 const inputClass = cn(
-  'glass-input rounded-xl px-3 py-2.5 text-sm text-slate-700',
+  'glass-input rounded-xl px-3 py-2.5 text-sm text-fumo',
   'focus:outline-none focus:ring-2 focus:ring-orange-400/60 focus:border-amber-700/40',
   'transition-all duration-200',
 )
@@ -90,7 +90,7 @@ function ReportFiscalContent() {
         sub: tRegime(t, taxRegion, 'cards.netRevenue.sub'),
         icon: Receipt,
         gradient: 'from-blue-500/20 to-indigo-500/10',
-        iconColor: 'text-blue-600',
+        iconColor: 'text-blue-400',
         ring: 'ring-blue-500/20',
       },
       {
@@ -99,7 +99,7 @@ function ReportFiscalContent() {
         sub: tRegime(t, taxRegion, 'cards.tips.sub'),
         icon: Coins,
         gradient: 'from-amber-500/20 to-orange-500/10',
-        iconColor: 'text-amber-600',
+        iconColor: 'text-aura-gold',
         ring: 'ring-amber-500/20',
       },
       {
@@ -108,7 +108,7 @@ function ReportFiscalContent() {
         sub: tRegime(t, taxRegion, 'cards.reconciliation.sub'),
         icon: Wallet,
         gradient: 'from-emerald-500/20 to-teal-500/10',
-        iconColor: 'text-emerald-600',
+        iconColor: 'text-emerald-400',
         ring: 'ring-emerald-500/20',
       },
     ],
@@ -241,10 +241,10 @@ function ReportFiscalContent() {
                 {tRegime(t, taxRegion, 'title')}
               </span>
             </h1>
-            <p className="max-w-xl text-sm text-slate-500/90">
+            <p className="max-w-xl text-sm text-fumo/90">
               {tRegime(t, taxRegion, 'subtitle', { taxName })}
             </p>
-            <p className="max-w-xl text-xs text-slate-400">
+            <p className="max-w-xl text-xs text-fumo">
               {tRegime(t, taxRegion, 'tipExemptNote')}
             </p>
           </div>
@@ -254,7 +254,7 @@ function ReportFiscalContent() {
               type="button"
               onClick={handleExportCSV}
               disabled={isLoading || !hasExportData}
-              className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-2xl premium-card px-5 py-3 text-sm font-semibold text-fumo hover:bg-white/[0.05] disabled:opacity-50"
             >
               <FileDown className="h-4 w-4" />
               {t('reportFiscal.exportCsv', { defaultValue: 'Esporta CSV' })}
@@ -289,7 +289,7 @@ function ReportFiscalContent() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+        <div className="rounded-xl border border-aura-gold/25 bg-aura-gold/10 px-4 py-3 text-xs text-amber-900">
           {t('reportFiscal.legalDisclaimer')}
         </div>
 
@@ -309,15 +309,15 @@ function ReportFiscalContent() {
                 <div className={cn('absolute inset-0 bg-gradient-to-br opacity-60', card.gradient)} />
                 <div className="relative flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-fumo">
                       {card.label}
                     </p>
-                    <p className="mt-2 text-3xl font-black tracking-tight text-slate-900">
+                    <p className="mt-2 text-3xl font-black tracking-tight text-pietra">
                       {isLoading ? '—' : formatCurrency(summaryValues[i])}
                     </p>
-                    <p className="mt-1 text-xs text-slate-600">{card.sub}</p>
+                    <p className="mt-1 text-xs text-fumo">{card.sub}</p>
                     {card.key === 'propinas' && taxRegion === 'IT_MAIN' && data && data.summary.totalPropinas !== (data.summary.electronicTipsTotal ?? 0) && (
-                      <p className="mt-1 text-[10px] text-slate-500">
+                      <p className="mt-1 text-[10px] text-fumo">
                         {t('reportFiscal.totalTipsNote', {
                           total: formatCurrency(data.summary.totalPropinas),
                         })}
@@ -334,7 +334,7 @@ function ReportFiscalContent() {
         </div>
 
         <div className={cn(glassPanel, 'p-6 space-y-5')}>
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <div className="flex items-center gap-2 text-sm font-semibold text-fumo">
             <CalendarRange className="h-4 w-4 text-amber-400" />
             {t('reportFiscal.filterPeriod')}
           </div>
@@ -355,7 +355,7 @@ function ReportFiscalContent() {
                 onClick={() => setMode(opt.key)}
                 className={cn(
                   'relative z-10 flex-1 min-w-0 rounded-full px-3 py-2.5 text-sm font-semibold transition-colors duration-300',
-                  mode === opt.key ? 'text-white' : 'text-slate-500 hover:text-slate-900',
+                  mode === opt.key ? 'text-white' : 'text-fumo hover:text-pietra',
                 )}
               >
                 {opt.label}
@@ -385,11 +385,11 @@ function ReportFiscalContent() {
 
             {mode === 'range' && (
               <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full">
-                <label className="flex items-center gap-2 text-sm text-slate-500 w-full sm:w-auto">
+                <label className="flex items-center gap-2 text-sm text-fumo w-full sm:w-auto">
                   {t('reportFiscal.from')}
                   <input type="date" value={rangeFrom} onChange={e => setRangeFrom(e.target.value)} className={inputClass} />
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-500 w-full sm:w-auto">
+                <label className="flex items-center gap-2 text-sm text-fumo w-full sm:w-auto">
                   {t('reportFiscal.to')}
                   <input type="date" value={rangeTo} onChange={e => setRangeTo(e.target.value)} className={inputClass} />
                 </label>
@@ -398,7 +398,7 @@ function ReportFiscalContent() {
           </div>
 
           {data && (
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-fumo">
               {t('reportFiscal.transactionsMeta', { count: data.summary.transactionCount, period: periodMeta })}
               {data.restaurant.taxId && tRegime(t, taxRegion, 'taxIdMeta', { taxId: data.restaurant.taxId })}
             </p>
@@ -407,7 +407,7 @@ function ReportFiscalContent() {
 
         <div className={cn(glassPanel, 'overflow-hidden p-4 sm:p-6')}>
           {(isLoading || isFetching) && (
-            <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-600">
+            <div className="flex flex-col items-center justify-center gap-3 py-20 text-fumo">
               <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
               <p className="text-sm font-medium">{t('reportFiscal.loading')}</p>
             </div>
@@ -423,7 +423,7 @@ function ReportFiscalContent() {
           {!isLoading && !isError && data && (
             <>
               {data.rows.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16 text-slate-600">
+                <div className="flex flex-col items-center gap-3 py-16 text-fumo">
                   <AlertCircle className="h-10 w-10 opacity-40" />
                   <p className="text-sm font-medium">{t('reportFiscal.emptyTitle')}</p>
                   <p className="text-xs">{t('reportFiscal.emptyHint')}</p>
@@ -436,7 +436,7 @@ function ReportFiscalContent() {
                         {tableHeaders.map(h => (
                           <th
                             key={h}
-                            className="px-4 pb-1 text-left text-[10px] font-bold uppercase tracking-widest text-slate-600"
+                            className="px-4 pb-1 text-left text-[10px] font-bold uppercase tracking-widest text-fumo"
                           >
                             {h}
                           </th>
@@ -457,21 +457,21 @@ function ReportFiscalContent() {
                               className={cn(
                                 'grid grid-cols-7 items-center rounded-xl border border-gray-200/40',
                                 'glass-card px-4 py-3.5 shadow-sm transition-all duration-200',
-                                'group-hover:border-orange-200 group-hover:bg-slate-50 group-hover:shadow-md group-hover:shadow-orange-100/40',
+                                'group-hover:border-orange-200 group-hover:bg-white/[0.05] group-hover:shadow-md group-hover:shadow-orange-100/40',
                               )}
                             >
-                              <span className="whitespace-nowrap text-slate-500">
+                              <span className="whitespace-nowrap text-fumo">
                                 {row.fecha ? fmtDate(row.fecha) : '—'}
                               </span>
-                              <span className="flex items-center gap-1.5 font-mono text-xs font-semibold text-slate-700">
+                              <span className="flex items-center gap-1.5 font-mono text-xs font-semibold text-fumo">
                                 <Hash className="h-3 w-3 text-orange-400" />
                                 {row.orderId.slice(-6).toUpperCase()}
                               </span>
-                              <span className="text-slate-500">{formatCurrency(row.baseImponible)}</span>
-                              <span className="text-slate-500">{formatCurrency(row.tax)}</span>
-                              <span className="font-semibold text-slate-900">{formatCurrency(row.revenueAmount)}</span>
-                              <span className="font-medium text-amber-600">{formatCurrency(row.tipAmount)}</span>
-                              <span className="font-bold text-amber-700">{formatCurrency(row.total)}</span>
+                              <span className="text-fumo">{formatCurrency(row.baseImponible)}</span>
+                              <span className="text-fumo">{formatCurrency(row.tax)}</span>
+                              <span className="font-semibold text-pietra">{formatCurrency(row.revenueAmount)}</span>
+                              <span className="font-medium text-aura-gold">{formatCurrency(row.tipAmount)}</span>
+                              <span className="font-bold text-aura-gold">{formatCurrency(row.total)}</span>
                             </div>
                           </td>
                         </tr>

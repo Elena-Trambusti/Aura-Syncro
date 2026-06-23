@@ -46,19 +46,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 relative">
+    <div className="min-h-screen aura-auth-shell flex items-center justify-center p-4 relative">
       <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
         <LanguageSwitcher prominent />
       </div>
 
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <BrandLogo size="lg" className="mx-auto mb-4 shadow-sm border border-amber-200" />
-          <h1 className="text-3xl font-bold text-slate-900">{BRAND.name}</h1>
-          <p className="text-slate-500 mt-2 text-sm">{t('auth.registerSubtitle')}</p>
+          <BrandLogo size="lg" className="mx-auto mb-4 shadow-sm border border-aura-gold/25" />
+          <h1 className="text-3xl font-bold text-pietra">{BRAND.name}</h1>
+          <p className="text-fumo mt-2 text-sm">{t('auth.registerSubtitle')}</p>
         </div>
 
-        <div className="saas-card p-8 shadow-md">
+        <div className="aura-auth-card">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className={ui.label}>{t('auth.restaurantName')}</label>
@@ -75,7 +75,7 @@ export default function RegisterPage() {
                 <option value="ES_PENINSULA">{t('auth.taxRegionPeninsula')}</option>
                 <option value="ES_CANARIAS">{t('auth.taxRegionCanarias')}</option>
               </select>
-              <p className="mt-1.5 text-xs text-slate-500">{t('auth.fiscalLocationHint')}</p>
+              <p className="mt-1.5 text-xs text-fumo">{t('auth.fiscalLocationHint')}</p>
             </div>
             <div>
               <label className={ui.label}>{t('auth.yourName')}</label>
@@ -102,18 +102,18 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 mt-4">
+          <p className="text-center text-sm text-fumo mt-4">
             {t('auth.hasAccount')}{' '}
-            <Link to="/login" className="font-medium text-amber-600 hover:text-amber-700 hover:underline">
+            <Link to="/login" className="font-medium text-aura-gold hover:text-aura-gold hover:underline">
               {t('auth.login')}
             </Link>
           </p>
-          <p className="mt-3 text-center text-xs text-slate-500">
-            <Link to="/prezzi" className="text-amber-700 hover:underline">Prezzi</Link>
+          <p className="mt-3 text-center text-xs text-fumo">
+            <Link to="/prezzi" className="text-aura-gold hover:underline">Prezzi</Link>
             {' · '}
-            <Link to="/privacy" className="text-amber-700 hover:underline">Privacy</Link>
+            <Link to="/privacy" className="text-aura-gold hover:underline">Privacy</Link>
             {' · '}
-            <Link to="/termini" className="text-amber-700 hover:underline">Termini</Link>
+            <Link to="/termini" className="text-aura-gold hover:underline">Termini</Link>
           </p>
         </div>
       </div>

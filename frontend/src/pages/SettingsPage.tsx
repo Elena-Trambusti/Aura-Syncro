@@ -191,17 +191,17 @@ export default function SettingsPage() {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">{t('common.language')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('common.languageDescription')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-1">{t('common.language')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('common.languageDescription')}</p>
         <LanguageSwitcher />
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">{t('settings.fiscalTitle')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('settings.fiscalDesc')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-1">{t('settings.fiscalTitle')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('settings.fiscalDesc')}</p>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.country')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.country')}</label>
             <select
               value={form.countryCode}
               onChange={e => onCountryChange(e.target.value as CountryCode)}
@@ -212,7 +212,7 @@ export default function SettingsPage() {
             </select>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxRegion')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.taxRegion')}</label>
             <select
               value={form.taxRegion}
               onChange={e => onTaxRegionChange(e.target.value as TaxRegion)}
@@ -229,7 +229,7 @@ export default function SettingsPage() {
             </select>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxRate')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.taxRate')}</label>
             <input
               type="number"
               min={0}
@@ -241,7 +241,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.taxId')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.taxId')}</label>
             <input
               value={form.taxId}
               onChange={e => update('taxId', e.target.value)}
@@ -249,15 +249,15 @@ export default function SettingsPage() {
             />
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-4">{t('settings.saveHint')}</p>
+        <p className="text-xs text-fumo mt-4">{t('settings.saveHint')}</p>
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">{t('settings.billingTitle')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('settings.billingDesc')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-1">{t('settings.billingTitle')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('settings.billingDesc')}</p>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.legalName')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.legalName')}</label>
             <input
               value={form.legalName}
               onChange={e => update('legalName', e.target.value)}
@@ -265,7 +265,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.legalAddress')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.legalAddress')}</label>
             <input
               value={form.legalAddress}
               onChange={e => update('legalAddress', e.target.value)}
@@ -273,7 +273,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.fiscalCode')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.fiscalCode')}</label>
             <input
               value={form.fiscalCode}
               onChange={e => update('fiscalCode', e.target.value)}
@@ -281,7 +281,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.pec')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.pec')}</label>
             <input
               type="email"
               value={form.pec}
@@ -290,7 +290,7 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.sdiRecipientCode')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.sdiRecipientCode')}</label>
             <input
               value={form.sdiRecipientCode}
               onChange={e => update('sdiRecipientCode', e.target.value.toUpperCase().slice(0, 7))}
@@ -299,46 +299,46 @@ export default function SettingsPage() {
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.invoicePrefix')}</label>
+            <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.invoicePrefix')}</label>
             <input
               value={form.invoicePrefix}
               onChange={e => update('invoicePrefix', e.target.value.toUpperCase().slice(0, 12))}
               maxLength={12}
               className="w-full px-4 py-2.5 saas-input font-mono"
             />
-            <p className="text-xs text-slate-500 mt-1">{t('settings.invoicePrefixHint')}</p>
+            <p className="text-xs text-fumo mt-1">{t('settings.invoicePrefixHint')}</p>
           </div>
         </div>
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-4">{t('settings.restaurantInfo')}</h2>
+        <h2 className="text-base font-semibold text-pietra mb-4">{t('settings.restaurantInfo')}</h2>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.restaurantName')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.restaurantName')}</label>
               <input value={form.name} onChange={e => update('name', e.target.value)}
-                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.phone')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1.5">{t('common.phone')}</label>
               <input value={form.phone} onChange={e => update('phone', e.target.value)}
-                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.email')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1.5">{t('common.email')}</label>
               <input type="email" value={form.email} onChange={e => update('email', e.target.value)}
-                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('settings.address')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1.5">{t('settings.address')}</label>
               <input value={form.address} onChange={e => update('address', e.target.value)}
-                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500" />
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50" />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.description')}</label>
+              <label className="block text-sm font-medium text-fumo mb-1.5">{t('common.description')}</label>
               <textarea value={form.description} onChange={e => update('description', e.target.value)}
-                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 resize-none"
+                className="w-full px-4 py-2.5 saas-input w-full focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50 resize-none"
                 rows={3} />
             </div>
           </div>
@@ -346,17 +346,17 @@ export default function SettingsPage() {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.qrMenu')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('settings.qrMenuDesc')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-2">{t('settings.qrMenu')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('settings.qrMenuDesc')}</p>
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-medium text-slate-500 mb-1">{t('settings.publicMenuLink')}</p>
+            <p className="text-xs font-medium text-fumo mb-1">{t('settings.publicMenuLink')}</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 block break-all">{menuUrl}</code>
+              <code className="flex-1 text-xs bg-navy-surface/50 border border-white/[0.08] px-3 py-1.5 rounded-lg text-fumo block break-all">{menuUrl}</code>
               <button
                 type="button"
                 onClick={() => copyToClipboard(menuUrl)}
-                className="shrink-0 rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+                className="shrink-0 rounded-lg border border-white/[0.08] p-2 text-fumo hover:bg-white/[0.05]"
                 aria-label={t('common.copyLink')}
               >
                 <Copy className="w-4 h-4" />
@@ -366,13 +366,13 @@ export default function SettingsPage() {
           <div className="flex flex-wrap gap-2">
             <Link
               to="/dashboard/qr-builder"
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold rounded-xl text-sm font-semibold transition-colors"
             >
               <QrCode className="w-4 h-4" />
               {t('nav.qrMenu')}
             </Link>
             <button onClick={() => window.open(menuUrl, '_blank')}
-              className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors">
+              className="flex items-center gap-2 px-4 py-2 premium-card hover:bg-white/[0.05] text-fumo rounded-xl text-sm font-medium transition-colors">
               <ExternalLink className="w-4 h-4" />
               {t('settings.openMenu')}
             </button>
@@ -381,17 +381,17 @@ export default function SettingsPage() {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.qrBooking')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('settings.qrBookingDesc')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-2">{t('settings.qrBooking')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('settings.qrBookingDesc')}</p>
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-medium text-slate-500 mb-1">{t('settings.publicBookingLink')}</p>
+            <p className="text-xs font-medium text-fumo mb-1">{t('settings.publicBookingLink')}</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 block break-all">{bookingUrl}</code>
+              <code className="flex-1 text-xs bg-navy-surface/50 border border-white/[0.08] px-3 py-1.5 rounded-lg text-fumo block break-all">{bookingUrl}</code>
               <button
                 type="button"
                 onClick={() => copyToClipboard(bookingUrl)}
-                className="shrink-0 rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+                className="shrink-0 rounded-lg border border-white/[0.08] p-2 text-fumo hover:bg-white/[0.05]"
                 aria-label={t('common.copyLink')}
               >
                 <Copy className="w-4 h-4" />
@@ -401,13 +401,13 @@ export default function SettingsPage() {
           <div className="flex flex-wrap gap-2">
             <Link
               to="/dashboard/qr-builder"
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold rounded-xl text-sm font-semibold transition-colors"
             >
               <CalendarDays className="w-4 h-4" />
               {t('settings.bookingQr')}
             </Link>
             <button onClick={() => window.open(bookingUrl, '_blank')}
-              className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors">
+              className="flex items-center gap-2 px-4 py-2 premium-card hover:bg-white/[0.05] text-fumo rounded-xl text-sm font-medium transition-colors">
               <ExternalLink className="w-4 h-4" />
               {t('settings.openBooking')}
             </button>
@@ -416,10 +416,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-2">{t('settings.kds')}</h2>
-        <p className="text-sm text-slate-500 mb-4">{t('settings.kdsDesc')}</p>
+        <h2 className="text-base font-semibold text-pietra mb-2">{t('settings.kds')}</h2>
+        <p className="text-sm text-fumo mb-4">{t('settings.kdsDesc')}</p>
         <div className="flex items-center gap-3">
-          <code className="flex-1 text-xs bg-slate-100 px-3 py-2 rounded-lg text-slate-800 break-all">{kitchenUrl}</code>
+          <code className="flex-1 text-xs bg-navy-surface px-3 py-2 rounded-lg text-pietra break-all">{kitchenUrl}</code>
           <button
             onClick={() => window.open(kitchenUrl, '_blank')}
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors"
@@ -431,7 +431,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-base font-semibold text-slate-900 mb-3">{t('settings.accountInfo')}</h2>
+        <h2 className="text-base font-semibold text-pietra mb-3">{t('settings.accountInfo')}</h2>
         <div className="space-y-2">
           {[
             { label: t('settings.restaurantId'), value: restaurantData?.id || '—' },
@@ -440,9 +440,9 @@ export default function SettingsPage() {
             { label: t('settings.taxRegion'), value: form.taxRegion },
             { label: t('settings.appVersion'), value: '1.0.0 MVP' },
           ].map(row => (
-            <div key={row.label} className="flex justify-between py-1.5 border-b border-slate-200">
-              <span className="text-sm text-slate-500">{row.label}</span>
-              <span className="text-sm font-medium text-slate-700 font-mono">{row.value}</span>
+            <div key={row.label} className="flex justify-between py-1.5 border-b border-white/[0.08]">
+              <span className="text-sm text-fumo">{row.label}</span>
+              <span className="text-sm font-medium text-fumo font-mono">{row.value}</span>
             </div>
           ))}
         </div>
@@ -453,7 +453,7 @@ export default function SettingsPage() {
           type="button"
           onClick={handleSave}
           disabled={save.isPending}
-          className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg transition-colors disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold px-5 py-3 rounded-xl text-sm font-semibold shadow-lg transition-colors disabled:opacity-60"
         >
           <Save className="w-4 h-4" />
           {save.isPending ? t('common.saving') : t('settings.saveChanges')}

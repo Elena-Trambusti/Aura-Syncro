@@ -46,15 +46,15 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-xl premium-card p-6 shadow-lg" onClick={e => e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">{t('waitlist.addGuest')}</h3>
-          <button type="button" onClick={onCancel} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
+          <h3 className="text-lg font-bold text-pietra">{t('waitlist.addGuest')}</h3>
+          <button type="button" onClick={onCancel} className="rounded-lg p-1 text-fumo hover:bg-white/[0.05]">
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="space-y-4">
-          <label className="block text-sm font-medium text-slate-900">
+          <label className="block text-sm font-medium text-pietra">
             {t('waitlist.guestName')}
             <input
               value={form.guestName}
@@ -63,7 +63,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
             />
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-sm font-medium text-slate-900">
+            <label className="block text-sm font-medium text-pietra">
               {t('common.phone')}
               <input
                 value={form.guestPhone}
@@ -71,7 +71,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
                 className="saas-input mt-1 w-full py-2.5 text-sm"
               />
             </label>
-            <label className="block text-sm font-medium text-slate-900">
+            <label className="block text-sm font-medium text-pietra">
               {t('waitlist.covers')}
               <input
                 type="number"
@@ -83,7 +83,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
               />
             </label>
           </div>
-          <label className="block text-sm font-medium text-slate-900">
+          <label className="block text-sm font-medium text-pietra">
             {t('waitlist.requestedTime')}
             <input
               type="datetime-local"
@@ -92,7 +92,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
               className="saas-input mt-1 w-full py-2.5 text-sm"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-900">
+          <label className="block text-sm font-medium text-pietra">
             {t('common.email')}
             <input
               type="email"
@@ -101,7 +101,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
               className="saas-input mt-1 w-full py-2.5 text-sm"
             />
           </label>
-          <label className="block text-sm font-medium text-slate-900">
+          <label className="block text-sm font-medium text-pietra">
             {t('waitlist.notes')}
             <textarea
               value={form.notes}
@@ -112,7 +112,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
           </label>
         </div>
         <div className="mt-6 flex gap-3">
-          <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700">
+          <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-white/[0.08] py-2.5 text-sm font-medium text-fumo">
             {t('common.cancel')}
           </button>
           <button
@@ -122,7 +122,7 @@ function WaitlistForm({ date, onSave, onCancel }: WaitlistFormProps) {
               requestedDate: new Date(form.requestedDate).toISOString(),
             })}
             disabled={!form.guestName || !form.guestPhone}
-            className="flex-1 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+            className="flex-1 rounded-xl bg-aura-gold py-2.5 text-sm font-semibold text-white hover:bg-aura-gold-light disabled:opacity-60"
           >
             {t('waitlist.addToList')}
           </button>
@@ -194,14 +194,14 @@ export default function WaitlistPanel({ selectedDate }: WaitlistPanelProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-fumo">
           {t('waitlist.subtitle', { count: entries.length })}
         </p>
         {canManage && (
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+            className="flex items-center gap-2 rounded-xl bg-aura-gold px-4 py-2 text-sm font-semibold text-white hover:bg-aura-gold-light"
           >
             <Plus className="h-4 w-4" />
             {t('waitlist.addGuest')}
@@ -214,41 +214,41 @@ export default function WaitlistPanel({ selectedDate }: WaitlistPanelProps) {
           <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
         </div>
       ) : entries.length === 0 ? (
-        <div className="flex flex-col items-center rounded-xl border border-dashed border-slate-200 bg-slate-50 py-14 text-slate-500">
+        <div className="flex flex-col items-center rounded-xl border border-dashed border-white/[0.08] bg-navy-surface/50 py-14 text-fumo">
           <ListOrdered className="mb-3 h-10 w-10 opacity-40" />
           <p className="text-sm font-medium">{t('waitlist.empty')}</p>
-          <p className="mt-1 text-xs text-slate-400">{t('waitlist.emptyHint')}</p>
+          <p className="mt-1 text-xs text-fumo">{t('waitlist.emptyHint')}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {entries.map((entry, index) => (
-            <div key={entry.id} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+            <div key={entry.id} className="flex items-center gap-4 rounded-xl premium-card p-4 shadow-sm">
+              <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-aura-gold/10 text-aura-gold">
                 <span className="text-lg font-bold">#{index + 1}</span>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-slate-900">{entry.guestName}</p>
+                  <p className="font-semibold text-pietra">{entry.guestName}</p>
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-800">
                     {t('waitlist.statusWaiting')}
                   </span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-fumo">
                   <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{entry.covers}</span>
                   <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{formatTime(entry.requestedDate)}</span>
                   <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{entry.guestPhone}</span>
-                  <span className={cn('text-xs', index === 0 ? 'font-medium text-emerald-600' : 'text-slate-400')}>
+                  <span className={cn('text-xs', index === 0 ? 'font-medium text-emerald-400' : 'text-fumo')}>
                     {waitingMinutes(entry.createdAt)}
                   </span>
                 </div>
-                {entry.notes && <p className="mt-1 text-xs italic text-slate-400">&ldquo;{entry.notes}&rdquo;</p>}
+                {entry.notes && <p className="mt-1 text-xs italic text-fumo">&ldquo;{entry.notes}&rdquo;</p>}
               </div>
               {canManage && (
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
                     onClick={() => notifyGuest.mutate(entry.id)}
-                    className="rounded-lg p-2 text-blue-600 hover:bg-blue-50"
+                    className="rounded-lg p-2 text-blue-400 hover:bg-blue-500/10"
                     title={t('waitlist.notify')}
                   >
                     <Bell className="h-4 w-4" />
@@ -256,7 +256,7 @@ export default function WaitlistPanel({ selectedDate }: WaitlistPanelProps) {
                   <button
                     type="button"
                     onClick={() => confirmGuest.mutate(entry.id)}
-                    className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"
+                    className="rounded-lg p-2 text-emerald-400 hover:bg-emerald-500/10"
                     title={t('waitlist.confirm')}
                   >
                     <CheckCircle2 className="h-4 w-4" />
@@ -264,7 +264,7 @@ export default function WaitlistPanel({ selectedDate }: WaitlistPanelProps) {
                   <button
                     type="button"
                     onClick={() => cancelEntry.mutate(entry.id)}
-                    className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-2 text-fumo hover:bg-red-500/10 hover:text-red-400"
                     title={t('waitlist.cancel')}
                   >
                     <XCircle className="h-4 w-4" />

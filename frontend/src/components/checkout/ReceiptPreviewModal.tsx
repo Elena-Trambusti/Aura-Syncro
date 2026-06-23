@@ -59,24 +59,24 @@ export default function ReceiptPreviewModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center">
       <div
-        className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg"
+        className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-xl premium-card shadow-lg"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            <h2 className="text-lg font-bold text-slate-900">{t('checkout.receiptTitle')}</h2>
+            <h2 className="text-lg font-bold text-pietra">{t('checkout.receiptTitle')}</h2>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="rounded-lg p-1 text-fumo hover:bg-white/[0.05]">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-slate-900">
+          <div className="rounded-lg border border-white/[0.08] bg-navy-surface/50 p-4 font-mono text-xs text-pietra">
             <p className="text-center text-sm font-bold">{restaurantName}</p>
-            <p className="mt-1 text-center text-slate-500">{t('checkout.transactionId', { id: result.transactionId })}</p>
-            <div className="my-3 border-t border-dashed border-slate-300" />
+            <p className="mt-1 text-center text-fumo">{t('checkout.transactionId', { id: result.transactionId })}</p>
+            <div className="my-3 border-t border-dashed border-white/[0.1]" />
             <div className="space-y-1">
               <div className="flex justify-between">
                 <span>{tRegime(t, fiscal.taxRegion, 'table.taxableBase')}</span>
@@ -96,21 +96,21 @@ export default function ReceiptPreviewModal({
                   <span>{formatCurrency(row.tipAmount)}</span>
                 </div>
               )}
-              <div className="flex justify-between border-t border-slate-300 pt-2 font-bold">
+              <div className="flex justify-between border-t border-white/[0.1] pt-2 font-bold">
                 <span>{tRegime(t, fiscal.taxRegion, 'table.collectedTotal')}</span>
                 <span>{formatCurrency(row.total)}</span>
               </div>
             </div>
-            <p className="mt-3 text-center text-[10px] text-slate-500">
+            <p className="mt-3 text-center text-[10px] text-fumo">
               {t('checkout.fiscalNote')}
             </p>
           </div>
 
           {result.splitBreakdown?.guests && result.splitBreakdown.guests.length > 1 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs font-semibold uppercase text-slate-500">{t('checkout.splitBreakdown')}</p>
+              <p className="mb-2 text-xs font-semibold uppercase text-fumo">{t('checkout.splitBreakdown')}</p>
               {result.splitBreakdown.guests.map(g => (
-                <div key={g.label} className="flex justify-between py-1 text-sm text-slate-700">
+                <div key={g.label} className="flex justify-between py-1 text-sm text-fumo">
                   <span>{g.label}</span>
                   <span>{formatCurrency(g.share)}</span>
                 </div>
@@ -119,11 +119,11 @@ export default function ReceiptPreviewModal({
           )}
         </div>
 
-        <div className="flex gap-2 border-t border-slate-200 p-4">
+        <div className="flex gap-2 border-t border-white/[0.08] p-4">
           <button
             type="button"
             onClick={onPrint}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/[0.08] py-3 text-sm font-semibold text-fumo hover:bg-white/[0.05]"
           >
             <Printer className="h-4 w-4" />
             {t('checkout.simulatePrint')}
@@ -131,7 +131,7 @@ export default function ReceiptPreviewModal({
           <button
             type="button"
             onClick={onEmail}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl saas-btn-primary w-full py-3 text-sm"
           >
             <Mail className="h-4 w-4" />
             {t('checkout.simulateEmail')}

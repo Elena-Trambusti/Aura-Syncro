@@ -153,7 +153,7 @@ export default function PlatformAdminPage() {
                 type="password"
                 value={inputKey}
                 onChange={e => setInputKey(e.target.value)}
-                className="w-full rounded-xl border border-stone-700 bg-stone-800 px-4 py-2.5 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                className="w-full rounded-xl border border-stone-700 bg-stone-800 px-4 py-2.5 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-aura-gold/30"
                 placeholder="ADMIN_API_KEY"
                 autoComplete="off"
               />
@@ -161,7 +161,7 @@ export default function PlatformAdminPage() {
             {error && <p className="text-sm text-red-400">{error}</p>}
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold text-sm"
+              className="w-full py-2.5 rounded-xl bg-aura-gold hover:bg-aura-gold-light text-stone-950 font-semibold text-sm"
             >
               Accedi
             </button>
@@ -211,7 +211,7 @@ export default function PlatformAdminPage() {
             onClick={() => setView('pending')}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ${
               view === 'pending'
-                ? 'bg-amber-500 text-stone-950'
+                ? 'bg-aura-gold text-stone-950'
                 : 'border border-stone-700 text-stone-300 hover:bg-stone-800'
             }`}
           >
@@ -223,7 +223,7 @@ export default function PlatformAdminPage() {
             onClick={() => setView('registrations')}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
               view === 'registrations'
-                ? 'bg-amber-500 text-stone-950'
+                ? 'bg-aura-gold text-stone-950'
                 : 'border border-stone-700 text-stone-300 hover:bg-stone-800'
             }`}
           >
@@ -273,7 +273,7 @@ export default function PlatformAdminPage() {
                           type="button"
                           disabled={unlockingId === r.id || !owner}
                           onClick={() => void handleUnlock(r)}
-                          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-4 py-2 text-sm font-semibold text-white"
+                          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500/100 disabled:opacity-50 px-4 py-2 text-sm font-semibold text-white"
                         >
                           {unlockingId === r.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -369,7 +369,7 @@ export default function PlatformAdminPage() {
                           type="button"
                           disabled={unlockingId === r.restaurantId}
                           onClick={() => void handleUnlock(r)}
-                          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-4 py-2 text-sm font-semibold text-white"
+                          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500/100 disabled:opacity-50 px-4 py-2 text-sm font-semibold text-white"
                         >
                           {unlockingId === r.restaurantId ? (
                             <Loader2 className="w-4 h-4 animate-spin" />

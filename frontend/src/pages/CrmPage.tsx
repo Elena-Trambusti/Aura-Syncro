@@ -139,22 +139,22 @@ export default function CrmPage() {
       label: t('crm.stats.total'),
       value: String(stats?.total ?? customers.length),
       icon: Users,
-      iconBg: 'bg-slate-100',
-      iconColor: 'text-slate-600',
+      iconBg: 'bg-navy-surface',
+      iconColor: 'text-fumo',
     },
     {
       label: t('crm.stats.avgSpent'),
       value: formatCurrency(stats?.avgSpent ?? 0),
       icon: TrendingUp,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
+      iconBg: 'bg-emerald-500/10',
+      iconColor: 'text-emerald-400',
     },
     {
       label: t('crm.stats.vip'),
       value: String(stats?.vipCount ?? customers.filter(isVipCustomer).length),
       icon: Award,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
+      iconBg: 'bg-aura-gold/10',
+      iconColor: 'text-aura-gold',
     },
   ]
 
@@ -168,7 +168,7 @@ export default function CrmPage() {
         <button
           type="button"
           onClick={() => { setForm(emptyForm()); setShowCreateModal(true) }}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shrink-0"
+          className="flex items-center gap-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           {t('crm.newCustomer')}
@@ -182,8 +182,8 @@ export default function CrmPage() {
           <div key={s.label} className={`${ui.cardSm} p-5`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">{s.label}</p>
-                <p className="text-2xl font-bold text-slate-900 mt-1">{s.value}</p>
+                <p className="text-xs font-medium text-fumo">{s.label}</p>
+                <p className="text-2xl font-bold text-pietra mt-1">{s.value}</p>
               </div>
               <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', s.iconBg)}>
                 <s.icon className={cn('w-5 h-5', s.iconColor)} />
@@ -194,7 +194,7 @@ export default function CrmPage() {
       </div>
 
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fumo" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -223,12 +223,12 @@ export default function CrmPage() {
                   className={cn(
                     ui.tableRow,
                     'cursor-pointer',
-                    selectedId === customer.id && 'bg-amber-50/60',
+                    selectedId === customer.id && 'bg-aura-gold/10/60',
                   )}
                 >
                   <td className="px-5 py-3.5">
-                    <p className="text-sm font-semibold text-slate-900">{customerDisplayName(customer)}</p>
-                    <p className="text-xs text-slate-500">{customer.email || customer.phone || '—'}</p>
+                    <p className="text-sm font-semibold text-pietra">{customerDisplayName(customer)}</p>
+                    <p className="text-xs text-fumo">{customer.email || customer.phone || '—'}</p>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex w-full max-w-full flex-wrap gap-1">
@@ -250,11 +250,11 @@ export default function CrmPage() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3.5 text-sm text-slate-700">{customer.totalVisits}</td>
-                  <td className="px-4 py-3.5 text-sm font-semibold text-slate-900">
+                  <td className="px-4 py-3.5 text-sm text-fumo">{customer.totalVisits}</td>
+                  <td className="px-4 py-3.5 text-sm font-semibold text-pietra">
                     {formatCurrency(customer.totalSpent)}
                   </td>
-                  <td className="px-4 py-3.5 text-sm text-slate-500">
+                  <td className="px-4 py-3.5 text-sm text-fumo">
                     {customer.lastVisit ? formatDate(customer.lastVisit) : t('crm.neverVisited')}
                   </td>
                 </tr>
@@ -263,7 +263,7 @@ export default function CrmPage() {
           </table>
         </div>
         {customers.length === 0 && (
-          <div className="flex flex-col items-center py-16 text-slate-500">
+          <div className="flex flex-col items-center py-16 text-fumo">
             <Users className="w-10 h-10 mb-2 opacity-30" />
             <p className="text-sm">{t('crm.noCustomers')}</p>
           </div>
@@ -353,7 +353,7 @@ export default function CrmPage() {
                 <button
                   type="submit"
                   disabled={createCustomer.isPending}
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                  className="flex-1 bg-aura-gold hover:bg-aura-gold text-navy font-semibold py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
                 >
                   {createCustomer.isPending ? t('common.saving') : t('common.save')}
                 </button>

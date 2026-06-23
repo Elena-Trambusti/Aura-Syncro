@@ -74,7 +74,7 @@ export default function PaymentsPage() {
         <div>
           <h1 className="aura-page-title">{t('payments.title')}</h1>
           <p className="aura-page-subtitle">{t('payments.subtitle')}</p>
-          <p className="text-slate-500 text-sm mt-1">{t('payments.heroHint')}</p>
+          <p className="text-fumo text-sm mt-1">{t('payments.heroHint')}</p>
         </div>
         <a
           href={stripePaymentsUrl()}
@@ -88,11 +88,11 @@ export default function PaymentsPage() {
       </div>
 
       {!data.stripeEnabled && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+        <div className="bg-aura-gold/10 border border-aura-gold/25 rounded-2xl p-4 flex gap-3">
+          <AlertCircle className="w-5 h-5 text-aura-gold shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-800">{t('payments.stripeNotConfigured')}</p>
-            <p className="text-sm text-amber-700 mt-1">
+            <p className="text-sm text-aura-gold mt-1">
               {t('payments.stripeNotConfiguredDesc')}{' '}
               <a href={stripeApiKeysUrl()} target="_blank" rel="noopener noreferrer" className="underline font-medium">
                 dashboard.stripe.com
@@ -105,40 +105,40 @@ export default function PaymentsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">{t('payments.monthRevenue')}</p>
+            <p className="text-sm font-medium text-fumo">{t('payments.monthRevenue')}</p>
             <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-4.5 h-4.5 text-emerald-600" />
+              <TrendingUp className="w-4.5 h-4.5 text-emerald-400" />
             </div>
           </div>
-          <p className="text-2xl font-black text-slate-900">{formatCurrency(data.mese.amount)}</p>
-          <p className="text-xs text-slate-600 mt-1">{t('payments.transactions', { count: data.mese.count })}</p>
+          <p className="text-2xl font-black text-pietra">{formatCurrency(data.mese.amount)}</p>
+          <p className="text-xs text-fumo mt-1">{t('payments.transactions', { count: data.mese.count })}</p>
         </div>
 
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">{t('payments.avgTicket')}</p>
+            <p className="text-sm font-medium text-fumo">{t('payments.avgTicket')}</p>
             <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
-              <CreditCard className="w-4.5 h-4.5 text-blue-600" />
+              <CreditCard className="w-4.5 h-4.5 text-blue-400" />
             </div>
           </div>
-          <p className="text-2xl font-black text-slate-900">{formatCurrency(avgOrder)}</p>
-          <p className="text-xs text-slate-600 mt-1">{t('payments.perStripeOrder')}</p>
+          <p className="text-2xl font-black text-pietra">{formatCurrency(avgOrder)}</p>
+          <p className="text-xs text-fumo mt-1">{t('payments.perStripeOrder')}</p>
         </div>
 
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-slate-500">{t('payments.lifetimeTotal')}</p>
+            <p className="text-sm font-medium text-fumo">{t('payments.lifetimeTotal')}</p>
             <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
               <ShoppingBag className="w-4.5 h-4.5 text-purple-600" />
             </div>
           </div>
-          <p className="text-2xl font-black text-slate-900">{formatCurrency(data.totale.amount)}</p>
-          <p className="text-xs text-slate-600 mt-1">{t('payments.totalOrders', { count: data.totale.count })}</p>
+          <p className="text-2xl font-black text-pietra">{formatCurrency(data.totale.amount)}</p>
+          <p className="text-xs text-fumo mt-1">{t('payments.totalOrders', { count: data.totale.count })}</p>
         </div>
       </div>
 
       <div className="glass-card p-5">
-        <h2 className="text-sm font-bold text-slate-700 mb-4">{t('payments.monthlyChart', { year: new Date().getFullYear() })}</h2>
+        <h2 className="text-sm font-bold text-fumo mb-4">{t('payments.monthlyChart', { year: new Date().getFullYear() })}</h2>
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={data.mensile} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
             <defs>
@@ -160,27 +160,27 @@ export default function PaymentsPage() {
       </div>
 
       <div className="glass-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200">
-          <h2 className="text-sm font-bold text-slate-700">{t('payments.recentPayments')}</h2>
+        <div className="px-5 py-4 border-b border-white/[0.08]">
+          <h2 className="text-sm font-bold text-fumo">{t('payments.recentPayments')}</h2>
         </div>
         {data.recentPayments.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-slate-600">
+          <div className="flex flex-col items-center py-12 text-fumo">
             <CreditCard className="w-10 h-10 mb-2 opacity-30" />
             <p className="text-sm">{t('payments.noPaymentsYet')}</p>
             <p className="text-xs mt-1">{t('payments.noPaymentsHint')}</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-200">
+          <div className="divide-y divide-white/[0.06]">
             {data.recentPayments.map(order => (
               <div key={order.id} className="flex items-center gap-4 px-5 py-3.5 hover:glass-table-head transition-colors">
                 <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
+                  <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-pietra">
                     {order.items.map(i => `${i.quantity}× ${i.menuItem?.name ?? t('payments.unknownDish')}`).join(', ')}
                   </p>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-fumo mt-0.5">
                     {order.table
                       ? t('payments.tableOrder', { number: order.table.number })
                       : order.type === 'TAKEAWAY'
@@ -189,7 +189,7 @@ export default function PaymentsPage() {
                     {order.paidAt && ` · ${new Date(order.paidAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
                   </p>
                 </div>
-                <span className="text-base font-black text-emerald-600">{formatCurrency(order.total)}</span>
+                <span className="text-base font-black text-emerald-400">{formatCurrency(order.total)}</span>
               </div>
             ))}
           </div>
@@ -197,11 +197,11 @@ export default function PaymentsPage() {
       </div>
 
       <div className="bg-gradient-to-br from-[#635BFF]/5 to-purple-50 border border-purple-100 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-bold text-pietra mb-3 flex items-center gap-2">
           <CreditCard className="w-4 h-4 text-[#635BFF]" />
           {t('payments.setupTitle')}
         </h3>
-        <ol className="space-y-2 text-sm text-slate-500">
+        <ol className="space-y-2 text-sm text-fumo">
           <li className="flex gap-2"><span className="text-[#635BFF] font-bold">1.</span> {t('payments.setupStep1')}</li>
           <li className="flex gap-2"><span className="text-[#635BFF] font-bold">2.</span> {t('payments.setupStep2')}</li>
           <li className="flex gap-2"><span className="text-[#635BFF] font-bold">3.</span> {t('payments.setupStep3')}</li>

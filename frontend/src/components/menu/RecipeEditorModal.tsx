@@ -82,28 +82,28 @@ export default function RecipeEditorModal({ itemId, itemName, onClose, onSaved }
     <ModalPortal onClose={onClose}>
       <div className={`${ui.modal} max-w-lg`} onClick={e => e.stopPropagation()}>
         <div className="mb-1 flex items-center gap-2">
-          <Package className="h-5 w-5 text-amber-600" aria-hidden />
+          <Package className="h-5 w-5 text-aura-gold" aria-hidden />
           <h3 className={ui.modalTitle}>{t('menu.recipeTitle')}</h3>
         </div>
-        <p className="mb-4 text-sm text-slate-600">
+        <p className="mb-4 text-sm text-fumo">
           {t('menu.recipeDesc', { dish: itemName })}
         </p>
 
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-500">{t('common.loading')}</p>
+          <p className="py-8 text-center text-sm text-fumo">{t('common.loading')}</p>
         ) : inventory.length === 0 ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-6 text-center text-sm text-amber-900">
+          <div className="rounded-xl border border-aura-gold/25 bg-aura-gold/10 px-4 py-6 text-center text-sm text-amber-900">
             {t('menu.recipeNoInventory')}
           </div>
         ) : (
           <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
             {rows.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+              <p className="rounded-xl border border-dashed border-white/[0.08] bg-navy-surface/50 px-4 py-6 text-center text-sm text-fumo">
                 {t('menu.recipeEmpty')}
               </p>
             )}
             {rows.map((row, index) => (
-              <div key={index} className="flex items-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div key={index} className="flex items-end gap-2 rounded-xl border border-white/[0.08] bg-navy-surface/50 p-3">
                 <div className="min-w-0 flex-1">
                   <label className={ui.label}>{t('menu.recipeIngredient')}</label>
                   <select
@@ -133,7 +133,7 @@ export default function RecipeEditorModal({ itemId, itemName, onClose, onSaved }
                 <button
                   type="button"
                   onClick={() => removeRow(index)}
-                  className="mb-0.5 rounded-lg p-2 text-red-600 hover:bg-red-50"
+                  className="mb-0.5 rounded-lg p-2 text-red-400 hover:bg-red-500/10"
                   aria-label={t('common.delete')}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -147,14 +147,14 @@ export default function RecipeEditorModal({ itemId, itemName, onClose, onSaved }
           <button
             type="button"
             onClick={addRow}
-            className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50`}
+            className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/[0.1] py-2.5 text-sm font-medium text-fumo hover:bg-white/[0.05]`}
           >
             <Plus className="h-4 w-4" />
             {t('menu.recipeAdd')}
           </button>
         )}
 
-        <p className="mt-3 text-xs text-slate-500">{t('menu.recipeQtyHint')}</p>
+        <p className="mt-3 text-xs text-fumo">{t('menu.recipeQtyHint')}</p>
 
         <div className="mt-6 flex gap-3">
           <button

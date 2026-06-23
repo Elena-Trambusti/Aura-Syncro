@@ -82,10 +82,10 @@ export const TABLE_STATUS_LABELS: Record<string, string> = new Proxy({} as Recor
 })
 
 export const TABLE_STATUS_COLORS: Record<string, string> = {
-  FREE: 'bg-emerald-500',
-  OCCUPIED: 'bg-red-500',
-  RESERVED: 'bg-amber-500',
-  CLEANING: 'bg-blue-500',
+  FREE: 'bg-emerald-500/100',
+  OCCUPIED: 'bg-red-500/100',
+  RESERVED: 'bg-aura-gold/100',
+  CLEANING: 'bg-blue-500/100',
 }
 
 /** @deprecated Use getReservationStatusLabel() */

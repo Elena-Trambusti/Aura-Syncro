@@ -33,10 +33,10 @@ interface Shift {
 }
 
 const STATUS_STYLE: Record<Shift['status'], string> = {
-  SCHEDULED: 'bg-slate-100 text-slate-700',
+  SCHEDULED: 'bg-navy-surface text-fumo',
   ACTIVE: 'bg-emerald-100 text-emerald-800',
   COMPLETED: 'bg-blue-100 text-blue-800',
-  ABSENT: 'bg-red-100 text-red-700',
+  ABSENT: 'bg-red-100 text-red-400',
 }
 
 /** Lunedì come primo giorno della settimana (IT/EU). */
@@ -164,11 +164,11 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="rounded-xl premium-card p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="space-y-2 text-sm text-slate-600">
-            <p className="font-semibold text-slate-900">{t('staff.shiftsHowItWorksTitle')}</p>
+          <Info className="h-5 w-5 text-aura-gold shrink-0 mt-0.5" />
+          <div className="space-y-2 text-sm text-fumo">
+            <p className="font-semibold text-pietra">{t('staff.shiftsHowItWorksTitle')}</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>{t('staff.shiftsHowItWorksPlan')}</li>
               <li>{t('staff.shiftsHowItWorksClock')}</li>
@@ -179,14 +179,14 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
       </div>
 
       {assignableStaff.length === 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-xl border border-aura-gold/25 bg-aura-gold/10 p-4 text-sm text-amber-900">
           <p className="font-semibold">{t('staff.shiftsNeedTeamTitle')}</p>
           <p className="mt-1 text-amber-800">{t('staff.shiftsNeedTeamHint')}</p>
           {onGoToTeam && (
             <button
               type="button"
               onClick={onGoToTeam}
-              className="mt-3 rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600"
+              className="mt-3 rounded-lg bg-aura-gold px-4 py-2 text-xs font-semibold text-white hover:bg-aura-gold-light"
             >
               {t('staff.shiftsGoToTeam')}
             </button>
@@ -199,16 +199,16 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
           <button
             type="button"
             onClick={() => setWeekStart(d => addDays(d, -7))}
-            className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-white/[0.08] p-2 text-fumo hover:bg-white/[0.05]"
             aria-label={t('staff.prevWeek')}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="min-w-[10rem] text-center text-sm font-semibold text-slate-800">{weekLabel}</span>
+          <span className="min-w-[10rem] text-center text-sm font-semibold text-pietra">{weekLabel}</span>
           <button
             type="button"
             onClick={() => setWeekStart(d => addDays(d, 7))}
-            className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-white/[0.08] p-2 text-fumo hover:bg-white/[0.05]"
             aria-label={t('staff.nextWeek')}
           >
             <ChevronRight className="h-4 w-4" />
@@ -216,7 +216,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
           <button
             type="button"
             onClick={() => setWeekStart(getWeekStart())}
-            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs font-medium text-fumo hover:bg-white/[0.05]"
           >
             {t('staff.thisWeek')}
           </button>
@@ -225,7 +225,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
           type="button"
           onClick={() => openFormForDate(toDateInput(new Date()))}
           disabled={assignableStaff.length === 0}
-          className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-aura-gold px-4 py-2 text-sm font-semibold text-white hover:bg-aura-gold-light disabled:opacity-50"
         >
           <Plus className="h-4 w-4" />
           {t('staff.addShift')}
@@ -249,40 +249,40 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                 type="button"
                 onClick={() => assignableStaff.length > 0 && openFormForDate(key)}
                 className={cn(
-                  'rounded-xl border bg-white p-4 shadow-sm text-left transition-colors',
-                  isToday ? 'border-amber-300 ring-1 ring-amber-200' : 'border-slate-200',
-                  assignableStaff.length > 0 && 'hover:border-amber-300 hover:bg-amber-50/30 cursor-pointer',
+                  'rounded-xl border bg-navy-elevated p-4 shadow-sm text-left transition-colors',
+                  isToday ? 'border-aura-gold/30 ring-1 ring-amber-200' : 'border-white/[0.08]',
+                  assignableStaff.length > 0 && 'hover:border-aura-gold/30 hover:bg-aura-gold/10/30 cursor-pointer',
                   assignableStaff.length === 0 && 'cursor-default',
                 )}
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-pietra">
                     {day.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}
                     {isToday && (
-                      <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700">
+                      <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-aura-gold">
                         {t('staff.today')}
                       </span>
                     )}
                   </p>
                   {assignableStaff.length > 0 && (
-                    <span className="rounded-lg border border-slate-200 p-1 text-slate-400">
+                    <span className="rounded-lg border border-white/[0.08] p-1 text-fumo">
                       <Plus className="h-3.5 w-3.5" />
                     </span>
                   )}
                 </div>
 
                 {dayShifts.length === 0 ? (
-                  <p className="text-xs text-slate-400">{t('staff.noShiftsDayClick')}</p>
+                  <p className="text-xs text-fumo">{t('staff.noShiftsDayClick')}</p>
                 ) : (
                   <ul className="space-y-2" onClick={e => e.stopPropagation()}>
                     {dayShifts.map(shift => (
                       <li
                         key={shift.id}
-                        className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5"
+                        className="flex flex-wrap items-center gap-2 rounded-lg border border-white/[0.06] bg-navy-surface/50 px-3 py-2.5"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-slate-900">{shift.user.name}</p>
-                          <p className="flex items-center gap-1 text-xs text-slate-500">
+                          <p className="truncate text-sm font-medium text-pietra">{shift.user.name}</p>
+                          <p className="flex items-center gap-1 text-xs text-fumo">
                             <Clock className="h-3 w-3" />
                             {shift.startTime} – {shift.endTime}
                             <span className="text-slate-300">·</span>
@@ -297,7 +297,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                             <button
                               type="button"
                               onClick={() => clockShift.mutate({ id: shift.id, action: 'in' })}
-                              className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50"
+                              className="rounded-lg p-1.5 text-emerald-400 hover:bg-emerald-500/10"
                               title={t('staff.clockIn')}
                             >
                               <LogIn className="h-4 w-4" />
@@ -307,7 +307,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                             <button
                               type="button"
                               onClick={() => clockShift.mutate({ id: shift.id, action: 'out' })}
-                              className="rounded-lg p-1.5 text-blue-600 hover:bg-blue-50"
+                              className="rounded-lg p-1.5 text-blue-400 hover:bg-blue-500/10"
                               title={t('staff.clockOut')}
                             >
                               <LogOut className="h-4 w-4" />
@@ -316,7 +316,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                           <button
                             type="button"
                             onClick={() => deleteShift.mutate(shift.id)}
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                            className="rounded-lg p-1.5 text-fumo hover:bg-red-500/10 hover:text-red-400"
                             title={t('common.delete')}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -335,17 +335,17 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowForm(false)}>
           <div
-            className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg"
+            className="w-full max-w-md rounded-xl premium-card p-6 shadow-lg"
             onClick={e => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">{t('staff.addShiftTitle')}</h3>
-              <button type="button" onClick={() => setShowForm(false)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
+              <h3 className="text-lg font-bold text-pietra">{t('staff.addShiftTitle')}</h3>
+              <button type="button" onClick={() => setShowForm(false)} className="rounded-lg p-1 text-fumo hover:bg-white/[0.05]">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
-              <label className="block text-sm font-medium text-slate-900">
+              <label className="block text-sm font-medium text-pietra">
                 {t('staff.formMember')}
                 <select
                   value={form.userId}
@@ -358,7 +358,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                   ))}
                 </select>
               </label>
-              <label className="block text-sm font-medium text-slate-900">
+              <label className="block text-sm font-medium text-pietra">
                 {t('common.date')}
                 <input
                   type="date"
@@ -368,7 +368,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                 />
               </label>
               <div className="grid grid-cols-2 gap-3">
-                <label className="block text-sm font-medium text-slate-900">
+                <label className="block text-sm font-medium text-pietra">
                   {t('staff.startTime')}
                   <input
                     type="time"
@@ -377,7 +377,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                     className="saas-input mt-1 w-full py-2.5 text-sm"
                   />
                 </label>
-                <label className="block text-sm font-medium text-slate-900">
+                <label className="block text-sm font-medium text-pietra">
                   {t('staff.endTime')}
                   <input
                     type="time"
@@ -387,7 +387,7 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
                   />
                 </label>
               </div>
-              <label className="block text-sm font-medium text-slate-900">
+              <label className="block text-sm font-medium text-pietra">
                 {t('staff.formNotes')}
                 <input
                   type="text"
@@ -399,14 +399,14 @@ export default function StaffShiftsTab({ onGoToTeam }: StaffShiftsTabProps) {
               </label>
             </div>
             <div className="mt-6 flex gap-3">
-              <button type="button" onClick={() => setShowForm(false)} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700">
+              <button type="button" onClick={() => setShowForm(false)} className="flex-1 rounded-xl border border-white/[0.08] py-2.5 text-sm font-medium text-fumo">
                 {t('common.cancel')}
               </button>
               <button
                 type="button"
                 onClick={() => createShift.mutate()}
                 disabled={createShift.isPending || !form.userId}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-aura-gold py-2.5 text-sm font-semibold text-white hover:bg-aura-gold-light disabled:opacity-60"
               >
                 {createShift.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {t('staff.addShift')}

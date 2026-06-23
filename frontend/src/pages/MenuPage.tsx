@@ -91,11 +91,11 @@ function ItemForm({ item, categories, onSave, onCancel }: {
           <div className="flex gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.available} onChange={e => setForm(f => ({ ...f, available: e.target.checked }))} className="rounded" />
-              <span className="text-sm text-slate-700">{t('menu.available')}</span>
+              <span className="text-sm text-fumo">{t('menu.available')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="rounded" />
-              <span className="text-sm text-slate-700">{t('menu.featured')}</span>
+              <span className="text-sm text-fumo">{t('menu.featured')}</span>
             </label>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function MenuPage() {
                   <button
                     type="button"
                     onClick={() => setCategoryForm({ id: cat.id, name: cat.name })}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                    className="p-1.5 rounded-lg text-fumo hover:text-fumo hover:bg-white/[0.05]"
                     aria-label={t('menu.editCategory')}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -228,7 +228,7 @@ export default function MenuPage() {
                     onClick={() => {
                       if (confirm(t('menu.confirmDeleteCategory'))) deleteCategory.mutate(cat.id)
                     }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                    className="p-1.5 rounded-lg text-fumo hover:text-red-400 hover:bg-red-500/10"
                     aria-label={t('common.delete')}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -257,7 +257,7 @@ export default function MenuPage() {
         <div className={ui.tableWrap}>
         <table className="w-full">
           <thead>
-            <tr className={`border-b border-slate-200 ${ui.tableHeadBg}`}>
+            <tr className={`border-b border-white/[0.08] ${ui.tableHeadBg}`}>
               <th className={`text-left ${ui.tableHead} px-5 py-3.5 w-[38%]`}>{t('menu.dish')}</th>
               <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('menu.category')}</th>
               <th className={`text-left ${ui.tableHead} px-4 py-3.5`}>{t('menu.price')}</th>
@@ -266,17 +266,17 @@ export default function MenuPage() {
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-white/[0.06]">
             {filteredItems.map(item => (
               <tr key={item.id} className={ui.tableRow}>
                 <td className="px-5 py-4 align-top">
                   <div>
-                    <p className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 leading-tight">
+                    <p className="text-[15px] font-semibold text-pietra flex items-center gap-2 leading-tight">
                       {item.name}
-                      {item.featured && <span className="text-[11px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">{t('menu.topBadge')}</span>}
+                      {item.featured && <span className="text-[11px] bg-aura-gold/10 text-aura-gold border border-aura-gold/25 px-2 py-0.5 rounded-full">{t('menu.topBadge')}</span>}
                     </p>
-                    {item.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>}
-                    {item.allergens && <p className="text-xs text-red-600 mt-1">⚠ {item.allergens}</p>}
+                    {item.description && <p className="text-xs text-fumo mt-1 leading-relaxed">{item.description}</p>}
+                    {item.allergens && <p className="text-xs text-red-400 mt-1">⚠ {item.allergens}</p>}
                   </div>
                 </td>
                 <td className="px-4 py-4 align-top">
@@ -285,7 +285,7 @@ export default function MenuPage() {
                 <td className="px-4 py-4 align-top">
                   <span className="text-[15px] font-bold text-amber-500">{formatCurrency(item.price)}</span>
                 </td>
-                <td className="px-4 py-4 align-top text-sm text-slate-500">
+                <td className="px-4 py-4 align-top text-sm text-fumo">
                   {item.preparationTime ? `${item.preparationTime} ${t('common.minutes')}` : '-'}
                 </td>
                 <td className="px-4 py-4 align-top">
@@ -309,17 +309,17 @@ export default function MenuPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setRecipeItem({ id: item.id, name: item.name })}
-                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-slate-500 hover:text-amber-700`}
+                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-fumo hover:text-aura-gold`}
                       title={t('menu.editRecipe')}
                     >
                       <Package className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => { setEditingItem({ ...item, categoryId: item.category.id }); }}
-                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-slate-500 hover:text-slate-900`}>
+                      className={`p-1.5 ${ui.chipInactive} rounded-lg text-fumo hover:text-pietra`}>
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => { if (confirm(t('menu.confirmDelete'))) deleteItem.mutate(item.id) }}
-                      className="p-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">
+                      className="p-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/25 hover:bg-red-100 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -331,7 +331,7 @@ export default function MenuPage() {
         </table>
         </div>
         {filteredItems.length === 0 && (
-          <div className="flex flex-col items-center py-12 text-slate-500">
+          <div className="flex flex-col items-center py-12 text-fumo">
             <BookOpen className="w-10 h-10 mb-2 opacity-30" />
             <p>{t('menu.noDishes')}</p>
           </div>

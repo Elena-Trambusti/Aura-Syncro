@@ -2,7 +2,7 @@
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="min-h-screen bg-navy px-4 py-10">
       <div className="mx-auto max-w-3xl space-y-6">
         <h1 className="text-3xl font-bold text-slate-900">Aura Syncro - Prezzi</h1>
         <p className="text-slate-600">Un solo piano, tutto incluso.</p>

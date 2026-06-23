@@ -64,57 +64,57 @@ export default function BillingPage() {
           alt={BRAND.name}
           className="mx-auto mb-6 h-12 w-auto sm:h-14"
         />
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-pietra sm:text-3xl">
           {t('billing.pageTitle')}
         </h1>
-        <p className="mt-2 mx-auto max-w-lg text-sm leading-relaxed text-slate-500 sm:text-base">
+        <p className="mt-2 mx-auto max-w-lg text-sm leading-relaxed text-fumo sm:text-base">
           {t('billing.pageSubtitle')}
         </p>
       </div>
 
       {hasPremium && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3">
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
           <p className="text-sm font-medium text-emerald-900">{t('billing.activeBadge')}</p>
         </div>
       )}
 
       {!hasPremium && (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 bg-gradient-to-br from-amber-50/80 via-white to-slate-50 px-6 py-8 sm:px-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-amber-700/80">
+        <div className="overflow-hidden rounded-2xl premium-card shadow-sm">
+          <div className="border-b border-white/[0.06] bg-gradient-to-br from-aura-gold/10 via-navy-elevated to-navy-mid px-6 py-8 sm:px-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-aura-gold/80">
               {t('billing.planBadge')}
             </p>
-            <h2 className="mt-2 text-xl font-bold text-slate-900">{t('billing.cardTitle')}</h2>
-            <p className="mt-1 text-sm text-slate-500">{t('billing.cardSubtitle')}</p>
+            <h2 className="mt-2 text-xl font-bold text-pietra">{t('billing.cardTitle')}</h2>
+            <p className="mt-1 text-sm text-fumo">{t('billing.cardSubtitle')}</p>
           </div>
 
           <div className="space-y-6 px-6 py-6 sm:px-8">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="rounded-xl border border-white/[0.08] bg-navy-surface/50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-fumo">
                   {t('billing.setupLabel')}
                 </p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-pietra">
                   {formatCurrency(SETUP_FEE)}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">{t('billing.setupHint')}</p>
+                <p className="mt-1 text-xs text-fumo">{t('billing.setupHint')}</p>
               </div>
-              <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-4">
+              <div className="rounded-xl border border-aura-gold/25/60 bg-aura-gold/10/50 p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-amber-800/70">
                   {t('billing.subscriptionLabel')}
                 </p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-pietra">
                   {formatCurrency(MONTHLY_FEE)}
-                  <span className="text-base font-semibold text-slate-500">/{t('billing.perMonth')}</span>
+                  <span className="text-base font-semibold text-fumo">/{t('billing.perMonth')}</span>
                 </p>
-                <p className="mt-1 text-xs text-slate-500">{t('billing.subscriptionHint')}</p>
+                <p className="mt-1 text-xs text-fumo">{t('billing.subscriptionHint')}</p>
               </div>
             </div>
 
-            <p className="text-center text-sm font-medium text-slate-700">{t('billing.summary')}</p>
+            <p className="text-center text-sm font-medium text-fumo">{t('billing.summary')}</p>
 
-            <ul className="space-y-3 text-sm text-slate-600">
+            <ul className="space-y-3 text-sm text-fumo">
               {features.map(feature => (
                 <li key={feature} className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
@@ -126,7 +126,7 @@ export default function BillingPage() {
             {error && (
               <div
                 role="alert"
-                className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+                className="flex items-start gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-800"
               >
                 <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{error}</span>
@@ -137,7 +137,7 @@ export default function BillingPage() {
               type="button"
               onClick={handleActivatePremium}
               disabled={loadingPremium}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-aura-gold py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-aura-gold-light disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loadingPremium ? (
                 <>
@@ -149,15 +149,15 @@ export default function BillingPage() {
               )}
             </button>
 
-            <p className="text-center text-xs text-slate-400">{t('billing.secureNote')}</p>
+            <p className="text-center text-xs text-fumo">{t('billing.secureNote')}</p>
           </div>
         </div>
       )}
 
       {hasPremium && (
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-6 sm:px-8">
-          <p className="text-sm font-medium text-slate-900">{t('billing.allIncludedTitle')}</p>
-          <ul className="mt-4 space-y-2 text-sm text-slate-600">
+        <div className="rounded-2xl premium-card px-6 py-6 sm:px-8">
+          <p className="text-sm font-medium text-pietra">{t('billing.allIncludedTitle')}</p>
+          <ul className="mt-4 space-y-2 text-sm text-fumo">
             {features.map(feature => (
               <li key={feature} className="flex items-start gap-2">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />

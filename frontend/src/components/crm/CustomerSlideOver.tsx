@@ -111,20 +111,20 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
       />
       <aside
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-slate-200 shadow-xl',
+          'fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l border-white/[0.08] shadow-xl',
           'transform transition-transform duration-300 ease-out flex flex-col',
           customer ? 'translate-x-0' : 'translate-x-full',
         )}
         aria-hidden={!customer}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-          <h2 className="text-lg font-bold text-slate-900">{t('crm.slideOver.title')}</h2>
+        <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4">
+          <h2 className="text-lg font-bold text-pietra">{t('crm.slideOver.title')}</h2>
           <div className="flex items-center gap-1">
             {customer && onSave && !editing && (
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="rounded-lg p-2 text-fumo hover:bg-white/[0.05] hover:text-pietra transition-colors"
                 aria-label={t('common.edit')}
               >
                 <Pencil className="h-4 w-4" />
@@ -133,7 +133,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              className="rounded-lg p-2 text-fumo hover:bg-white/[0.05] hover:text-pietra transition-colors"
               aria-label={t('common.close')}
             >
               <X className="h-5 w-5" />
@@ -142,7 +142,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
         </div>
 
         {isLoading && (
-          <div className="flex flex-1 items-center justify-center text-sm text-slate-500">
+          <div className="flex flex-1 items-center justify-center text-sm text-fumo">
             {t('common.loading')}
           </div>
         )}
@@ -212,8 +212,8 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
                 className={ui.textarea}
               />
             </div>
-            <div className="border-t border-slate-200 pt-4">
-              <p className="text-sm font-semibold text-slate-900 mb-3">{t('crm.fiscal.title')}</p>
+            <div className="border-t border-white/[0.08] pt-4">
+              <p className="text-sm font-semibold text-pietra mb-3">{t('crm.fiscal.title')}</p>
               <div className="space-y-3">
                 <div>
                   <label className={ui.label}>{t('crm.fiscal.taxId')}</label>
@@ -250,7 +250,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                className="flex-1 bg-aura-gold hover:bg-aura-gold text-navy font-semibold py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
               >
                 {isSaving ? t('common.saving') : t('common.save')}
               </button>
@@ -261,8 +261,8 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
         {!isLoading && customer && !editing && (
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
             <div>
-              <p className="text-xl font-bold text-slate-900">{customerDisplayName(customer)}</p>
-              <div className="mt-2 space-y-1.5 text-sm text-slate-500">
+              <p className="text-xl font-bold text-pietra">{customerDisplayName(customer)}</p>
+              <div className="mt-2 space-y-1.5 text-sm text-fumo">
                 {customer.email && (
                   <p className="flex items-center gap-2">
                     <Mail className="h-4 w-4 shrink-0" />
@@ -286,10 +286,10 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
 
             {(customer.taxId || customer.fiscalCode || customer.sdiRecipientCode || customer.pec) && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-fumo mb-2">
                   {t('crm.fiscal.title')}
                 </p>
-                <dl className="space-y-1 text-sm text-slate-600">
+                <dl className="space-y-1 text-sm text-fumo">
                   {customer.taxId && (
                     <div><span className="font-medium">{t('crm.fiscal.taxId')}: </span>{customer.taxId}</div>
                   )}
@@ -308,7 +308,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
 
             {customer.tags.length > 0 && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-fumo mb-2">
                   {t('crm.slideOver.tags')}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -337,52 +337,52 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
                   value: customer.lastVisit ? formatDate(customer.lastVisit) : t('crm.neverVisited'),
                 },
               ].map(row => (
-                <div key={row.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-xs text-slate-500">{row.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">{row.value}</p>
+                <div key={row.label} className="rounded-xl border border-white/[0.08] bg-navy-surface/50 p-3">
+                  <p className="text-xs text-fumo">{row.label}</p>
+                  <p className="mt-1 text-sm font-semibold text-pietra">{row.value}</p>
                 </div>
               ))}
             </div>
 
             {customer.allergens && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+              <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-red-800">
                   <AlertTriangle className="h-4 w-4 shrink-0" />
                   {t('crm.slideOver.allergens')}
                 </p>
-                <p className="mt-1 text-sm text-red-700">{customer.allergens}</p>
+                <p className="mt-1 text-sm text-red-400">{customer.allergens}</p>
               </div>
             )}
 
             {customer.notes && (
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              <div className="rounded-xl premium-card p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-fumo mb-1">
                   {t('crm.slideOver.notes')}
                 </p>
-                <p className="text-sm text-slate-700 italic">&ldquo;{customer.notes}&rdquo;</p>
+                <p className="text-sm text-fumo italic">&ldquo;{customer.notes}&rdquo;</p>
               </div>
             )}
 
             <div>
-              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fumo mb-3">
                 <Receipt className="h-4 w-4" />
                 {t('crm.slideOver.spendingHistory')}
               </p>
               {(customer.orders?.length ?? 0) === 0 ? (
-                <p className="text-sm text-slate-500">{t('crm.slideOver.noOrders')}</p>
+                <p className="text-sm text-fumo">{t('crm.slideOver.noOrders')}</p>
               ) : (
-                <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
+                <ul className="divide-y divide-white/[0.06] rounded-xl border border-white/[0.08] overflow-hidden">
                   {customer.orders!.map(order => (
-                    <li key={order.id} className="flex items-center justify-between bg-white px-4 py-3">
+                    <li key={order.id} className="flex items-center justify-between bg-navy-elevated px-4 py-3">
                       <div>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p className="text-sm font-medium text-pietra">
                           #{order.id.slice(-6).toUpperCase()}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-fumo">
                           {formatDate(order.paidAt || order.createdAt)}
                         </p>
                       </div>
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-pietra">
                         {formatCurrency(order.revenueAmount || order.total)}
                       </p>
                     </li>

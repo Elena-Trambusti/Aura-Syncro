@@ -126,12 +126,12 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
                       className={cn(
                         'w-full flex items-center justify-between gap-3 px-3 py-2.5 text-sm font-medium text-left transition-colors',
                         selected
-                          ? 'text-amber-600 bg-amber-50'
-                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900',
+                          ? 'text-aura-gold bg-aura-gold/10'
+                          : 'text-fumo hover:bg-white/[0.05] hover:text-pietra',
                       )}
                     >
                       <span>{lang.name}</span>
-                      {selected && <Check className="w-4 h-4 shrink-0 text-amber-400" />}
+                      {selected && <Check className="w-4 h-4 shrink-0 text-aura-gold" />}
                     </button>
                   </li>
                 )
@@ -152,8 +152,8 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
           'relative flex items-center gap-1.5 font-medium border rounded-lg transition-colors',
           open && 'z-[100000]',
           prominent
-            ? 'px-3 py-2 text-sm text-slate-700 saas-chip hover:bg-slate-50'
-            : 'px-2.5 py-1.5 text-xs text-slate-600 saas-chip hover:bg-slate-50 hover:text-slate-900',
+            ? 'px-3 py-2 text-sm text-fumo saas-chip hover:bg-white/[0.05] hover:text-pietra'
+            : 'px-2.5 py-1.5 text-xs text-fumo saas-chip hover:bg-white/[0.05] hover:text-pietra',
         )}
         aria-label={t('common.selectLanguage')}
         aria-expanded={open}

@@ -17,58 +17,56 @@ export default function Header() {
     : ''
 
   return (
-    <header className="pwa-header relative z-50 grid h-14 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 border-b border-slate-200 bg-white px-2 shadow-sm sm:h-16 sm:gap-2 sm:px-6">
-      <div className="flex items-center min-w-0 lg:min-w-[4.5rem]">
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className="lg:hidden p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors shrink-0"
-          aria-label={t('common.openMenu')}
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+    <header className="pwa-header flex h-14 shrink-0 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6">
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        className="premium-topbar-btn -ml-1 shrink-0 lg:hidden"
+        aria-label={t('common.openMenu')}
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      <div className="flex min-w-0 flex-1 items-center justify-center lg:justify-start">
+        <div className="lg:hidden">
+          <BrandLogo size="sm" />
+        </div>
+        <div className="hidden w-full max-w-sm rounded-xl border border-white/[0.06] bg-navy-surface/50 px-4 py-2 text-sm text-fumo/50 lg:block">
+          {t('common.search', { defaultValue: 'Cerca…' })}
+        </div>
       </div>
 
-      <div className="flex min-w-0 items-center justify-center overflow-hidden lg:hidden">
-        <BrandLogo size="sm" className="mx-0 shadow-none border border-amber-200/80" />
-      </div>
-
-      <div className="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0">
+      <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
         <a
           href="/cucina"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden sm:flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-amber-600 hover:border-amber-300 transition-colors"
+          className="hidden items-center gap-1.5 rounded-lg border border-white/[0.08] bg-navy-surface/50 px-2.5 py-1.5 text-xs font-medium text-fumo transition-colors hover:border-aura-gold/25 hover:text-aura-gold sm:flex sm:px-3"
           title={t('nav.openKitchenDisplay')}
         >
-          <MonitorCheck className="w-3.5 h-3.5" />
+          <MonitorCheck className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t('nav.kitchenDisplay')}</span>
-          <ExternalLink className="w-3 h-3 opacity-60 hidden sm:block" />
+          <ExternalLink className="hidden h-3 w-3 opacity-50 sm:block" />
         </a>
 
         <LanguageSwitcher />
-
         <NotificationBell />
 
-        <div className="flex items-center gap-1 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center border border-amber-300 bg-amber-50 shrink-0"
-          >
-            <span className="text-xs font-bold text-amber-600">
-              {user ? getInitials(user.name) : 'U'}
-            </span>
+        <div className="flex items-center gap-1.5 border-l border-white/[0.08] pl-2 sm:gap-2 sm:pl-3">
+          <div className="premium-avatar">
+            {user ? getInitials(user.name) : 'U'}
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-medium text-slate-900 leading-none">{user?.name}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{roleLabel}</p>
+            <p className="text-sm font-medium leading-none text-pietra">{user?.name}</p>
+            <p className="mt-0.5 text-xs text-fumo">{roleLabel}</p>
           </div>
           <button
             onClick={logout}
-            className="p-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-slate-500 transition-colors"
+            className="premium-topbar-btn hover:!bg-red-500/100/10 hover:!text-red-400"
             title={t('common.logout')}
             aria-label={t('common.logout')}
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
       </div>

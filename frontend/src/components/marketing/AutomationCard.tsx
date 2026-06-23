@@ -18,14 +18,14 @@ export function AutomationToggle({ active, disabled, onChange, label }: Automati
       onClick={() => onChange(!active)}
       className={cn(
         'relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors duration-200',
-        'focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:ring-offset-2',
-        active ? 'bg-amber-500' : 'bg-slate-200',
+        'focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:ring-offset-2',
+        active ? 'bg-aura-gold' : 'bg-navy-surface',
         disabled && 'opacity-60 cursor-not-allowed',
       )}
     >
       <span
         className={cn(
-          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 mt-1',
+          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-navy-elevated shadow-sm transition-transform duration-200 mt-1',
           active ? 'translate-x-6 ml-0.5' : 'translate-x-1',
         )}
       />
@@ -61,8 +61,8 @@ export default function AutomationCard({
   return (
     <article
       className={cn(
-        'rounded-xl border bg-white p-5 shadow-sm transition-shadow',
-        active ? 'border-amber-300 ring-1 ring-amber-200' : 'border-slate-200',
+        'rounded-xl border bg-navy-elevated p-5 shadow-sm transition-shadow',
+        active ? 'border-aura-gold/30 ring-1 ring-amber-200' : 'border-white/[0.08]',
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -70,14 +70,14 @@ export default function AutomationCard({
           <div
             className={cn(
               'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
-              active ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500',
+              active ? 'bg-aura-gold/10 text-aura-gold' : 'bg-navy-surface text-fumo',
             )}
           >
             {icon}
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-            <p className="mt-1 text-sm text-slate-500">{description}</p>
+            <h3 className="text-base font-semibold text-pietra">{title}</h3>
+            <p className="mt-1 text-sm text-fumo">{description}</p>
           </div>
         </div>
         <AutomationToggle
@@ -89,14 +89,14 @@ export default function AutomationCard({
       </div>
 
       <div className="mt-4">
-        <label className="block text-xs font-medium text-slate-500 mb-1.5">{templateLabel}</label>
+        <label className="block text-xs font-medium text-fumo mb-1.5">{templateLabel}</label>
         <textarea
           value={messageTemplate}
           onChange={e => onMessageChange(e.target.value)}
           onBlur={() => onMessageBlur?.()}
           rows={3}
           disabled={saving}
-          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 resize-none disabled:opacity-60"
+          className="w-full rounded-xl premium-card px-3 py-2.5 text-sm text-pietra placeholder:text-fumo focus:outline-none focus:ring-2 focus:ring-aura-gold/30 focus:border-aura-gold/50 resize-none disabled:opacity-60"
         />
       </div>
     </article>

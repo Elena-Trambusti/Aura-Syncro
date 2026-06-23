@@ -292,7 +292,7 @@ export default function TablesPage() {
             <button
               type="button"
               onClick={() => { setShowManage(v => !v); setEditingTable(null) }}
-              className="flex items-center justify-center gap-2 px-4 py-2 saas-chip rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto shrink-0"
+              className="flex items-center justify-center gap-2 px-4 py-2 saas-chip rounded-xl text-sm font-medium text-fumo hover:bg-white/[0.05] transition-colors w-full sm:w-auto shrink-0"
             >
               <Settings2 className="w-4 h-4" />
               {t('tables.manageSection')}
@@ -301,7 +301,7 @@ export default function TablesPage() {
           <button
             type="button"
             onClick={() => queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })}
-            className="flex items-center justify-center gap-2 px-4 py-2 saas-chip rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors w-full sm:w-auto shrink-0"
+            className="flex items-center justify-center gap-2 px-4 py-2 saas-chip rounded-xl text-sm font-medium text-fumo hover:bg-white/[0.05] transition-colors w-full sm:w-auto shrink-0"
           >
             <RefreshCw className="w-4 h-4" />
             {t('common.refresh')}
@@ -312,8 +312,8 @@ export default function TablesPage() {
       <div className="pwa-tables-stats">
         {STAT_ACCENTS.map(({ key, status, accent }) => (
           <div key={key} className={cn('saas-stat p-4 pl-5', accent)}>
-            <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats[key]}</p>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mt-0.5">{statLabels[key]}</p>
+            <p className="text-2xl font-bold text-pietra tabular-nums">{stats[key]}</p>
+            <p className="text-xs font-medium text-fumo uppercase tracking-wider mt-0.5">{statLabels[key]}</p>
             <span className={cn('inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full font-medium', TABLE_STATUS_BADGE[status])}>
               {TABLE_STATUS_LABELS[status]}
             </span>
@@ -331,8 +331,8 @@ export default function TablesPage() {
               className={cn(
                 'px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all shrink-0',
                 filterArea === area
-                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm'
-                  : 'saas-chip text-slate-600 hover:bg-slate-50',
+                  ? 'bg-aura-gold hover:bg-aura-gold text-navy font-semibold shadow-sm'
+                  : 'saas-chip text-fumo hover:bg-white/[0.05]',
               )}
             >
               {area}
@@ -342,7 +342,7 @@ export default function TablesPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           {STAT_ACCENTS.map(({ status }) => (
-            <div key={status} className="flex items-center gap-1.5 text-xs text-slate-500">
+            <div key={status} className="flex items-center gap-1.5 text-xs text-fumo">
               <span className={cn('w-2 h-2 rounded-full', TABLE_LEGEND_DOT[status])} />
               {TABLE_STATUS_LABELS[status]}
             </div>
@@ -358,13 +358,13 @@ export default function TablesPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="saas-card p-12 text-center space-y-4">
-          <p className="text-base font-semibold text-slate-800">{t('tables.emptyTitle')}</p>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">{t('tables.emptyHint')}</p>
+          <p className="text-base font-semibold text-pietra">{t('tables.emptyTitle')}</p>
+          <p className="text-sm text-fumo max-w-md mx-auto">{t('tables.emptyHint')}</p>
           {canManageTables && (
             <button
               type="button"
               onClick={() => { setShowManage(true); setEditingTable({} as Table) }}
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold"
+              className="inline-flex items-center gap-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold px-5 py-2.5 rounded-xl text-sm font-semibold"
             >
               <Plus className="w-4 h-4" />
               {t('tables.emptyAction')}
@@ -396,13 +396,13 @@ export default function TablesPage() {
         <section className="saas-card p-4 sm:p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-slate-900">{t('tables.manageSection')}</h2>
-              <p className="text-sm text-slate-500 mt-0.5">{t('tables.subtitle')}</p>
+              <h2 className="text-base font-semibold text-pietra">{t('tables.manageSection')}</h2>
+              <p className="text-sm text-fumo mt-0.5">{t('tables.subtitle')}</p>
             </div>
             <button
               type="button"
               onClick={() => setEditingTable({} as Table)}
-              className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-semibold"
+              className="flex items-center justify-center gap-2 bg-aura-gold hover:bg-aura-gold text-navy font-semibold px-4 py-2 rounded-xl text-sm font-semibold"
             >
               <Plus className="w-4 h-4" />
               {t('tables.newTable')}
@@ -423,9 +423,9 @@ export default function TablesPage() {
               <tbody>
                 {tables.map(table => (
                   <tr key={table.id} className={ui.tableRow}>
-                    <td className="py-2.5 px-3 font-medium text-slate-900">T{table.number}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{table.seats}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{table.area || defaultArea}</td>
+                    <td className="py-2.5 px-3 font-medium text-pietra">T{table.number}</td>
+                    <td className="py-2.5 px-3 text-fumo">{table.seats}</td>
+                    <td className="py-2.5 px-3 text-fumo">{table.area || defaultArea}</td>
                     <td className="py-2.5 px-3">
                       <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', TABLE_STATUS_BADGE[table.status as TableStatus])}>
                         {TABLE_STATUS_LABELS[table.status as TableStatus]}
@@ -436,7 +436,7 @@ export default function TablesPage() {
                         <button
                           type="button"
                           onClick={() => setEditingTable(table)}
-                          className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                          className="p-2 hover:bg-white/[0.05] rounded-lg text-fumo"
                           title={t('common.edit')}
                         >
                           <Edit2 className="w-4 h-4" />
@@ -446,7 +446,7 @@ export default function TablesPage() {
                           onClick={() => {
                             if (confirm(t('tables.confirmDelete'))) deleteTable.mutate(table.id)
                           }}
-                          className="p-2 hover:bg-red-50 rounded-lg text-slate-600 hover:text-red-600"
+                          className="p-2 hover:bg-red-500/10 rounded-lg text-fumo hover:text-red-400"
                           title={t('common.delete')}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -463,7 +463,7 @@ export default function TablesPage() {
 
       {filtered.some(tbl => tbl.status === 'CLEANING') && (
         <div className="saas-card p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">{t('tables.needsCleaning')}</p>
+          <p className="text-xs font-medium text-fumo uppercase tracking-wider mb-3">{t('tables.needsCleaning')}</p>
           <div className="flex flex-wrap gap-2">
             {filtered.filter(tbl => tbl.status === 'CLEANING').map(table => (
               <button
@@ -471,7 +471,7 @@ export default function TablesPage() {
                 type="button"
                 onClick={() => markTableFree.mutate(table.id)}
                 disabled={markTableFree.isPending}
-                className="saas-chip px-3 py-2 rounded-lg text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors"
+                className="saas-chip px-3 py-2 rounded-lg text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/25 transition-colors"
               >
                 T{table.number} — {t('tables.markFree')}
               </button>
@@ -493,8 +493,8 @@ export default function TablesPage() {
         <ModalPortal onClose={() => setReservedTable(null)}>
           <div className={ui.modal} onClick={e => e.stopPropagation()}>
             <h3 className={ui.modalTitle}>{t('tables.reservedTitle', { number: reservedTable.number })}</h3>
-            <div className="space-y-3 text-sm text-slate-600">
-              <p className="text-base font-semibold text-slate-900">{reservedTable.reservations[0].guestName}</p>
+            <div className="space-y-3 text-sm text-fumo">
+              <p className="text-base font-semibold text-pietra">{reservedTable.reservations[0].guestName}</p>
               <p>{formatTime(reservedTable.reservations[0].date)} · {reservedTable.reservations[0].covers} {t('common.seats')}</p>
             </div>
             <div className="mt-6 flex flex-col gap-2">
@@ -523,7 +523,7 @@ export default function TablesPage() {
       )}
 
       {transferSourceId && transferSourceTable && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-amber-400 bg-amber-500 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl">
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-amber-400 bg-aura-gold px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl">
           <p className="text-center text-sm font-semibold text-white leading-snug">
             {t('tables.transferModeBanner', { number: transferSourceTable.number })}
           </p>
@@ -534,7 +534,7 @@ export default function TablesPage() {
             type="button"
             onClick={() => setTransferSourceId(null)}
             disabled={transferOrder.isPending}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-bold text-amber-700 transition-colors hover:bg-amber-50 disabled:opacity-60"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-aura-gold/30 bg-aura-gold/10 py-3.5 text-sm font-bold text-aura-gold transition-colors hover:bg-aura-gold/20 disabled:opacity-60"
           >
             <X className="h-4 w-4" />
             {t('tables.transferCancel')}

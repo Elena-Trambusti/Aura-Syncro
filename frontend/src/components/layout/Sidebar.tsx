@@ -63,7 +63,7 @@ const externalLinks: Array<{
 export default function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
-  const { restaurant } = useAuth()
+  const { restaurant, user } = useAuth()
   const { tier } = useAccessTier()
   const { hasProPlan } = usePlanTier()
   const { canAccessAdminNav, canManageStaff, can } = useRole()
@@ -119,11 +119,15 @@ export default function Sidebar() {
     }
   }
 
+  const roleLabel = user
+    ? t(`status.role.${user.role}`, { defaultValue: user.role })
+    : ''
+
   return (
     <>
       <div
         className={cn(
-          'max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:bg-black/60 max-lg:transition-opacity',
+          'max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:bg-black/70 max-lg:backdrop-blur-sm max-lg:transition-opacity',
           sidebarOpen ? 'max-lg:opacity-100 max-lg:pointer-events-auto' : 'max-lg:pointer-events-none max-lg:opacity-0',
           'lg:hidden',
         )}
@@ -133,51 +137,56 @@ export default function Sidebar() {
 
       <aside
         className={cn(
-          'flex w-64 shrink-0 flex-col bg-slate-900 border-r border-slate-800',
-          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-[min(280px,88vw)]',
+          'premium-sidebar w-[17.5rem] lg:w-[18rem]',
+          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-[min(300px,88vw)]',
           'max-lg:transition-transform max-lg:duration-300 max-lg:ease-out',
           sidebarOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
         )}
         aria-label={t('common.mainMenu')}
       >
-        <div className="relative p-4 sm:p-6 border-b border-slate-800">
+        <div className="relative border-b border-white/[0.06] px-5 py-5">
           <button
             type="button"
             onClick={closeSidebar}
-            className="absolute top-4 right-4 lg:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="absolute top-4 right-4 lg:hidden premium-topbar-btn"
             aria-label={t('common.closeMenu')}
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex flex-col items-center text-center gap-2 mb-4 px-8">
-            <BrandLogo size="md" className="mx-auto" />
-            <div>
-              <p className="font-bold text-sm text-white tracking-wide">{BRAND.name}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest">{t('brand.saasPlatform')}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-2 py-2 rounded-xl bg-slate-800 border border-slate-700">
+
+          <BrandLogo size="md" showName layout="horizontal" className="mb-5 pr-8 lg:pr-0" />
+
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-navy-surface/80 px-3 py-2.5">
             {restaurant?.logoUrl ? (
-              <img src={restaurant.logoUrl} alt={restaurant.name} className="w-8 h-8 rounded-lg object-cover shrink-0" />
+              <img src={restaurant.logoUrl} alt={restaurant.name} className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-white/10" />
             ) : (
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: theme.color }}>
-                <UtensilsCrossed className="w-4 h-4 text-slate-900" />
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-white/10"
+                style={{ backgroundColor: theme.color }}
+              >
+                <UtensilsCrossed className="h-4 w-4 text-navy" />
               </div>
             )}
-            <p className="text-xs font-medium text-slate-200 truncate">{restaurant?.name || t('common.restaurant')}</p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-pietra">{restaurant?.name || t('common.restaurant')}</p>
+              <p className="text-[10px] uppercase tracking-wider text-fumo">{t('brand.saasPlatform')}</p>
+            </div>
           </div>
         </div>
 
         {isPreviewMode && (
-          <div className="mx-3 mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-            <p className="text-[11px] leading-relaxed text-amber-100/90">
+          <div className="mx-4 mt-4 rounded-lg border border-aura-gold/25 bg-aura-gold/10 px-3 py-2.5">
+            <p className="text-[11px] leading-relaxed text-champagne/90">
               {tier === 'unsubscribed' ? t('nav.previewUnsubscribed') : t('nav.previewOnboarding')}
             </p>
           </div>
         )}
 
-        <nav className="flex-1 py-3 px-3 overflow-y-auto overscroll-contain">
-          <ul className="space-y-1">
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
+          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-fumo/70">
+            {t('nav.dashboard')}
+          </p>
+          <ul className="space-y-0.5">
             {visibleNavItems.map(item => {
               const locked = isItemLocked(item)
               const isProLocked = !locked && item.proOnly && !hasProPlan
@@ -187,13 +196,9 @@ export default function Sidebar() {
                 : location.pathname.startsWith(item.to))
 
               const itemClass = cn(
-                'flex w-full items-center gap-3 px-3 py-3 lg:py-2.5 rounded-lg text-sm font-medium transition-all text-left',
-                locked
-                  ? 'text-slate-400 hover:bg-slate-800/60'
-                  : isActive
-                    ? 'text-white font-semibold bg-slate-800'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white',
-                isProLocked && !isActive && 'text-slate-400',
+                'premium-nav-item',
+                locked && 'opacity-60',
+                !locked && isActive && 'premium-nav-item--active',
               )
 
               return (
@@ -205,17 +210,20 @@ export default function Sidebar() {
                       className={itemClass}
                       aria-label={`${t(item.labelKey)} — ${t('nav.lockedAria')}`}
                     >
-                      <FeatureIcon className="w-5 h-5 shrink-0 opacity-45" />
-                      <span className="truncate opacity-75">{t(item.labelKey)}</span>
-                      <Lock className="ml-auto w-3.5 h-3.5 shrink-0 text-amber-500/70" aria-hidden />
+                      <FeatureIcon className="h-[18px] w-[18px] shrink-0 opacity-50" strokeWidth={1.75} />
+                      <span className="truncate">{t(item.labelKey)}</span>
+                      <Lock className="ml-auto h-3.5 w-3.5 shrink-0 text-aura-gold/60" aria-hidden />
                     </button>
                   ) : (
                     <NavLink to={item.to} className={itemClass}>
-                      <FeatureIcon className={cn('w-5 h-5 shrink-0', isProLocked && 'text-violet-400/90')} />
-                      {t(item.labelKey)}
+                      <FeatureIcon
+                        className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-aura-gold' : '', isProLocked && !isActive && 'text-violet-400/80')}
+                        strokeWidth={isActive ? 2 : 1.75}
+                      />
+                      <span className="truncate">{t(item.labelKey)}</span>
                       {isProLocked && (
-                        <span className="ml-auto rounded bg-violet-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-violet-300">
-                          Premium
+                        <span className="ml-auto rounded border border-violet-500/25 bg-violet-500/100/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-violet-300">
+                          Pro
                         </span>
                       )}
                     </NavLink>
@@ -226,7 +234,7 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        <div className="px-3 pb-2 border-t border-slate-800 pt-3">
+        <div className="border-t border-white/[0.06] px-3 py-3">
           {externalLinks.map(link => {
             const locked = isPreviewMode
             const FeatureIcon = link.icon
@@ -237,12 +245,12 @@ export default function Sidebar() {
                   key={link.href}
                   type="button"
                   onClick={handleLockedClick}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800/60 text-left"
+                  className="premium-nav-item opacity-60"
                   aria-label={`${t(link.labelKey)} — ${t('nav.lockedAria')}`}
                 >
-                  <FeatureIcon className="w-5 h-5 shrink-0 opacity-45" />
-                  <span className="truncate opacity-75">{t(link.labelKey)}</span>
-                  <Lock className="ml-auto w-3.5 h-3.5 shrink-0 text-amber-500/70" />
+                  <FeatureIcon className="h-[18px] w-[18px] shrink-0 opacity-50" strokeWidth={1.75} />
+                  <span className="truncate">{t(link.labelKey)}</span>
+                  <Lock className="ml-auto h-3.5 w-3.5 shrink-0 text-aura-gold/60" />
                 </button>
               )
             }
@@ -254,11 +262,11 @@ export default function Sidebar() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+                  className="premium-nav-item"
                 >
-                  <FeatureIcon className="w-5 h-5 shrink-0" />
+                  <FeatureIcon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.75} />
                   {t(link.labelKey)}
-                  <span className="ml-auto text-xs opacity-50">↗</span>
+                  <span className="ml-auto text-xs opacity-40">↗</span>
                 </a>
               )
             }
@@ -266,8 +274,21 @@ export default function Sidebar() {
           })}
         </div>
 
-        <div className="p-4 border-t border-slate-800">
-          <p className="text-[10px] text-slate-500 text-center tracking-wider uppercase">{BRAND.name} · v2.0</p>
+        <div className="border-t border-white/[0.06] p-4">
+          {user && (
+            <div className="mb-3 flex items-center gap-3 rounded-xl border border-white/[0.06] bg-navy-surface/60 px-3 py-2.5">
+              <div className="premium-avatar">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-pietra">{user.name}</p>
+                <p className="truncate text-[11px] text-fumo">{roleLabel}</p>
+              </div>
+            </div>
+          )}
+          <p className="text-center text-[10px] uppercase tracking-[0.14em] text-fumo/60">
+            {BRAND.name} · v2.0
+          </p>
         </div>
       </aside>
     </>

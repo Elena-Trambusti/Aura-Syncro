@@ -140,7 +140,7 @@ function OrderCard({ order, onItemStatusChange, onOrderReady }: {
         ) : (
           <button
             onClick={() => onOrderReady(order.id)}
-            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm py-2.5 rounded-xl transition-colors"
+            className="w-full bg-amber-600 hover:bg-aura-gold text-navy font-semibold font-bold text-sm py-2.5 rounded-xl transition-colors"
           >
             Segna Tutto Pronto
           </button>

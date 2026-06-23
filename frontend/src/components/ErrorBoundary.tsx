@@ -23,17 +23,17 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[100dvh] items-center justify-center bg-slate-50 p-6">
-          <div className="max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="flex min-h-[100dvh] items-center justify-center bg-navy-surface/50 p-6">
+          <div className="max-w-md rounded-xl premium-card p-8 text-center shadow-sm">
             <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" aria-hidden />
-            <h1 className="text-lg font-bold text-slate-900">Si è verificato un errore</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <h1 className="text-lg font-bold text-pietra">Si è verificato un errore</h1>
+            <p className="mt-2 text-sm text-fumo">
               Ricarica la pagina. Se il problema persiste, contatta il supporto Aura Syncro.
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-6 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+              className="mt-6 rounded-lg bg-aura-gold px-4 py-2 text-sm font-semibold text-white hover:bg-aura-gold-light"
             >
               Ricarica
             </button>

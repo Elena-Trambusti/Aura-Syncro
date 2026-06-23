@@ -19,21 +19,21 @@ export default function PwaNotificationBanner({ enabled }: PwaNotificationBanner
   if (!enabled || !ready || !supported || permission === 'denied' || subscribed || dismissed) return null
 
   return (
-    <div className="pwa-notification-banner mx-0 mb-4 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="pwa-notification-banner mx-0 mb-4 flex flex-col gap-3 rounded-xl border border-aura-gold/25 bg-aura-gold/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3 min-w-0">
         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100">
-          <BellRing className="h-4 w-4 text-amber-700" />
+          <BellRing className="h-4 w-4 text-aura-gold" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-900">{t('pwa.pushBannerTitle')}</p>
-          <p className="text-xs text-slate-600 mt-0.5">{t('pwa.pushBannerDesc')}</p>
+          <p className="text-sm font-semibold text-pietra">{t('pwa.pushBannerTitle')}</p>
+          <p className="text-xs text-fumo mt-0.5">{t('pwa.pushBannerDesc')}</p>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <button
           type="button"
           onClick={() => void enablePush()}
-          className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+          className="rounded-lg bg-aura-gold px-4 py-2 text-sm font-semibold text-white hover:bg-aura-gold-light transition-colors"
         >
           {t('pwa.enablePush')}
         </button>
@@ -44,7 +44,7 @@ export default function PwaNotificationBanner({ enabled }: PwaNotificationBanner
             localStorage.setItem('pwa-push-banner-dismissed', '1')
             setDismissed(true)
           }}
-          className="rounded-lg p-2 text-slate-400 hover:bg-amber-100 hover:text-slate-600"
+          className="rounded-lg p-2 text-fumo hover:bg-amber-100 hover:text-fumo"
         >
           <X className="h-4 w-4" />
         </button>
@@ -70,17 +70,17 @@ export function PwaInstallHint() {
   }
 
   return (
-    <div className="pwa-install-hint mb-4 flex flex-col gap-3 rounded-xl border border-amber-200/80 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between lg:hidden">
+    <div className="pwa-install-hint mb-4 flex flex-col gap-3 rounded-xl border border-aura-gold/25/80 bg-navy-elevated px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between lg:hidden">
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-slate-900">{t('pwa.installTitle')}</p>
-        <p className="text-xs text-slate-600 mt-0.5">{t('pwa.installHint')}</p>
+        <p className="text-sm font-semibold text-pietra">{t('pwa.installTitle')}</p>
+        <p className="text-xs text-fumo mt-0.5">{t('pwa.installHint')}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {canInstall && (
           <button
             type="button"
             onClick={() => void handleInstall()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-aura-gold px-3 py-2 text-sm font-semibold text-white hover:bg-aura-gold-light transition-colors"
           >
             <Download className="h-4 w-4" />
             {t('pwa.installApp')}
@@ -93,7 +93,7 @@ export function PwaInstallHint() {
             localStorage.setItem('pwa-install-hint-dismissed', '1')
             setDismissed(true)
           }}
-          className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-lg p-2 text-fumo hover:bg-white/[0.05] hover:text-fumo"
         >
           <X className="h-4 w-4" />
         </button>

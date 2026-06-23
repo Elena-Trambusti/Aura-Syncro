@@ -228,7 +228,7 @@ function TableTile({
           'text-[9px] font-semibold uppercase leading-none mt-0.5 px-1.5 py-0.5 rounded-full',
           table.status === 'CLEANING' && 'bg-blue-600/90 text-white',
           table.status === 'OCCUPIED' && 'bg-amber-600/90 text-white',
-          table.status === 'RESERVED' && 'bg-amber-500/90 text-white',
+          table.status === 'RESERVED' && 'bg-aura-gold/90 text-white',
         )}>
           {statusLabel(table.status as TableStatus)}
         </span>
@@ -249,15 +249,15 @@ function TableTile({
 }
 
 export const TABLE_LEGEND_DOT: Record<TableStatus, string> = {
-  FREE: 'bg-emerald-500',
-  OCCUPIED: 'bg-amber-500',
+  FREE: 'bg-emerald-500/100',
+  OCCUPIED: 'bg-aura-gold',
   RESERVED: 'bg-amber-400',
-  CLEANING: 'bg-blue-500',
+  CLEANING: 'bg-blue-500/100',
 }
 
 export const TABLE_STATUS_BADGE: Record<TableStatus, string> = {
-  FREE: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  OCCUPIED: 'bg-amber-50 text-amber-700 border border-amber-200',
-  RESERVED: 'bg-amber-50 text-amber-700 border border-amber-200',
-  CLEANING: 'bg-blue-50 text-blue-700 border border-blue-200',
+  FREE: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25',
+  OCCUPIED: 'bg-aura-gold/10 text-aura-gold border border-aura-gold/25',
+  RESERVED: 'bg-aura-gold/10 text-aura-gold border border-aura-gold/25',
+  CLEANING: 'bg-blue-500/10 text-blue-400 border border-blue-500/25',
 }

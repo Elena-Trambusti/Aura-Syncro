@@ -38,8 +38,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-gradient-to-b from-amber-50/80 via-slate-50 to-slate-100 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-      <div className="h-1 shrink-0 bg-gradient-to-r from-amber-600 via-[#C9A227] to-amber-500" aria-hidden />
+    <div className="aura-auth-shell pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      <div className="h-0.5 shrink-0 bg-gradient-to-r from-aura-gold-muted via-aura-gold to-aura-gold-light" aria-hidden />
 
       <div className="relative flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
         <div className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
@@ -49,28 +49,28 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-[420px]">
           <div className="mb-6 text-center sm:mb-8">
             <BrandLogo size="lg" className="mx-auto mb-5 shadow-lg ring-1 ring-slate-900/5" />
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{BRAND.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-pietra sm:text-3xl">{BRAND.name}</h1>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-200/60 sm:p-8">
+          <div className="aura-auth-card">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-slate-900">{t('auth.resetPasswordTitle')}</h2>
-              <p className="mt-1 text-sm text-slate-500">{t('auth.resetPasswordSubtitle')}</p>
+              <h2 className="text-lg font-semibold text-pietra">{t('auth.resetPasswordTitle')}</h2>
+              <p className="mt-1 text-sm text-fumo">{t('auth.resetPasswordSubtitle')}</p>
             </div>
 
             {done ? (
               <div className="space-y-4">
-                <p className="text-sm text-slate-600">{t('auth.resetPasswordSuccess')}</p>
+                <p className="text-sm text-fumo">{t('auth.resetPasswordSuccess')}</p>
                 <Link to="/login" className={`block w-full py-3 text-center ${ui.btnPrimary}`}>
                   {t('auth.login')}
                 </Link>
               </div>
             ) : !token ? (
               <div className="space-y-4">
-                <p className="text-sm text-red-600">{t('auth.resetPasswordInvalidToken')}</p>
+                <p className="text-sm text-red-400">{t('auth.resetPasswordInvalidToken')}</p>
                 <Link
                   to="/forgot-password"
-                  className="block text-center text-sm font-medium text-amber-600 hover:text-amber-700"
+                  className="block text-center text-sm font-medium text-aura-gold hover:text-aura-gold"
                 >
                   {t('auth.forgotPassword')}
                 </Link>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-slate-400 transition-colors hover:text-slate-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-fumo transition-colors hover:text-fumo"
                       aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -114,7 +114,7 @@ export default function ResetPasswordPage() {
             )}
           </div>
 
-          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+          <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-fumo">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {t('auth.secureAccess')}
           </p>

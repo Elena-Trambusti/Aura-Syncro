@@ -42,23 +42,23 @@ export default function PaymentSuccessPage() {
   }, [sessionId, orderId])
 
   if (loading) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="aura-auth-shell flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className="w-10 h-10 text-orange-500 animate-spin" />
-        <p className="text-slate-500">{t('guestCheckout.verifying')}</p>
+        <Loader2 className="h-10 w-10 animate-spin text-aura-gold" />
+        <p className="text-fumo">{t('guestCheckout.verifying')}</p>
       </div>
     </div>
   )
 
   if (error || !data) return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="text-center max-w-sm">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl">✗</span>
+    <div className="aura-auth-shell flex min-h-screen items-center justify-center p-6">
+      <div className="premium-card max-w-sm p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
+          <span className="text-3xl text-red-400">✗</span>
         </div>
-        <h2 className="text-xl font-bold text-slate-800 mb-2">{t('guestCheckout.errorTitle')}</h2>
-        <p className="text-slate-500 mb-6">{t('guestCheckout.errorDesc')}</p>
-        <Link to="/" className="text-orange-500 font-semibold hover:underline">{t('guestCheckout.backToMenu')}</Link>
+        <h2 className="mb-2 text-xl font-bold text-pietra">{t('guestCheckout.errorTitle')}</h2>
+        <p className="mb-6 text-fumo">{t('guestCheckout.errorDesc')}</p>
+        <Link to="/" className="font-semibold text-aura-gold hover:text-aura-gold-light">{t('guestCheckout.backToMenu')}</Link>
       </div>
     </div>
   )
@@ -66,7 +66,7 @@ export default function PaymentSuccessPage() {
   const isPaid = data.status === 'paid'
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto">
+    <div className="aura-auth-shell mx-auto min-h-screen max-w-lg">
       <div className={`px-5 pt-10 pb-8 text-white text-center ${isPaid ? 'bg-gradient-to-br from-emerald-600 to-teal-700' : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}>
         <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
           {isPaid
@@ -89,48 +89,48 @@ export default function PaymentSuccessPage() {
 
       {data.order && (
         <div className="px-5 py-6 space-y-4">
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">{t('guestCheckout.orderSummary')}</h2>
+          <div className="premium-card p-5">
+            <h2 className="text-sm font-bold text-fumo uppercase tracking-wide mb-4">{t('guestCheckout.orderSummary')}</h2>
             <div className="space-y-2.5">
               {data.order.items.map(item => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 bg-orange-100 text-orange-700 rounded-full text-xs font-bold flex items-center justify-center">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aura-gold/15 text-xs font-bold text-aura-gold">
                       {item.quantity}
                     </span>
-                    <span className="text-sm text-slate-700">{item.menuItem.name}</span>
+                    <span className="text-sm text-fumo">{item.menuItem.name}</span>
                   </div>
-                  <span className="text-sm font-semibold text-slate-800">
+                  <span className="text-sm font-semibold text-pietra">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="border-t border-slate-100 mt-4 pt-3 flex justify-between">
-              <span className="font-bold text-slate-800">{t('guestCheckout.totalPaid')}</span>
-              <span className="font-black text-emerald-600 text-lg">{formatCurrency(data.order.total)}</span>
+            <div className="border-t border-white/[0.06] mt-4 pt-3 flex justify-between">
+              <span className="font-bold text-pietra">{t('guestCheckout.totalPaid')}</span>
+              <span className="font-black text-emerald-400 text-lg">{formatCurrency(data.order.total)}</span>
             </div>
           </div>
 
           {data.order.table && (
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                <span className="text-lg font-black text-orange-600">{data.order.table.number}</span>
+            <div className="premium-card flex items-center gap-3 p-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-aura-gold/15">
+                <span className="text-lg font-black text-aura-gold">{data.order.table.number}</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-700">{t('guestCheckout.table', { number: data.order.table.number })}</p>
-                <p className="text-xs text-slate-400">{t('guestCheckout.tableHint')}</p>
+                <p className="text-sm font-semibold text-fumo">{t('guestCheckout.table', { number: data.order.table.number })}</p>
+                <p className="text-xs text-fumo">{t('guestCheckout.tableHint')}</p>
               </div>
             </div>
           )}
 
           {data.customerEmail && (
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-sm text-emerald-700">
+            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-400">
               {t('guestCheckout.receiptSent', { email: data.customerEmail })}
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-sm text-blue-700">
+          <div className="rounded-2xl border border-blue-500/25 bg-blue-500/10 p-4 text-sm text-blue-400">
             <p className="font-semibold mb-1">{t('guestCheckout.kitchenNoteTitle')}</p>
             <p>{t('guestCheckout.kitchenNoteDesc')}</p>
           </div>
@@ -140,7 +140,7 @@ export default function PaymentSuccessPage() {
       <div className="px-5 pb-8">
         <Link
           to="/"
-          className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-slate-200 rounded-2xl text-slate-600 font-semibold hover:bg-slate-50 transition-colors"
+          className="aura-btn-ghost flex w-full items-center justify-center gap-2 py-3.5 font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('guestCheckout.backHome')}

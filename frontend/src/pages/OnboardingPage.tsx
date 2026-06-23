@@ -75,37 +75,37 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-8">
-      <div className="rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 via-white to-slate-50 p-6 sm:p-8 shadow-sm">
+      <div className="rounded-2xl border border-aura-gold/25/60 bg-gradient-to-br from-amber-50 via-white to-slate-50 p-6 sm:p-8 shadow-sm">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100">
-            <Sparkles className="h-6 w-6 text-amber-600" />
+            <Sparkles className="h-6 w-6 text-aura-gold" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-amber-700">
+            <p className="text-xs font-semibold uppercase tracking-widest text-aura-gold">
               {t('onboarding.badge')}
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold text-pietra sm:text-3xl">
               {t('onboarding.title')}
             </h1>
           </div>
         </div>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+        <p className="max-w-2xl text-sm leading-relaxed text-fumo sm:text-base">
           {t('onboarding.subtitle', { name: restaurant?.name ?? '' })}
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl premium-card p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-              <ClipboardList className="h-5 w-5 text-emerald-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10">
+              <ClipboardList className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-900">{t('onboarding.menuBlockTitle')}</h2>
-              <p className="text-xs text-slate-500">{t('onboarding.menuBlockHint')}</p>
+              <h2 className="font-bold text-pietra">{t('onboarding.menuBlockTitle')}</h2>
+              <p className="text-xs text-fumo">{t('onboarding.menuBlockHint')}</p>
             </div>
           </div>
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-lg premium-card">
             <iframe
               data-tally-src={TALLY_EMBED_SRC}
               loading="lazy"
@@ -121,17 +121,17 @@ export default function OnboardingPage() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl premium-card p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-              <CalendarHeart className="h-5 w-5 text-blue-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
+              <CalendarHeart className="h-5 w-5 text-blue-400" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-900">{t('onboarding.callBlockTitle')}</h2>
-              <p className="text-xs text-slate-500">{t('onboarding.callBlockHint')}</p>
+              <h2 className="font-bold text-pietra">{t('onboarding.callBlockTitle')}</h2>
+              <p className="text-xs text-fumo">{t('onboarding.callBlockHint')}</p>
             </div>
           </div>
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-lg premium-card">
             <div
               ref={calendlyRef}
               className="calendly-inline-widget"
@@ -142,8 +142,8 @@ export default function OnboardingPage() {
         </section>
       </div>
 
-      <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-50/80 p-4 sm:p-5">
-        <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+      <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-500/10/80 p-4 sm:p-5">
+        <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" />
         <p className="text-sm leading-relaxed text-blue-900">{t('onboarding.teamNote')}</p>
       </div>
     </div>

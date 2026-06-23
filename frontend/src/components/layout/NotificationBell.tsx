@@ -17,10 +17,10 @@ interface Notification {
 }
 
 const TYPE_CONFIG = {
-  new_order: { icon: ShoppingBag, color: 'text-amber-500', bg: 'bg-amber-50' },
-  reservation: { icon: CalendarDays, color: 'text-blue-600', bg: 'bg-blue-50' },
-  low_stock: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
-  order_ready: { icon: ChefHat, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  new_order: { icon: ShoppingBag, color: 'text-aura-gold', bg: 'bg-aura-gold/10' },
+  reservation: { icon: CalendarDays, color: 'text-blue-400', bg: 'bg-blue-500/100/10' },
+  low_stock: { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/100/10' },
+  order_ready: { icon: ChefHat, color: 'text-emerald-400', bg: 'bg-emerald-500/100/10' },
 }
 
 const PANEL_WIDTH = 320
@@ -180,24 +180,24 @@ export default function NotificationBell() {
               }}
               className="saas-dropdown overflow-hidden max-w-none"
             >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                <h3 className="font-semibold text-slate-900">{t('notifications.title')}</h3>
+              <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3">
+                <h3 className="font-semibold text-pietra">{t('notifications.title')}</h3>
                 <div className="flex items-center gap-2">
                   {notifications.length > 0 && (
-                    <button onClick={clearAll} className="text-xs text-slate-500 hover:text-red-600 transition-colors">
+                    <button onClick={clearAll} className="text-xs text-fumo transition-colors hover:text-red-400">
                       {t('notifications.clearAll')}
                     </button>
                   )}
-                  <button onClick={close} aria-label={t('common.close')}>
-                    <X className="w-4 h-4 text-slate-500" />
+                  <button onClick={close} aria-label={t('common.close')} className="premium-topbar-btn !p-1">
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="max-h-[min(20rem,50dvh)] overflow-y-auto divide-y divide-slate-200">
+              <div className="max-h-[min(20rem,50dvh)] overflow-y-auto divide-y divide-white/[0.06]">
                 {notifications.length === 0 ? (
-                  <div className="py-8 text-center text-slate-500">
-                    <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <div className="py-8 text-center text-fumo">
+                    <Bell className="mx-auto mb-2 h-8 w-8 opacity-30" />
                     <p className="text-sm">{t('notifications.noNotifications')}</p>
                   </div>
                 ) : (
@@ -209,19 +209,19 @@ export default function NotificationBell() {
                         key={notif.id}
                         onClick={() => handleNotifClick(notif)}
                         className={cn(
-                          'flex items-start gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors',
-                          !notif.read && 'bg-amber-50',
+                          'flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04]',
+                          !notif.read && 'bg-aura-gold/5',
                         )}
                       >
-                        <div className={`w-8 h-8 ${config.bg} rounded-lg flex items-center justify-center shrink-0 mt-0.5`}>
-                          <Icon className={`w-4 h-4 ${config.color}`} />
+                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${config.bg}`}>
+                          <Icon className={`h-4 w-4 ${config.color}`} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-900 leading-snug">{notif.message}</p>
-                          <p className="text-xs text-slate-500 mt-1">{formatDateTime(notif.timestamp)}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm leading-snug text-pietra">{notif.message}</p>
+                          <p className="mt-1 text-xs text-fumo">{formatDateTime(notif.timestamp)}</p>
                         </div>
                         {!notif.read && (
-                          <div className="w-2 h-2 bg-amber-500 rounded-full shrink-0 mt-1.5" />
+                          <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-aura-gold" />
                         )}
                       </div>
                     )
@@ -241,15 +241,15 @@ export default function NotificationBell() {
         type="button"
         onClick={toggleOpen}
         className={cn(
-          'relative p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600',
+          'premium-topbar-btn relative',
           open && 'z-[100000]',
         )}
         aria-expanded={open}
         aria-label={t('notifications.title')}
       >
-        <Bell className="w-5 h-5 text-slate-500" />
+        <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-aura-gold text-xs font-bold text-navy">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

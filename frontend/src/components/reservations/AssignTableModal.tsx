@@ -52,18 +52,18 @@ export default function AssignTableModal({ reservation, onSuccess, onCancel }: A
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
       <div
-        className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg rounded-xl premium-card p-6 shadow-lg max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">{t('reservations.assignTableTitle')}</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <h3 className="text-lg font-bold text-pietra">{t('reservations.assignTableTitle')}</h3>
+            <p className="mt-1 text-sm text-fumo">
               {reservation.guestName} · {formatTime(reservation.date)} · {reservation.covers} {t('reservations.guests')}
             </p>
-            <p className="mt-0.5 text-xs text-slate-400">{t('reservations.freeTablesHint')}</p>
+            <p className="mt-0.5 text-xs text-fumo">{t('reservations.freeTablesHint')}</p>
           </div>
-          <button type="button" onClick={onCancel} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
+          <button type="button" onClick={onCancel} className="rounded-lg p-1 text-fumo hover:bg-white/[0.05]">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -73,7 +73,7 @@ export default function AssignTableModal({ reservation, onSuccess, onCancel }: A
             <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
           </div>
         ) : suitableTables.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-500">{t('reservations.noTablesAvailable')}</p>
+          <p className="py-8 text-center text-sm text-fumo">{t('reservations.noTablesAvailable')}</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {suitableTables.map(table => (
@@ -84,17 +84,17 @@ export default function AssignTableModal({ reservation, onSuccess, onCancel }: A
                 className={cn(
                   'rounded-xl border p-3 text-left transition-colors',
                   selectedTableId === table.id
-                    ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-200'
-                    : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/50',
+                    ? 'border-amber-500 bg-aura-gold/10 ring-2 ring-amber-200'
+                    : 'border-white/[0.08] bg-white hover:border-aura-gold/30 hover:bg-aura-gold/10/50',
                 )}
               >
-                <p className="font-bold text-slate-900">T{table.number}</p>
-                <p className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                <p className="font-bold text-pietra">T{table.number}</p>
+                <p className="flex items-center gap-1 text-xs text-fumo mt-0.5">
                   <Users className="h-3 w-3" />
                   {table.seats} {t('common.seats')}
                 </p>
                 {table.area && (
-                  <p className="text-[10px] text-slate-400 mt-1 truncate">{table.area}</p>
+                  <p className="text-[10px] text-fumo mt-1 truncate">{table.area}</p>
                 )}
               </button>
             ))}
@@ -102,14 +102,14 @@ export default function AssignTableModal({ reservation, onSuccess, onCancel }: A
         )}
 
         <div className="mt-6 flex gap-3">
-          <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-700">
+          <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-white/[0.08] py-2.5 text-sm font-medium text-fumo">
             {t('common.cancel')}
           </button>
           <button
             type="button"
             onClick={() => selectedTableId && confirm.mutate(selectedTableId)}
             disabled={!selectedTableId || confirm.isPending}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-aura-gold py-2.5 text-sm font-semibold text-white hover:bg-aura-gold-light disabled:opacity-60"
           >
             {confirm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t('reservations.confirmSeat')}
