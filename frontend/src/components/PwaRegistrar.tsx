@@ -13,6 +13,14 @@ export default function PwaRegistrar() {
   useEffect(() => {
     if (!import.meta.env.PROD) return
 
+    let refreshing = false
+    const onControllerChange = () => {
+      if (refreshing) return
+      refreshing = true
+      window.location.reload()
+    }
+    navigator.serviceWorker?.addEventListener('controllerchange', onControllerChange)
+
     const updateSW = registerSW({
       immediate: true,
       onRegistered(registration) {
@@ -42,6 +50,10 @@ export default function PwaRegistrar() {
         )
       },
     })
+
+    return () => {
+      navigator.serviceWorker?.removeEventListener('controllerchange', onControllerChange)
+    }
   }, [t])
 
   return null
