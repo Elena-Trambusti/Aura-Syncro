@@ -11,7 +11,8 @@ import {
   type SplitBreakdown,
 } from '../lib/orderPayment'
 import { completeOrderPayment } from '../lib/completePayment'
-import { buildFiscalConfig, fiscalConfigPayload, getTipTaxTreatment } from '../lib/taxEngine'
+import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
+import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 import { createDepositCheckoutSession } from '../lib/depositCheckout'
 import { depositLimiter, publicCheckoutLimiter } from '../middleware/rateLimit'
 import { GUEST_ORDERING_DISABLED } from '../lib/guestOrderingPolicy'
@@ -85,18 +86,17 @@ paymentsRouter.get('/checkout/:orderId', authenticate, requireDashboardAccess, r
   })
 
   const fiscal = buildFiscalConfig(restaurant?.settings)
+  const strategy = getFiscalStrategyFromConfig(fiscal)
+  const tipPolicy = strategy.getCheckoutTipPolicy()
 
   res.json({
     order,
     fiscalRegime: fiscalConfigPayload(fiscal, restaurant?.settings?.taxId),
     tipPolicy: {
-      treatment: getTipTaxTreatment(fiscal.taxRegion),
+      treatment: tipPolicy.treatment,
+      messageKey: tipPolicy.messageKey,
       taxName: fiscal.taxName,
-      message: fiscal.taxRegion === 'ES_CANARIAS'
-        ? 'La mancia no está sujeta a IGIC'
-        : fiscal.taxRegion === 'ES_PENINSULA'
-          ? 'La propina no está sujeta a IVA'
-          : 'La mancia non concorre alla base imponibile IVA',
+      message: tipPolicy.message,
     },
     restaurant: {
       name: restaurant?.name,

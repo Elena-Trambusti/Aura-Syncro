@@ -11,6 +11,7 @@ import {
   paidOrdersWhere,
 } from '../lib/dates'
 import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
+import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 import { buildFiscalSummary, buildFiscalTransactionRow } from '../lib/tipFiscal'
 import { verifyFiscalChainSequence } from '../lib/fiscal/fiscalIntegrityChain'
 
@@ -322,6 +323,7 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
   }
 
   const fiscal = buildFiscalConfig(restaurant.settings)
+  const strategy = getFiscalStrategyFromConfig(fiscal)
 
   const rows = orders.map(o => {
     const row = buildFiscalTransactionRow(o, effectivePaidAt(o.paidAt, o.createdAt))
@@ -353,13 +355,21 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
   )
 
   const summary = buildFiscalSummary(rows, fiscal.taxRegion)
+  const reportProfile = strategy.getComplianceProfile(fiscal)
+  const reportLabels = strategy.getReportLabels(fiscal.taxRate)
+  const pdfOptions = strategy.getPdfExportOptions()
 
   res.json({
     fiscalRegime: fiscalConfigPayload(fiscal, restaurant.settings?.taxId),
+    reportProfile,
+    reportLabels,
+    pdfOptions,
     compliance: {
       fiscalRegion: fiscal.fiscalRegion,
+      operativeRegime: reportProfile.operativeRegime,
       integrityChainValid: chainAudit.valid,
       brokenAtOrderId: chainAudit.brokenAtOrderId ?? null,
+      verifactuEnabled: reportProfile.verifactuEnabled,
     },
     restaurant: {
       name: restaurant.name,
@@ -378,6 +388,7 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
       ...(summary.electronicTipsTotal != null
         ? { electronicTipsTotal: summary.electronicTipsTotal }
         : {}),
+      ...(summary.tipsDistribution ? { tipsDistribution: summary.tipsDistribution } : {}),
     },
   })
 })

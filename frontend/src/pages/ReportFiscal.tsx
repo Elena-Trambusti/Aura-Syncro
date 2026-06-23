@@ -23,7 +23,25 @@ type FilterMode = 'day' | 'month' | 'range'
 interface FiscalApiResponse extends FiscalReportData {
   period: { mode: string; start: string; end: string }
   fiscalRegime?: FiscalRegime
-  summary: FiscalReportData['summary'] & { electronicTipsTotal?: number; tipTaxStatus?: string }
+  reportLabels?: {
+    netRevenueSub: string
+    tipsLabel: string
+    tipsSub: string
+    tipsSectionTitle?: string
+    taxColumnName: string
+    complianceNotice: string
+    legalDisclaimer: string
+  }
+  summary: FiscalReportData['summary'] & {
+    electronicTipsTotal?: number
+    tipTaxStatus?: string
+    tipsDistribution?: {
+      totalTracked: number
+      exemptFromTax: string
+      legalBasis: string
+      trackedMethods?: string[]
+    }
+  }
 }
 
 const glassPanel = 'glass-card'
@@ -87,7 +105,7 @@ function ReportFiscalContent() {
       {
         key: 'facturado',
         label: tRegime(t, taxRegion, 'cards.netRevenue.label'),
-        sub: tRegime(t, taxRegion, 'cards.netRevenue.sub'),
+        sub: data?.reportLabels?.netRevenueSub ?? tRegime(t, taxRegion, 'cards.netRevenue.sub'),
         icon: Receipt,
         gradient: 'from-blue-500/20 to-indigo-500/10',
         iconColor: 'text-blue-400',
@@ -95,8 +113,8 @@ function ReportFiscalContent() {
       },
       {
         key: 'propinas',
-        label: tRegime(t, taxRegion, 'cards.tips.label'),
-        sub: tRegime(t, taxRegion, 'cards.tips.sub'),
+        label: data?.reportLabels?.tipsLabel ?? tRegime(t, taxRegion, 'cards.tips.label'),
+        sub: data?.reportLabels?.tipsSub ?? tRegime(t, taxRegion, 'cards.tips.sub'),
         icon: Coins,
         gradient: 'from-amber-500/20 to-orange-500/10',
         iconColor: 'text-aura-gold',
@@ -112,7 +130,7 @@ function ReportFiscalContent() {
         ring: 'ring-emerald-500/20',
       },
     ],
-    [t, taxRegion, countryCode, tenantQueryKey],
+    [t, taxRegion, countryCode, tenantQueryKey, data?.reportLabels],
   )
 
   const tableHeaders = useMemo(
@@ -290,8 +308,20 @@ function ReportFiscalContent() {
         </div>
 
         <div className="rounded-xl border border-aura-gold/25 bg-aura-gold/10 px-4 py-3 text-xs text-amber-900">
-          {t('reportFiscal.legalDisclaimer')}
+          {data?.reportLabels?.legalDisclaimer ?? t('reportFiscal.legalDisclaimer')}
         </div>
+
+        {data?.summary.tipsDistribution && (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600 shadow-sm">
+            <p className="font-semibold text-slate-900">
+              {data.reportLabels?.tipsSectionTitle ?? data.reportLabels?.tipsLabel}
+            </p>
+            <p className="mt-1">
+              {formatCurrency(data.summary.tipsDistribution.totalTracked)} ·{' '}
+              {data.summary.tipsDistribution.legalBasis}
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {summaryCards.map((card, i) => {

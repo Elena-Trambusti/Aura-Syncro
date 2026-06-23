@@ -770,11 +770,11 @@
         "cards": {
           "netRevenue": {
             "label": "Total Facturado Neto",
-            "sub": "Sujeto a impuestos (IGIC)"
+            "sub": "Sujeto a impuesto IGIC (7%)"
           },
           "tips": {
             "label": "Total Propinas Personal",
-            "sub": "Exento de IGIC · Canarias"
+            "sub": "Exentas de IGIC · Reparto IRPF ordinario"
           },
           "reconciliation": {
             "label": "Conciliación Bancaria POS",

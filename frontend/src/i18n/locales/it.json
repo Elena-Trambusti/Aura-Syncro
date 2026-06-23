@@ -794,8 +794,8 @@
         "tipExemptNote": "*Propina voluntaria exenta de IGIC",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a impuestos (IGIC)" },
-          "tips": { "label": "Total Propinas Personal", "sub": "Exento de IGIC · Canarias" },
+          "netRevenue": { "label": "Total Facturado Neto", "sub": "Sujeto a impuesto IGIC (7%)" },
+          "tips": { "label": "Total Propinas Personal", "sub": "Exentas de IGIC · Ripartizione IRPF ordinario" },
           "reconciliation": { "label": "Conciliación Bancaria POS", "sub": "Total cobrado en TPV" }
         },
         "table": {

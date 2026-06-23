@@ -10,6 +10,10 @@ import {
   validateTaxRateForRegion,
   type TenantFiscalIdentity,
 } from './fiscal/fiscalRegion'
+import {
+  getFiscalStrategyByTaxRegion,
+  getFiscalStrategyFromConfig,
+} from './fiscal/strategies'
 
 export type { FiscalRegion, TenantFiscalIdentity }
 export {
@@ -148,9 +152,7 @@ export function computeOrderTax(grossAmount: number, taxRate: number): FoodTaxRe
 }
 
 export function getTipTaxTreatment(taxRegion: TaxRegion): TipTaxTreatment {
-  if (taxRegion === 'ES_CANARIAS') return 'EXEMPT_IGIC'
-  if (taxRegion === 'ES_PENINSULA') return 'EXEMPT_IVA'
-  return 'EXEMPT_IT'
+  return getFiscalStrategyByTaxRegion(taxRegion).getTipTreatment()
 }
 
 export type OrderLineForTax = {
@@ -205,16 +207,11 @@ export function computeOrderTaxForRegime(
   grossFoodAmount: number,
   tipAmount = 0,
 ): RegimeOrderTaxResult {
-  const food = scorporoTaxFromGross(grossFoodAmount, config.taxRate)
-  const tip = roundMoney(Math.max(0, Number(tipAmount) || 0))
-  return {
-    ...food,
-    tipAmount: tip,
-    tipTaxTreatment: getTipTaxTreatment(config.taxRegion),
-    taxableGross: food.total,
-    customerTotal: roundMoney(food.total + tip),
-    electronicTipTracked: config.fiscalRegion === 'ITALIA' && tip > 0,
-  }
+  return getFiscalStrategyFromConfig(config).computeRegimeOrderTax(
+    config,
+    grossFoodAmount,
+    tipAmount,
+  )
 }
 
 export function roundMoney(n: number): number {
@@ -222,16 +219,20 @@ export function roundMoney(n: number): number {
 }
 
 export function fiscalConfigPayload(config: FiscalConfig, taxId?: string | null) {
+  const strategy = getFiscalStrategyFromConfig(config)
+  const profile = strategy.getComplianceProfile(config)
   return {
     country: config.countryCode,
     countryCode: config.countryCode,
     fiscalRegion: config.fiscalRegion,
+    operativeRegime: profile.operativeRegime,
     taxRegion: config.taxRegion,
     taxRate: config.taxRate,
     taxName: config.taxName,
     defaultLocale: config.defaultLocale,
     timezone: config.timezone,
     taxId: taxId ?? null,
+    complianceProfile: profile,
   }
 }
 

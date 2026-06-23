@@ -1,4 +1,6 @@
 import type { Prisma } from '@prisma/client'
+import { buildFiscalConfig } from './taxEngine'
+import { getFiscalStrategyFromConfig } from './fiscal/strategies'
 
 /** Formato: FATT-2026-001 */
 export function formatInvoiceDocumentNumber(
@@ -26,7 +28,9 @@ export async function allocateInvoiceNumber(
   issuedAt: Date,
 ): Promise<AllocatedInvoiceNumber> {
   const settings = await tx.restaurantSettings.findUnique({ where: { restaurantId } })
-  const prefix = (settings?.invoicePrefix ?? 'FATT').trim().toUpperCase() || 'FATT'
+  const fiscal = buildFiscalConfig(settings)
+  const strategy = getFiscalStrategyFromConfig(fiscal)
+  const prefix = strategy.resolveInvoicePrefix(settings?.invoicePrefix)
   const fiscalYear = issuedAt.getFullYear()
 
   const row = await tx.fiscalSequence.upsert({
