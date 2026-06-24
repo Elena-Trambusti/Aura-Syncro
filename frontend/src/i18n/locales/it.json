@@ -1064,6 +1064,13 @@
     "typeTakeaway": "Asporto",
     "typeDelivery": "Delivery"
   },
+  "offline": {
+    "bannerOffline": "Sei offline — le comande verranno inviate appena torna la connessione",
+    "bannerSyncing": "Sincronizzazione in corso…",
+    "bannerPending": "{{count}} comanda/e in attesa di invio",
+    "retryNow": "Riprova ora",
+    "orderQueued": "Comanda salvata — invio appena torna la connessione"
+  },
   "orderModal": {
     "title": "Tavolo {{number}}",
     "seats": "{{count}} posti",
@@ -1099,6 +1106,7 @@
     "subtotal": "Subtotale",
     "tax": "IVA",
     "orderSent": "Ordine inviato in cucina!",
+    "sendError": "Impossibile inviare la comanda",
     "dishAdded": "Piatto aggiunto!",
     "soldOut": "Esaurito",
     "soldOutToast": "Piatto esaurito — ingredienti insufficienti in magazzino",
@@ -1150,8 +1158,8 @@
     "receiptTitle": "Ricevuta fiscale",
     "transactionId": "Transazione {{id}}",
     "fiscalNote": "Documento generato dal motore fiscale Aura Syncro",
-    "simulatePrint": "Simula stampa",
-    "simulateEmail": "Simula email",
+    "simulatePrint": "Stampa scontrino",
+    "simulateEmail": "Invia Ricevuta",
     "printSimulated": "Stampa simulata",
     "emailSimulated": "Email simulata",
     "discount": "Sconto",

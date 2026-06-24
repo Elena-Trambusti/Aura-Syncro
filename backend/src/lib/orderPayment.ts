@@ -11,6 +11,7 @@ export interface FinalizePaymentInput {
   orderId: string
   restaurantId: string
   tipAmount?: number
+  tipWaiterId?: string
   /** Metodo di incasso effettivo (registrato nel Libro Fiscale) */
   paymentMethod: 'CASH' | 'CARD' | 'STRIPE' | 'VOUCHER' | 'DIGITAL'
 }
@@ -95,6 +96,7 @@ export async function finalizeOrderPayment(
         paidAt,
         revenueAmount: split.revenueAmount,
         tipAmount: split.tipAmount,
+        tipWaiterId: input.tipWaiterId,
         total: split.total,
         taxRateApplied: order.taxRateApplied ?? fiscal.taxRate,
         fiscalRegionSnapshot: fiscal.fiscalRegion,
@@ -117,7 +119,11 @@ export async function finalizeOrderPayment(
 
   const fiscalRow = buildFiscalTransactionRow(updatedOrder, paidAt)
 
-  await applyPostPaymentEffects(order.id, input.restaurantId)
+  // Eseguiamo gli effetti post-pagamento in background (CRM, punti fedeltà, webhook marketing)
+  // per non tenere appesa la connessione HTTP del POS.
+  applyPostPaymentEffects(order.id, input.restaurantId).catch(err => {
+    console.error(`Post payment effects failed for ${order.id}:`, err)
+  })
 
   return {
     revenueAmount: split.revenueAmount,

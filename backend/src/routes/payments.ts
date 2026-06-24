@@ -38,6 +38,7 @@ const splitSchema = z.object({
 const finalizeSchema = z.object({
   orderId: z.string(),
   tipAmount: z.number().min(0).optional().default(0),
+  tipWaiterId: z.string().optional(),
   /** CARD | CASH per incasso; SPLIT usa splitSettlement */
   paymentMethod: z.enum(['CARD', 'CASH', 'SPLIT']).default('CARD'),
   /** Quando paymentMethod=SPLIT, metodo di registro fiscale effettivo */
@@ -115,7 +116,7 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
     return
   }
 
-  const { orderId, tipAmount, paymentMethod, splitSettlement, split, simulateEmail, stripePaymentIntentId, discountCode, applyLoyaltyDiscount } = parsed.data
+  const { orderId, tipAmount, tipWaiterId, paymentMethod, splitSettlement, split, simulateEmail, stripePaymentIntentId, discountCode, applyLoyaltyDiscount } = parsed.data
 
   const order = await loadOrderForCheckout(orderId, req.restaurantId!)
   if (!order) {
@@ -174,6 +175,7 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
         orderId,
         restaurantId: req.restaurantId!,
         tipAmount,
+        tipWaiterId,
         paymentMethod: settlementMethod,
       },
       splitBreakdown,
@@ -230,6 +232,7 @@ paymentsRouter.post('/pos-checkout', authenticate, requireDashboardAccess, requi
   const schema = z.object({
     orderId: z.string(),
     tipAmount: z.number().min(0).optional().default(0),
+    tipWaiterId: z.string().optional(),
     paymentMethod: z.enum(['CARD', 'CASH']).default('CARD'),
   })
 
@@ -239,14 +242,15 @@ paymentsRouter.post('/pos-checkout', authenticate, requireDashboardAccess, requi
     return
   }
 
-  const { orderId, tipAmount, paymentMethod } = result.data
+  const { orderId, tipAmount, tipWaiterId, paymentMethod } = result.data
 
   try {
-    const { result, updatedOrder, posResult } = await completeOrderPayment({
+    const { result: payResult, updatedOrder, posResult } = await completeOrderPayment({
       finalize: {
         orderId,
         restaurantId: req.restaurantId!,
         tipAmount,
+        tipWaiterId,
         paymentMethod,
       },
     })
@@ -256,14 +260,14 @@ paymentsRouter.post('/pos-checkout', authenticate, requireDashboardAccess, requi
       message: 'Pagamento POS completato',
       order: updatedOrder,
       pos: {
-        transactionId: result.transactionId,
+        transactionId: payResult.transactionId,
         terminalId: posResult?.terminalId ?? 'POS',
         provider: posResult?.provider ?? 'simulated',
-        amountCharged: result.total,
-        revenueAmount: result.revenueAmount,
-        tipAmount: result.tipAmount,
+        amountCharged: payResult.total,
+        revenueAmount: payResult.revenueAmount,
+        tipAmount: payResult.tipAmount,
       },
-      fiscal: { row: result.fiscalRow },
+      fiscal: { row: payResult.fiscalRow },
     })
   } catch (err) {
     const code = err instanceof Error ? err.message : 'UNKNOWN'

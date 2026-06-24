@@ -33,7 +33,7 @@ const orderInclude = {
     },
   },
   items: {
-    include: { menuItem: { include: { category: true } } },
+    include: { menuItem: { include: { category: true } }, modifiers: true },
     orderBy: { createdAt: 'asc' as const },
   },
 }
@@ -153,6 +153,8 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
     items: z.array(z.object({
       menuItemId: z.string(),
       quantity: z.number().int().positive(),
+      course: z.number().int().positive().optional().default(1),
+      modifiers: z.array(z.string()).optional(),
       notes: z.string().optional(),
     })).min(1),
   })
@@ -180,13 +182,27 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
       where: { id: { in: items.map(i => i.menuItemId) }, restaurantId: tenantId(req) },
       include: {
         inventoryLinks: { include: { inventoryItem: { select: { quantity: true } } } },
+        modifierGroups: { include: { options: true } },
       },
     })
     itemsWithPrice = items.map(item => {
       const menuItem = menuItems.find(m => m.id === item.menuItemId)
       if (!menuItem) throw Object.assign(new Error('not found'), { code: 'MENU_ITEM_NOT_FOUND' })
       void assertMenuItemOrderable(menuItem, item.quantity)
-      return { ...item, unitPrice: menuItem.price }
+      
+      let unitPrice = menuItem.price
+      const selectedOptions: Array<{ optionId: string, name: string, price: number }> = []
+      
+      if (item.modifiers?.length) {
+         const allOptions = menuItem.modifierGroups.flatMap(g => g.options)
+         for (const optId of item.modifiers) {
+           const opt = allOptions.find(o => o.id === optId)
+           if (!opt) throw Object.assign(new Error('invalid modifier'), { code: 'INVALID_MODIFIER' })
+           unitPrice += opt.price
+           selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
+         }
+      }
+      return { ...item, unitPrice, selectedOptions }
     })
   } catch (e) {
     const code = (e as { code?: string }).code
@@ -225,8 +241,16 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
           create: itemsWithPrice.map(item => ({
             menuItemId: item.menuItemId,
             quantity: item.quantity,
+            course: item.course,
             unitPrice: item.unitPrice,
             notes: item.notes,
+            modifiers: {
+              create: item.selectedOptions.map(opt => ({
+                 optionId: opt.optionId,
+                 name: opt.name,
+                 price: opt.price
+              }))
+            }
           })),
         },
       },
@@ -449,6 +473,8 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
   const schema = z.object({
     menuItemId: z.string(),
     quantity: z.number().int().positive(),
+    course: z.number().int().positive().optional().default(1),
+    modifiers: z.array(z.string()).optional(),
     notes: z.string().optional(),
   })
   const result = schema.safeParse(req.body)
@@ -473,6 +499,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     where: { id: result.data.menuItemId, restaurantId: tenantId(req) },
     include: {
       inventoryLinks: { include: { inventoryItem: { select: { quantity: true } } } },
+      modifierGroups: { include: { options: true } },
     },
   })
   if (!menuItem) {
@@ -494,14 +521,38 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     throw e
   }
 
+  let unitPrice = menuItem.price
+  const selectedOptions: Array<{ optionId: string, name: string, price: number }> = []
+
+  if (result.data.modifiers?.length) {
+     const allOptions = menuItem.modifierGroups.flatMap(g => g.options)
+     for (const optId of result.data.modifiers) {
+       const opt = allOptions.find(o => o.id === optId)
+       if (!opt) {
+         res.status(400).json({ error: 'Modificatore non valido' })
+         return
+       }
+       unitPrice += opt.price
+       selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
+     }
+  }
+
   const createdItem = await prisma.$transaction(async tx => {
     return tx.orderItem.create({
       data: {
         orderId: req.params.id,
         menuItemId: result.data.menuItemId,
         quantity: result.data.quantity,
-        unitPrice: menuItem.price,
+        course: result.data.course,
+        unitPrice: unitPrice,
         notes: result.data.notes,
+        modifiers: {
+          create: selectedOptions.map(opt => ({
+             optionId: opt.optionId,
+             name: opt.name,
+             price: opt.price
+          }))
+        }
       },
       include: { menuItem: true },
     })

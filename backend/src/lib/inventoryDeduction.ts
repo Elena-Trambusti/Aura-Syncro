@@ -31,17 +31,20 @@ export async function deductInventoryForOrderItem(
     deductions.set(link.inventoryItemId, (deductions.get(link.inventoryItemId) ?? 0) + amount)
   }
 
-  for (const [inventoryItemId, amount] of deductions) {
-    await tx.inventoryItem.updateMany({
+  const updates = Array.from(deductions.entries()).map(([inventoryItemId, amount]) =>
+    tx.inventoryItem.updateMany({
       where: { id: inventoryItemId, restaurantId },
       data: { quantity: { decrement: amount } },
-    })
-  }
+    }),
+  )
 
-  await tx.orderItem.update({
-    where: { id: orderItemId },
-    data: { inventoryDeducted: true },
-  })
+  await Promise.all([
+    ...updates,
+    tx.orderItem.update({
+      where: { id: orderItemId },
+      data: { inventoryDeducted: true },
+    }),
+  ])
 }
 
 /** Scala magazzino per tutte le righe non ancora dedotte di un ordine */

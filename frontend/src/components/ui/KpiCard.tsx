@@ -58,7 +58,7 @@ function KpiSparkline({
     : 'M0 48 C 30 44, 50 36, 80 38 S 140 28, 180 22 S 220 18, 240 12'
 
   return (
-    <svg className="aura-kpi-spark" viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden>
+    <svg className="absolute inset-x-0 bottom-0 w-full h-full max-h-[55%] pointer-events-none opacity-20" viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden style={{ maskImage: 'linear-gradient(to top, black 30%, transparent)' }}>
       <path
         d={`${path} V 64 H 0 Z`}
         fill={`url(#kpi-area-${accent})`}
@@ -97,7 +97,7 @@ export default function KpiCard({
 }: KpiCardProps) {
   return (
     <div className={cn('aura-kpi', `aura-kpi--${size}`, size === 'hero' && 'aura-kpi--command', className)}>
-      <div className="relative z-[1] flex items-start justify-between gap-3">
+      <div className="relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="aura-kpi-label">{title}</p>
           <div className={cn('mt-2', size === 'hero' && 'mt-3')}>
@@ -126,9 +126,11 @@ export default function KpiCard({
           <Icon className={cn('h-5 w-5', size === 'hero' && 'h-6 w-6')} aria-hidden />
         </div>
       </div>
+      
       {subtitle && (
-        <p className="relative z-[1] mt-3 text-[11px] leading-relaxed text-fumo/80">{subtitle}</p>
+        <p className="relative z-10 mt-3 text-[11px] leading-relaxed text-fumo/80">{subtitle}</p>
       )}
+
       <KpiSparkline accent={accent} data={sparklineData} />
     </div>
   )

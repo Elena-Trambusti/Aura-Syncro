@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -44,6 +44,7 @@ export default function NotificationBell() {
   const [panelPos, setPanelPos] = useState<PanelPosition | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const seenOrdersRef = useRef(new Set<string>())
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -77,8 +78,13 @@ export default function NotificationBell() {
     const socket = getSocket()
 
     const handleNotification = (data: { type: Notification['type']; message: string; orderId?: string }) => {
+      if (data.orderId) {
+        if (seenOrdersRef.current.has(data.orderId)) return
+        seenOrdersRef.current.add(data.orderId)
+      }
+      
       const notif: Notification = {
-        id: Date.now().toString(),
+        id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
         type: data.type,
         message: data.message,
         timestamp: new Date(),

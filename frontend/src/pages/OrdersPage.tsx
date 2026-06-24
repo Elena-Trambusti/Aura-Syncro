@@ -23,6 +23,7 @@ interface OrderItem {
   quantity: number
   unitPrice: number
   status: string
+  course?: number
   notes?: string
 }
 
@@ -170,14 +171,19 @@ export default function OrdersPage() {
                 <span className="text-lg font-bold text-pietra">{formatCurrency(order.total)}</span>
               </div>
 
-              <div className="space-y-1 mb-4">
-                {order.items.map(item => (
-                  <div key={item.id} className="flex items-center gap-2 text-sm">
-                    <span className="w-5 h-5 bg-navy-surface rounded-full flex items-center justify-center text-xs font-bold text-fumo">
-                      {item.quantity}
-                    </span>
-                    <span className="text-fumo flex-1">{item.menuItem.name}</span>
-                    <span className="text-fumo">{formatCurrency(item.unitPrice * item.quantity)}</span>
+              <div className="space-y-2 mb-4">
+                {Array.from(new Set(order.items.map(i => i.course || 1))).sort((a,b) => a-b).map(course => (
+                  <div key={course} className="space-y-1 bg-white/[0.02] p-2 rounded-lg">
+                    <div className="text-[10px] uppercase font-bold text-aura-gold mb-1">{t('orders.course', { defaultValue: 'Portata' })} {course}</div>
+                    {order.items.filter(i => (i.course || 1) === course).map(item => (
+                      <div key={item.id} className="flex items-center gap-2 text-sm">
+                        <span className="w-5 h-5 bg-navy-surface rounded-full flex items-center justify-center text-xs font-bold text-fumo">
+                          {item.quantity}
+                        </span>
+                        <span className="text-fumo flex-1">{item.menuItem.name}</span>
+                        <span className="text-fumo">{formatCurrency(item.unitPrice * item.quantity)}</span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>

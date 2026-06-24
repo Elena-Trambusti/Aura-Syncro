@@ -7,7 +7,7 @@ export default function LandingHero() {
   const { t } = useTranslation()
 
   return (
-    <section className="relative overflow-hidden bg-slate-50 px-4 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
+    <section className="relative overflow-hidden bg-navy px-4 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-amber-200/40 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-orange-100/50 blur-3xl" />

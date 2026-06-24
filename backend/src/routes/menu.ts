@@ -57,7 +57,18 @@ async function removeMenuItem(tx: Prisma.TransactionClient, itemId: string): Pro
 menuRouter.get('/categories', requirePermission('menu.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const categories = await prisma.menuCategory.findMany({
     where: tenantWhere(req),
-    include: { items: { where: activeMenuItemWhere, orderBy: { sortOrder: 'asc' } } },
+    include: { 
+      items: { 
+        where: activeMenuItemWhere, 
+        orderBy: { sortOrder: 'asc' },
+        include: {
+          modifierGroups: {
+            include: { options: { orderBy: { sortOrder: 'asc' } } },
+            orderBy: { sortOrder: 'asc' }
+          }
+        }
+      } 
+    },
     orderBy: { sortOrder: 'asc' },
   })
   const enriched = await enrichCategoriesWithStock(categories, tenantId(req))
@@ -134,7 +145,13 @@ menuRouter.delete('/categories/:id', requirePermission('menu.manage'), async (re
 menuRouter.get('/items', requirePermission('menu.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const items = await prisma.menuItem.findMany({
     where: { ...tenantWhere(req), ...activeMenuItemWhere },
-    include: { category: true },
+    include: { 
+      category: true,
+      modifierGroups: {
+        include: { options: { orderBy: { sortOrder: 'asc' } } },
+        orderBy: { sortOrder: 'asc' }
+      }
+    },
     orderBy: [{ category: { sortOrder: 'asc' } }, { sortOrder: 'asc' }],
   })
   res.json(items)
@@ -153,7 +170,10 @@ menuRouter.post('/items', requirePermission('menu.manage'), async (req: AuthRequ
   }
   const item = await prisma.menuItem.create({
     data: { ...result.data, restaurantId: tenantId(req) },
-    include: { category: true },
+    include: { 
+      category: true,
+      modifierGroups: { include: { options: true } }
+    },
   })
   res.status(201).json(item)
 })
@@ -181,7 +201,13 @@ menuRouter.put('/items/:id', requirePermission('menu.manage'), async (req: AuthR
   }
   const item = await prisma.menuItem.findFirst({
     where: scopedWhere(req, req.params.id),
-    include: { category: true },
+    include: { 
+      category: true,
+      modifierGroups: {
+        include: { options: { orderBy: { sortOrder: 'asc' } } },
+        orderBy: { sortOrder: 'asc' }
+      }
+    },
   })
   res.json(item)
 })
@@ -213,6 +239,67 @@ menuRouter.delete('/items/:id', requirePermission('menu.manage'), async (req: Au
     return
   }
   res.status(204).send()
+})
+
+// Modificatori (Varianti)
+menuRouter.put('/items/:id/modifiers', requirePermission('menu.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.array(z.object({
+    name: z.string().min(1),
+    isRequired: z.boolean().default(false),
+    multiSelect: z.boolean().default(false),
+    minOptions: z.number().int().default(0),
+    maxOptions: z.number().int().nullable().optional(),
+    sortOrder: z.number().int().default(0),
+    options: z.array(z.object({
+      name: z.string().min(1),
+      price: z.number().min(0).default(0),
+      sortOrder: z.number().int().default(0),
+    })),
+  }))
+
+  const parsed = schema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Dati non validi', details: parsed.error.flatten() })
+    return
+  }
+
+  const item = await prisma.menuItem.findFirst({ where: scopedWhere(req, req.params.id) })
+  if (!item) {
+    tenantNotFound(res, 'Piatto non trovato')
+    return
+  }
+
+  await prisma.$transaction(async tx => {
+    await tx.menuModifierGroup.deleteMany({ where: { menuItemId: item.id } })
+    
+    let gOrder = 0
+    for (const group of parsed.data) {
+      await tx.menuModifierGroup.create({
+        data: {
+          menuItemId: item.id,
+          name: group.name,
+          isRequired: group.isRequired,
+          multiSelect: group.multiSelect,
+          minOptions: group.minOptions,
+          maxOptions: group.maxOptions,
+          sortOrder: group.sortOrder ?? gOrder++,
+          options: {
+            create: group.options.map((opt, i) => ({
+              name: opt.name,
+              price: opt.price,
+              sortOrder: opt.sortOrder ?? i
+            }))
+          }
+        }
+      })
+    }
+  })
+
+  const updatedItem = await prisma.menuItem.findFirst({
+    where: { id: item.id },
+    include: { modifierGroups: { include: { options: { orderBy: { sortOrder: 'asc' } } }, orderBy: { sortOrder: 'asc' } } }
+  })
+  res.json(updatedItem?.modifierGroups)
 })
 
 // Ricetta / BOM — collegamento piatto ↔ ingredienti magazzino

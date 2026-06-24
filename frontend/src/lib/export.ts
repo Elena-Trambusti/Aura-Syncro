@@ -24,10 +24,13 @@ export function downloadCSV(filename: string, headers: string[], rows: (string |
   URL.revokeObjectURL(url)
 }
 
+import { EscPosPrinter } from './escpos'
+
 /**
- * Stampa scontrino in una finestra di stampa
+ * Stampa scontrino: tenta su Web Serial API (USB ESC/POS) 
+ * e fa fallback su finestra di stampa del browser se fallisce o non supportato.
  */
-export function printReceipt(order: {
+export async function printReceipt(order: {
   id: string
   table?: { number: number }
   type: string
@@ -39,7 +42,7 @@ export function printReceipt(order: {
   revenueAmount?: number
   tipAmount?: number
   paymentMethod?: string
-}, restaurantName: string, options?: { taxLabel?: string; locale?: string; tipLabel?: string }): void {
+}, restaurantName: string, options?: { taxLabel?: string; locale?: string; tipLabel?: string }): Promise<void> {
   const locale = options?.locale ?? 'it-IT'
   const taxLabel = options?.taxLabel ?? 'IVA'
   const tipLabel = options?.tipLabel ?? 'Mancia'
@@ -99,6 +102,46 @@ export function printReceipt(order: {
 </body>
 </html>`
 
+  // Tentativo di stampa diretta ESC/POS (Hardware USB)
+  try {
+    const escpos = new EscPosPrinter()
+    escpos.init().align('center')
+    escpos.bold(true).text(restaurantName).newline(2).bold(false)
+    escpos.text(`Ordine #${order.id.slice(-6).toUpperCase()}`).newline()
+    escpos.text(formatDt(order.createdAt)).newline()
+    escpos.text(order.table ? `Tavolo ${order.table.number}` : order.type === 'TAKEAWAY' ? 'Asporto' : 'Delivery').newline()
+    escpos.separator()
+    
+    escpos.align('left')
+    order.items.forEach(item => {
+      escpos.row(`${item.quantity}x ${item.menuItem.name.substring(0, 20)}`, formatEur(item.unitPrice * item.quantity))
+    })
+    escpos.separator()
+    
+    escpos.row('Subtotale', formatEur(order.subtotal))
+    escpos.row(taxLabel, formatEur(order.tax))
+    escpos.row('Totale ristorante', formatEur(foodTotal))
+    if (tip > 0) escpos.row(tipLabel, formatEur(tip))
+    
+    escpos.separator()
+    escpos.bold(true).size(2, 2)
+    escpos.row('TOTALE', formatEur(order.total))
+    escpos.size(1, 1).bold(false)
+    if (order.paymentMethod) escpos.row('Pagamento', PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod)
+    
+    escpos.separator()
+    escpos.align('center').text('Grazie per la visita!').newline(2)
+    escpos.text('Powered by Aura Syncro').newline(3)
+    
+    escpos.cut().drawer()
+    
+    const success = await escpos.printAndCut()
+    if (success) return // Stampa diretta completata con successo!
+  } catch (err) {
+    console.warn('Stampa ESC/POS non riuscita, fallback al browser:', err)
+  }
+
+  // Fallback: Stampa standard del browser (Pop-up PDF/A4)
   const win = window.open('', '_blank', 'width=400,height=600')
   if (win) {
     win.document.write(html)

@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import CommandPalette from './CommandPalette'
 import PwaNotificationBanner, { PwaInstallHint } from './PwaNotificationBanner'
-import { useAuth } from '../../contexts/AuthContext'
+import OfflineSyncBanner from '../OfflineSyncBanner'
+import { useAuth, useTenantQueryKey } from '../../contexts/AuthContext'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
+import { tq } from '../../lib/queryKeys'
 
 interface LayoutContextType {
   sidebarOpen: boolean
@@ -27,7 +30,16 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
   const { user } = useAuth()
+  const queryClient = useQueryClient()
+  const tk = useTenantQueryKey()
   usePushNotifications(!!user)
+
+  const handleOfflineSynced = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'orders') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
+  }, [queryClient, tk])
 
   const openSidebar = useCallback(() => setSidebarOpen(true), [])
   const closeSidebar = useCallback(() => setSidebarOpen(false), [])
@@ -65,6 +77,7 @@ export default function DashboardLayout() {
           <main className="pwa-main-scroll relative z-0 flex-1 overflow-y-auto overflow-x-hidden p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6 lg:p-8">
             <PwaInstallHint />
             <PwaNotificationBanner enabled={!!user} />
+            <OfflineSyncBanner enabled={!!user} onSynced={handleOfflineSynced} className="mb-3" />
             <Outlet />
           </main>
         </div>

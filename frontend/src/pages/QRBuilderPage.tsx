@@ -127,7 +127,7 @@ export default function QRBuilderPage() {
 
         {mode === 'menu' && (
           <div className="mb-6 w-full">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-fumo">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-fumo">
               {t('qrBuilder.tableNumberOptional')}
             </label>
             <input
@@ -136,14 +136,15 @@ export default function QRBuilderPage() {
               value={tableNumber}
               onChange={e => setTableNumber(e.target.value)}
               placeholder={t('qrBuilder.tableNumberPlaceholder')}
-              className="w-full rounded-xl border border-white/[0.08] px-4 py-2.5 text-sm focus:border-aura-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+              className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold shadow-inner"
             />
-            <p className="mt-1.5 text-xs text-fumo">{t('qrBuilder.tableNumberHint')}</p>
+            <p className="mt-2 text-xs text-fumo/70">{t('qrBuilder.tableNumberHint')}</p>
           </div>
         )}
 
         <div className="flex flex-col items-center">
-          <div className="rounded-lg premium-card p-4">
+          <div className="rounded-2xl border border-aura-gold/30 bg-navy-elevated/80 p-6 shadow-[0_0_40px_rgba(212,175,55,0.15)] backdrop-blur-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_50px_rgba(212,175,55,0.25)] relative group cursor-crosshair">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-aura-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             <QRCodeCanvas
               value={activeUrl}
               size={PREVIEW_SIZE}
@@ -151,14 +152,15 @@ export default function QRBuilderPage() {
               includeMargin
               bgColor={QR_BG}
               fgColor={QR_FG}
+              className="rounded-lg shadow-inner"
             />
           </div>
 
-          <div className="mt-8 w-full text-center">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-fumo">
+          <div className="mt-10 w-full text-center">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold">
               {t('qrBuilder.scanTarget')}
             </p>
-            <p className="break-all font-mono text-sm font-medium leading-relaxed text-pietra">
+            <p className="break-all font-mono text-sm font-medium leading-relaxed text-pietra bg-navy-mid rounded-xl p-3 border border-white/[0.04]">
               {activeUrl}
             </p>
           </div>
@@ -166,7 +168,7 @@ export default function QRBuilderPage() {
           <button
             type="button"
             onClick={downloadPng}
-            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-aura-gold to-amber-400 px-6 py-4 text-sm font-bold uppercase tracking-wider text-navy shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <Download className="h-4 w-4" aria-hidden />
             {t('qrBuilder.downloadPng')}

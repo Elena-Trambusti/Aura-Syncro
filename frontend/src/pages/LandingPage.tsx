@@ -13,7 +13,7 @@ export default function LandingPage() {
   usePageMeta(t('landing.meta.title'), t('landing.meta.description'))
 
   return (
-    <div lang={i18n.language} className="min-h-[100dvh] flex flex-col bg-slate-50">
+    <div lang={i18n.language} className="min-h-[100dvh] flex flex-col bg-navy text-pietra">
       <LandingNav />
       <main className="flex-1">
         <LandingHero />

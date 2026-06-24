@@ -27,7 +27,7 @@ import PageSkeleton from '../components/ui/PageSkeleton'
 interface DashboardData {
   today: { orders: number; revenue: number; reservations: number; activeOrders: number }
   month: { revenue: number; revenueGrowth: number }
-  totals: { customers: number; lowStockAlerts: number }
+  totals: { customers: number; lowStockAlerts: number; avgTurnoverMinutes: number }
 }
 
 function ChartError({ message }: { message: string }) {
@@ -281,7 +281,7 @@ export default function DashboardPage() {
         <OperationalPulse items={opsItems} />
       </section>
 
-      <section className="aura-secondary-metrics" aria-label={t('dashboard.secondaryMetrics', { defaultValue: 'Metriche secondarie' })}>
+      <section className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" aria-label={t('dashboard.secondaryMetrics', { defaultValue: 'Metriche secondarie' })}>
         <KpiCard
           title={t('dashboard.totalCustomers')}
           value={String(dashboard?.totals.customers || 0)}
@@ -297,6 +297,15 @@ export default function DashboardPage() {
           icon={AlertTriangle}
           accent="amber"
           size="compact"
+        />
+        <KpiCard
+          title={t('dashboard.avgTurnover', { defaultValue: 'Rotazione Media' })}
+          value={`${dashboard?.totals?.avgTurnoverMinutes || 0} min`}
+          subtitle={t('dashboard.avgTurnoverSub', { defaultValue: 'Tempo occupazione tavolo' })}
+          icon={Clock}
+          accent="blue"
+          size="compact"
+          className="col-span-2 lg:col-span-1"
         />
       </section>
 

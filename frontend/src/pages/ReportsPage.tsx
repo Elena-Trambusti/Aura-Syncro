@@ -1,10 +1,10 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
-import { TrendingUp, TrendingDown, FileText, Download } from 'lucide-react'
+import { TrendingUp, TrendingDown, FileText, Download, Save } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, PieChart as RechartsPie, Pie, Legend } from 'recharts'
 import { downloadCSV } from '../lib/export'
 import { useFiscalRegime, useTenantQueryKey } from '../contexts/AuthContext'
@@ -16,6 +16,8 @@ import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import FilterPills from '../components/ui/FilterPills'
 import KpiStatCard from '../components/ui/KpiStatCard'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useMutation } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 
 interface PLSummary {
   revenue: number; subtotal: number; tax: number; totalDiscount: number; orders: number
@@ -71,6 +73,12 @@ export default function ReportsPage() {
     )
   }
 
+  const { mutate: generateZeta, isPending: isGeneratingZeta } = useMutation({
+    mutationFn: () => api.post('/reports/zeta').then(r => r.data),
+    onSuccess: () => toast.success(t('reports.zetaSuccess', { defaultValue: 'Chiusura di cassa generata con successo!' })),
+    onError: (err: any) => toast.error(err.response?.data?.error || t('reports.zetaError', { defaultValue: 'Errore durante la chiusura fiscale' }))
+  })
+
   const exportFoodCost = () => {
     downloadCSV('food-cost.csv',
       [t('reports.csvDish'), t('reports.csvCategory'), t('reports.csvPrice'), t('reports.csvIngredientCost'), t('reports.csvMargin'), t('reports.csvMarginPct'), t('reports.csvSold30d'), t('reports.csvTurnover')],
@@ -92,6 +100,18 @@ export default function ReportsPage() {
         )}
         actions={(
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm('Vuoi generare la chiusura di cassa di fine giornata (Zeta)? Questa operazione non è annullabile.')) {
+                  generateZeta()
+                }
+              }}
+              disabled={isGeneratingZeta}
+              className="flex items-center gap-1.5 rounded-xl border border-aura-gold/30 bg-aura-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 shadow-sm transition-colors hover:border-amber-400 hover:bg-amber-100 disabled:opacity-50"
+            >
+              <Save className="h-4 w-4 shrink-0 text-aura-gold" aria-hidden />
+              {isGeneratingZeta ? '...' : 'Chiusura Cassa (Zeta)'}
+            </button>
             <Link
               to="/report/fiscal"
               className="flex items-center gap-1.5 rounded-xl border border-aura-gold/30 bg-aura-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 shadow-sm transition-colors hover:border-amber-400 hover:bg-amber-100"

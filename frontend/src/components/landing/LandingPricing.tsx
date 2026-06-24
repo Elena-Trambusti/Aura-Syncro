@@ -9,7 +9,7 @@ export default function LandingPricing() {
   const { t } = useTranslation()
 
   return (
-    <section id="pricing" className="bg-slate-50 px-4 py-24 sm:px-6 sm:py-32">
+    <section id="pricing" className="bg-navy px-4 py-24 sm:px-6 sm:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">{t('landing.pricing.title')}</h2>

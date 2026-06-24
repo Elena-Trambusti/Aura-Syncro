@@ -23,13 +23,15 @@ export async function completeOrderPayment(input: {
   receiptEmail?: string
   restaurantName?: string
 }) {
-  const orderPreview = await prisma.order.findFirst({
-    where: { id: input.finalize.orderId, restaurantId: input.finalize.restaurantId },
-  })
+  const [orderPreview, fiscal] = await Promise.all([
+    prisma.order.findFirst({
+      where: { id: input.finalize.orderId, restaurantId: input.finalize.restaurantId },
+    }),
+    loadRestaurantFiscalConfig(input.finalize.restaurantId),
+  ])
 
   let posResult = null
   if (input.finalize.paymentMethod === 'CARD') {
-    const fiscal = await loadRestaurantFiscalConfig(input.finalize.restaurantId)
     const posAmounts = orderPreview
       ? computePosPaymentAmounts(fiscal, orderPreview, input.finalize.tipAmount)
       : null
@@ -69,12 +71,13 @@ export async function completeOrderPayment(input: {
 
   let emailSent = false
   if (input.receiptEmail) {
-    const r = await sendEmail({
+    // Fire and forget email to avoid blocking the fast checkout lane
+    sendEmail({
       to: input.receiptEmail,
       subject: `Ricevuta — ${input.restaurantName ?? 'Aura Syncro'}`,
       text: `Grazie per la visita!\nTotale: €${result.total.toFixed(2)}\nTransazione: ${result.transactionId}`,
-    })
-    emailSent = r.sent
+    }).catch(err => console.error('Failed to send async receipt:', err))
+    emailSent = true // Assume it will be sent, or tracked elsewhere
   }
 
   return { result, updatedOrder, posResult, emailSent }

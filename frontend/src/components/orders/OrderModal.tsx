@@ -1,9 +1,11 @@
 
 import { useEffect, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../lib/api'
+import { submitAddOrderItems, submitCreateOrder } from '../../lib/offlineSync'
 import { formatCurrency, ORDER_STATUS_LABELS, cn } from '../../lib/utils'
 import { X, Plus, Minus, ShoppingCart, ArrowLeft, Receipt, ArrowRightLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -13,9 +15,11 @@ import { tq } from '../../lib/queryKeys'
 import ModalPortal from '../ModalPortal'
 import CustomerPicker, { type CustomerOption } from '../checkout/CustomerPicker'
 
-interface MenuItem { id: string; name: string; price: number; available: boolean; soldOut?: boolean; orderable?: boolean; category: { name: string } }
+interface MenuModifierOption { id: string; name: string; price: number }
+interface MenuModifierGroup { id: string; name: string; isRequired: boolean; multiSelect: boolean; minOptions: number; maxOptions: number | null; options: MenuModifierOption[] }
+interface MenuItem { id: string; name: string; price: number; available: boolean; soldOut?: boolean; orderable?: boolean; category: { name: string }; modifierGroups?: MenuModifierGroup[] }
 interface Category { id: string; name: string; items: MenuItem[] }
-interface CartItem { menuItemId: string; name: string; price: number; quantity: number; notes?: string }
+interface CartItem { menuItemId: string; name: string; basePrice: number; price: number; quantity: number; notes?: string; course: number; modifiers?: string[]; modifierNames?: string[] }
 
 interface Table {
   id: string; number: number; seats: number; status: string
@@ -64,7 +68,11 @@ export default function OrderModal({
   const [cart, setCart] = useState<CartItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [tab, setTab] = useState<'menu' | 'order'>('menu')
+  const [selectedCourse, setSelectedCourse] = useState<number>(1)
+  const [modifyingItem, setModifyingItem] = useState<MenuItem | null>(null)
+  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, string[]>>({})
   const [cartPulse, setCartPulse] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { data: tables = [] } = useQuery<Table[]>({
     queryKey: tq(tk, 'tables'),
@@ -80,69 +88,122 @@ export default function OrderModal({
     queryFn: () => api.get('/menu/categories').then(r => r.data),
   })
 
-  const createOrder = useMutation({
-    mutationFn: (data: { tableId: string; items: CartItem[] }) =>
-      api.post('/orders', {
-        tableId: data.tableId,
-        type: 'DINE_IN',
-        items: data.items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, notes: i.notes })),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'orders') })
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
-      setCart([])
-      toast.success(t('orderModal.orderSent'))
-      setTab('order')
-    },
-    onError: (err: { response?: { data?: { code?: string } } }) => {
-      if (err.response?.data?.code === 'MENU_ITEM_SOLD_OUT') {
-        toast.error(t('orderModal.soldOutToast'))
-        queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
-      }
-    },
-  })
+  const invalidateOrderQueries = () => {
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'orders') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
+    queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
+  }
 
-  const addToOrder = useMutation({
-    mutationFn: ({ orderId, menuItemId, quantity }: { orderId: string; menuItemId: string; quantity: number }) =>
-      api.post(`/orders/${orderId}/items`, { menuItemId, quantity }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
-      queryClient.invalidateQueries({ queryKey: tq(tk, 'kitchen', 'orders') })
+  const handleOrderSubmitError = (err: unknown) => {
+    const ax = err as AxiosError<{ code?: string }>
+    if (ax.response?.data?.code === 'MENU_ITEM_SOLD_OUT') {
+      toast.error(t('orderModal.soldOutToast'))
       queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
-      setCart([])
-      toast.success(t('orderModal.dishAdded'))
-      setTab('order')
-    },
-    onError: (err: { response?: { data?: { code?: string } } }) => {
-      if (err.response?.data?.code === 'MENU_ITEM_SOLD_OUT') {
-        toast.error(t('orderModal.soldOutToast'))
-        queryClient.invalidateQueries({ queryKey: tq(tk, 'menu', 'categories') })
-      }
-    },
-  })
+      return
+    }
+    toast.error(t('orderModal.sendError', { defaultValue: 'Impossibile inviare la comanda' }))
+  }
 
-  const addToCart = (item: MenuItem) => {
+  const handleSendOrder = async () => {
+    if (cart.length === 0 || !table || isSubmitting) return
+
+    const lineItems = cart.map(i => ({
+      menuItemId: i.menuItemId,
+      quantity: i.quantity,
+      course: i.course,
+      notes: i.notes,
+    }))
+    const tableLabel = `T${table.number}`
+
+    setIsSubmitting(true)
+    const sendPromise = (async () => {
+      let result: 'synced' | 'queued'
+      if (activeOrder) {
+        result = await submitAddOrderItems(
+          { orderId: activeOrder.id, items: lineItems },
+          { label: tableLabel },
+        )
+      } else {
+        result = await submitCreateOrder(
+          { tableId: table.id, type: 'DINE_IN', items: lineItems },
+          { label: tableLabel },
+        )
+      }
+      return result
+    })()
+
+    // Optimistic UI update: reset cart immediately
+    setCart([])
+    setTab('order')
+    setIsSubmitting(false)
+
+    sendPromise.then((result) => {
+      invalidateOrderQueries()
+      if (result === 'queued') {
+        toast.success(t('offline.orderQueued', { defaultValue: 'Comanda salvata — invio appena torna la connessione' }))
+      } else if (activeOrder) {
+        toast.success(t('orderModal.dishAdded'))
+      } else {
+        toast.success(t('orderModal.orderSent'))
+      }
+    }).catch(err => {
+      handleOrderSubmitError(err)
+      // Could restore cart here ideally
+    })
+  }
+
+  const getModifiersPrice = (item: MenuItem, modifiers: string[]) => {
+    let sum = 0
+    item.modifierGroups?.forEach(g => {
+      g.options.forEach(o => {
+        if (modifiers.includes(o.id)) sum += o.price
+      })
+    })
+    return sum
+  }
+
+  const handleItemClick = (item: MenuItem) => {
     if (item.soldOut || item.orderable === false) {
       toast.error(t('orderModal.soldOutToast'))
       return
     }
+    if (item.modifierGroups && item.modifierGroups.length > 0) {
+      setModifyingItem(item)
+      setSelectedModifiers({})
+      return
+    }
+    addToCart(item, [], [])
+  }
+
+  const addToCart = (item: MenuItem, modifiers: string[], modifierNames: string[]) => {
     setCart(prev => {
-      const existing = prev.find(c => c.menuItemId === item.id)
+      const modifierKey = modifiers.slice().sort().join(',')
+      const existing = prev.find(c => c.menuItemId === item.id && c.course === selectedCourse && (c.modifiers || []).slice().sort().join(',') === modifierKey)
       return existing
-        ? prev.map(c => c.menuItemId === item.id ? { ...c, quantity: c.quantity + 1 } : c)
-        : [...prev, { menuItemId: item.id, name: item.name, price: item.price, quantity: 1 }]
+        ? prev.map(c => c === existing ? { ...c, quantity: c.quantity + 1 } : c)
+        : [...prev, { 
+            menuItemId: item.id, 
+            name: item.name, 
+            basePrice: item.price,
+            price: item.price + (modifiers.length > 0 ? getModifiersPrice(item, modifiers) : 0), 
+            quantity: 1, 
+            course: selectedCourse,
+            modifiers,
+            modifierNames
+          }]
     })
+    setModifyingItem(null)
     setCartPulse(true)
     window.setTimeout(() => setCartPulse(false), 700)
   }
 
-  const removeFromCart = (menuItemId: string) => {
+  const removeFromCart = (menuItemId: string, course: number, modifiers: string[] = []) => {
     setCart(prev => {
-      const existing = prev.find(c => c.menuItemId === menuItemId)
-      if (existing && existing.quantity > 1) return prev.map(c => c.menuItemId === menuItemId ? { ...c, quantity: c.quantity - 1 } : c)
-      return prev.filter(c => c.menuItemId !== menuItemId)
+      const modifierKey = modifiers.slice().sort().join(',')
+      const existing = prev.find(c => c.menuItemId === menuItemId && c.course === course && (c.modifiers || []).slice().sort().join(',') === modifierKey)
+      if (existing && existing.quantity > 1) return prev.map(c => c === existing ? { ...c, quantity: c.quantity - 1 } : c)
+      return prev.filter(c => c !== existing)
     })
   }
 
@@ -154,15 +215,6 @@ export default function OrderModal({
     if (!activeOrder) return
     onClose()
     navigate(`/checkout/${activeOrder.id}`)
-  }
-
-  const handleSendOrder = () => {
-    if (cart.length === 0 || !table) return
-    if (activeOrder) {
-      cart.forEach(item => addToOrder.mutate({ orderId: activeOrder.id, menuItemId: item.menuItemId, quantity: item.quantity }))
-    } else {
-      createOrder.mutate({ tableId: table.id, items: cart })
-    }
   }
 
   if (!table) {
@@ -214,8 +266,88 @@ export default function OrderModal({
     </div>
   )
 
+  const modifierSelectionPanel = modifyingItem && (
+    <div className="flex h-full flex-col bg-navy-elevated w-full">
+      <div className="shrink-0 p-3 sm:p-4 border-b border-white/[0.08] flex items-center bg-navy-mid sticky top-0 z-10">
+        <button type="button" onClick={() => setModifyingItem(null)} className="text-fumo hover:text-white p-2 -ml-2 rounded-lg hover:bg-white/[0.05] transition-colors">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <h3 className="font-bold text-pietra text-base sm:text-lg flex-1 ml-2">{modifyingItem.name}</h3>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 space-y-6">
+        {modifyingItem.modifierGroups?.map(group => {
+          const selected = selectedModifiers[group.id] || []
+          return (
+            <div key={group.id} className="space-y-3">
+              <div className="flex justify-between items-end">
+                <h4 className="font-bold text-pietra">{group.name}</h4>
+                {group.isRequired && <span className="text-[10px] bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Obbligatorio</span>}
+              </div>
+              <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+                {group.options.map(opt => {
+                  const isSelected = selected.includes(opt.id)
+                  return (
+                    <label key={opt.id} className={cn("flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-colors", isSelected ? "border-amber-400 bg-aura-gold/10" : "border-white/[0.08] bg-navy-surface hover:border-aura-gold/30 hover:bg-white/[0.05]")}>
+                      <div className="flex items-center gap-3">
+                        <input 
+                          type={group.multiSelect ? 'checkbox' : 'radio'}
+                          name={`group-${group.id}`}
+                          checked={isSelected}
+                          onChange={() => {
+                            setSelectedModifiers(prev => {
+                              const next = { ...prev }
+                              if (group.multiSelect) {
+                                const max = group.maxOptions || 99
+                                if (isSelected) {
+                                  next[group.id] = selected.filter(id => id !== opt.id)
+                                } else if (selected.length < max) {
+                                  next[group.id] = [...selected, opt.id]
+                                }
+                              } else {
+                                next[group.id] = [opt.id]
+                              }
+                              return next
+                            })
+                          }}
+                          className={cn("h-4 w-4 sm:h-5 sm:w-5 accent-aura-gold bg-navy-mid border-white/20", group.multiSelect ? "rounded" : "rounded-full")}
+                        />
+                        <span className={cn("font-medium text-sm", isSelected ? "text-aura-gold" : "text-pietra")}>{opt.name}</span>
+                      </div>
+                      {opt.price > 0 && <span className="text-sm font-bold text-aura-gold">+{formatCurrency(opt.price)}</span>}
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="shrink-0 p-4 border-t border-white/[0.08] bg-navy-mid pb-[max(1rem,env(safe-area-inset-bottom))] sticky bottom-0 z-10">
+        <button 
+          type="button"
+          onClick={() => {
+            for (const group of modifyingItem.modifierGroups || []) {
+              const selectedCount = (selectedModifiers[group.id] || []).length
+              const min = group.isRequired ? Math.max(1, group.minOptions) : group.minOptions
+              if (selectedCount < min) {
+                toast.error(`Seleziona almeno ${min} opzioni per ${group.name}`)
+                return
+              }
+            }
+            const allSelectedIds = Object.values(selectedModifiers).flat()
+            const allSelectedNames = modifyingItem.modifierGroups?.flatMap(g => g.options.filter(o => allSelectedIds.includes(o.id)).map(o => o.name)) || []
+            addToCart(modifyingItem, allSelectedIds, allSelectedNames)
+          }}
+          className="w-full bg-aura-gold text-white font-bold py-3.5 rounded-xl transition-colors hover:bg-aura-gold-light shadow-lg"
+        >
+          {t('orderModal.addFor', { defaultValue: 'Aggiungi' })} {formatCurrency(modifyingItem.price + getModifiersPrice(modifyingItem, Object.values(selectedModifiers).flat()))}
+        </button>
+      </div>
+    </div>
+  )
+
   /** Menu: categorie + griglia piatti */
-  const menuPanel = (
+  const menuPanel = modifyingItem ? modifierSelectionPanel : (
     <div className="flex h-full min-h-0 w-full flex-col bg-navy-elevated">
       <div className="flex min-h-0 flex-1">
         <div className="w-28 shrink-0 border-r border-white/[0.08] overflow-y-auto bg-navy-surface/50 py-2 sm:w-36">
@@ -236,18 +368,40 @@ export default function OrderModal({
           ))}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
-          <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
-            {(currentCategory?.items || []).filter(i => i.available).map(item => {
-              const inCart = cart.find(c => c.menuItemId === item.id)
-              const isSoldOut = item.soldOut || item.orderable === false
+        <div className="min-h-0 flex-1 flex flex-col">
+          <div className="shrink-0 p-3 pb-0">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <span className="text-xs font-bold text-fumo uppercase shrink-0">{t('orderModal.course', { defaultValue: 'Portata' })}:</span>
+              {[1, 2, 3, 4, 5].map(c => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setSelectedCourse(c)}
+                  className={cn(
+                    'shrink-0 h-8 w-8 rounded-full text-xs font-bold transition-colors flex items-center justify-center',
+                    selectedCourse === c
+                      ? 'bg-aura-gold text-navy'
+                      : 'bg-navy-surface text-fumo hover:bg-white/[0.05]',
+                  )}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
+              {(currentCategory?.items || []).filter(i => i.available).map(item => {
+                const cartItems = cart.filter(c => c.menuItemId === item.id)
+                const inCart = cartItems.length > 0
+                const isSoldOut = item.soldOut || item.orderable === false
               return (
                 <div
                   key={item.id}
                   role={isSoldOut ? undefined : 'button'}
                   tabIndex={isSoldOut ? undefined : 0}
-                  onClick={() => !isSoldOut && addToCart(item)}
-                  onKeyDown={e => { if (!isSoldOut && (e.key === 'Enter' || e.key === ' ')) addToCart(item) }}
+                  onClick={() => !isSoldOut && handleItemClick(item)}
+                  onKeyDown={e => { if (!isSoldOut && (e.key === 'Enter' || e.key === ' ')) handleItemClick(item) }}
                   className={cn(
                     'rounded-xl border-2 p-3 transition-all',
                     isSoldOut
@@ -269,11 +423,11 @@ export default function OrderModal({
                     <p className={cn('text-base font-bold', isSoldOut ? 'text-fumo' : 'text-aura-gold')}>{formatCurrency(item.price)}</p>
                     {!isSoldOut && inCart && (
                       <div className="flex items-center gap-1.5 rounded-full bg-aura-gold px-2 py-0.5">
-                        <button type="button" onClick={e => { e.stopPropagation(); removeFromCart(item.id) }} className="text-white">
+                        <button type="button" onClick={e => { e.stopPropagation(); removeFromCart(item.id, cartItems[0].course, cartItems[0].modifiers) }} className="text-white">
                           <Minus className="h-3 w-3" />
                         </button>
-                        <span className="text-xs font-bold text-white">{inCart.quantity}</span>
-                        <button type="button" onClick={e => { e.stopPropagation(); addToCart(item) }} className="text-white">
+                        <span className="text-xs font-bold text-white">{cartItems.reduce((s,c) => s + c.quantity, 0)}</span>
+                        <button type="button" onClick={e => { e.stopPropagation(); handleItemClick(item) }} className="text-white">
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
@@ -285,8 +439,9 @@ export default function OrderModal({
           </div>
         </div>
       </div>
+    </div>
 
-      {!isDesktop && cartCount > 0 && tab === 'menu' && (
+    {!isDesktop && cartCount > 0 && tab === 'menu' && (
         <button
           type="button"
           onClick={() => setTab('order')}
@@ -312,23 +467,34 @@ export default function OrderModal({
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         <div className="space-y-3">
-          {cart.map(item => (
-            <div key={item.menuItemId} className="flex items-center gap-3">
-              <div className="flex items-center gap-1 rounded-full border border-aura-gold/25 bg-aura-gold/10 px-2 py-0.5">
-                <button type="button" onClick={() => removeFromCart(item.menuItemId)} aria-label="-">
+          {cart.map((item, idx) => (
+            <div key={`${item.menuItemId}-${item.course}-${idx}`} className="flex items-start gap-3">
+              <div className="flex items-center gap-1 rounded-full border border-aura-gold/25 bg-aura-gold/10 px-2 py-0.5 mt-0.5">
+                <button type="button" onClick={() => removeFromCart(item.menuItemId, item.course, item.modifiers)} aria-label="-">
                   <Minus className="h-3 w-3 text-aura-gold" />
                 </button>
                 <span className="text-xs font-bold text-pietra">{item.quantity}</span>
                 <button
                   type="button"
-                  onClick={() => addToCart({ id: item.menuItemId, name: item.name, price: item.price, available: true, category: { name: '' } })}
+                  onClick={() => {
+                    const temp = selectedCourse;
+                    setSelectedCourse(item.course);
+                    addToCart({ id: item.menuItemId, name: item.name, price: item.basePrice, available: true, category: { name: '' } }, item.modifiers || [], item.modifierNames || []);
+                    setSelectedCourse(temp);
+                  }}
                   aria-label="+"
                 >
                   <Plus className="h-3 w-3 text-aura-gold" />
                 </button>
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 flex flex-col">
                 <p className="truncate text-sm font-medium text-pietra">{item.name}</p>
+                {(item.modifierNames && item.modifierNames.length > 0) && (
+                  <p className="text-xs text-fumo leading-tight mt-0.5">{item.modifierNames.join(', ')}</p>
+                )}
+                <span className="text-[10px] text-aura-gold uppercase font-bold mt-1">{t('orderModal.course', { defaultValue: 'Portata' })} {item.course}</span>
+              </div>
+              <div className="shrink-0 mt-0.5">
                 <p className="text-sm font-medium tabular-nums text-pietra">{formatCurrency(item.price * item.quantity)}</p>
               </div>
             </div>
@@ -343,7 +509,7 @@ export default function OrderModal({
         <button
           type="button"
           onClick={handleSendOrder}
-          disabled={createOrder.isPending || addToOrder.isPending}
+          disabled={isSubmitting}
           className="w-full rounded-xl bg-aura-gold py-3.5 text-sm font-semibold text-white transition-colors hover:bg-aura-gold-light disabled:opacity-60"
         >
           {t('orderModal.sendToKitchen')}
@@ -394,14 +560,14 @@ export default function OrderModal({
           />
 
           {canPayOrder && (
-          <button
-            type="button"
-            onClick={goToCheckout}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-aura-gold py-4 text-sm font-semibold text-white transition-colors hover:bg-aura-gold-light"
-          >
-            <Receipt className="h-5 w-5" />
-            {t('orderModal.goToPayment')}
-          </button>
+            <button
+              type="button"
+              onClick={goToCheckout}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-aura-gold py-4 text-sm font-semibold text-white transition-colors hover:bg-aura-gold-light"
+            >
+              <Receipt className="h-5 w-5" />
+              {t('orderModal.goToPayment')}
+            </button>
           )}
 
           <button

@@ -7,7 +7,6 @@ import BrandLogo from '../brand/BrandLogo'
 import NotificationBell from './NotificationBell'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useDashboardLayout } from './DashboardLayout'
-import { usePlanTier } from '../../hooks/usePlanTier'
 
 const QUICK_LINKS = [
   { to: '/tavoli', icon: UtensilsCrossed, labelKey: 'nav.tables' },
@@ -18,7 +17,6 @@ const QUICK_LINKS = [
 export default function Header() {
   const { t } = useTranslation()
   const { user, logout, restaurant } = useAuth()
-  const { hasProPlan } = usePlanTier()
   const { toggleSidebar, sidebarOpen, openCommandPalette } = useDashboardLayout()
 
   const roleLabel = user
@@ -39,7 +37,7 @@ export default function Header() {
 
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
         <div className="shrink-0 lg:hidden">
-          <BrandLogo size="sm" />
+          <BrandLogo size="sm" showName layout="horizontal" />
         </div>
 
         <div className="aura-topbar-context hidden lg:inline-flex">
@@ -52,12 +50,11 @@ export default function Header() {
         <button
           type="button"
           onClick={openCommandPalette}
-          className="aura-topbar-search-btn hidden md:flex"
+          className="aura-topbar-search hidden md:flex w-48 shrink-0"
           aria-label={t('commandPalette.title', { defaultValue: 'Navigazione rapida' })}
         >
           <Search className="h-4 w-4 shrink-0 text-fumo/50" aria-hidden />
-          <span className="flex-1 text-left">{t('commandPalette.shortPlaceholder', { defaultValue: 'Cerca sezione…' })}</span>
-          <kbd className="aura-kbd">⌘K</kbd>
+          <span className="truncate text-left">{t('commandPalette.shortPlaceholder', { defaultValue: 'Cerca sezione…' })}</span>
         </button>
 
         <nav className="aura-topbar-quick hidden lg:flex" aria-label={t('dashboard.quickNav', { defaultValue: 'Accesso rapido' })}>
@@ -89,12 +86,7 @@ export default function Header() {
           <Search className="h-5 w-5" />
         </button>
 
-        {hasProPlan && (
-          <span className="aura-live-pill hidden xl:inline-flex shrink-0 whitespace-nowrap">
-            <span className="aura-live-pill__dot" aria-hidden />
-            {t('dashboard.liveSync')}
-          </span>
-        )}
+
 
         <div className="aura-topbar-cluster">
           <a

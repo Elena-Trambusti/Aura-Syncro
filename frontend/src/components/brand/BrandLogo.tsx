@@ -54,7 +54,7 @@ export default function BrandLogo({
   return (
     <div className={cn('flex items-center justify-center gap-3', className)}>
       {iconBox}
-      <div className="min-w-0 text-center">
+      <div className="min-w-0 text-left">
         <p className={cn('font-display font-semibold tracking-tight text-pietra leading-tight', s.text)}>
           {BRAND.name}
         </p>

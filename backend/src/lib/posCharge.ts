@@ -23,8 +23,11 @@ async function simulatePosTerminal(
   breakdown: PosChargeBreakdown,
   terminalId?: string | null,
 ): Promise<PosChargeResult> {
-  const delayMs = Number(process.env.POS_SIMULATE_DELAY_MS) || 800
-  await new Promise(resolve => setTimeout(resolve, delayMs))
+  const envDelay = Number(process.env.POS_SIMULATE_DELAY_MS)
+  const delayMs = isNaN(envDelay) ? 0 : envDelay
+  if (delayMs > 0) {
+    await new Promise(resolve => setTimeout(resolve, delayMs))
+  }
   return {
     success: true,
     transactionId: `pos_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,

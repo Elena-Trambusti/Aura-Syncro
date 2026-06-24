@@ -15,7 +15,7 @@ export default function LandingTrustBar() {
           {TRUST_ITEMS.map(item => (
             <div
               key={item}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm font-semibold grayscale transition hover:grayscale-0"
+              className="rounded-xl border border-white/[0.08] px-4 py-3 text-center text-sm font-semibold grayscale transition hover:grayscale-0"
             >
               {item}
             </div>

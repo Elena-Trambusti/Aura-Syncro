@@ -392,3 +392,66 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
     },
   })
 })
+
+// ── Chiusura Fiscale Zeta (Aruba FE) ──────────────────────────────────────────
+
+reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, async (req: AuthRequest, res: Response): Promise<void> => {
+  const restaurantId = req.restaurantId!
+
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+  const endOfDay = new Date()
+  endOfDay.setHours(23, 59, 59, 999)
+
+  // 1. Controlla se c'è già una chiusura oggi
+  const existing = await prisma.fiscalClosure.findFirst({
+    where: { restaurantId, date: { gte: startOfDay, lte: endOfDay } }
+  })
+
+  if (existing) {
+    res.status(409).json({ error: 'Chiusura fiscale già effettuata per oggi.' })
+    return
+  }
+
+  // 2. Calcola i totali del giorno
+  const orders = await fetchPaidOrdersInPeriod(restaurantId, startOfDay, endOfDay)
+  
+  if (orders.length === 0) {
+    res.status(400).json({ error: 'Nessun ordine pagato oggi. Chiusura non necessaria.' })
+    return
+  }
+
+  let totalRevenue = 0
+  let totalTax = 0
+  let totalCash = 0
+  let totalCard = 0
+  let totalTip = 0
+
+  for (const o of orders) {
+    totalRevenue += o.revenueAmount ?? (o.subtotal + o.tax)
+    totalTax += o.tax
+    totalTip += o.tipAmount ?? 0
+    if (o.paymentMethod === 'CASH') totalCash += o.total
+    else totalCard += o.total
+  }
+
+  // 3. Genera il record di Chiusura
+  const closure = await prisma.fiscalClosure.create({
+    data: {
+      restaurantId,
+      date: new Date(),
+      totalRevenue,
+      totalTax,
+      totalCash,
+      totalCard,
+      totalTip,
+      orderCount: orders.length,
+      status: 'GENERATED',
+    }
+  })
+
+  // TODO: Integrati qui con Aruba FE per inviare il tracciato XML dei corrispettivi giornalieri
+  // se ARUBA_FE_ENABLED=true nel file .env
+
+  res.json(closure)
+})

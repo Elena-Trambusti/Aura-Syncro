@@ -80,6 +80,29 @@ model Restaurant {
   stripeWebhookEvents StripeWebhookEvent[]
   saasElectronicInvoices SaasElectronicInvoice[]
   apiIdempotencyRecords ApiIdempotencyRecord[]
+  fiscalClosures    FiscalClosure[]
+}
+
+model FiscalClosure {
+  id              String   @id @default(cuid())
+  restaurantId    String
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id])
+  date            DateTime @default(now())
+  
+  totalRevenue    Float    // Incasso lordo totale
+  totalTax        Float    // IVA totale 
+  totalCash       Float    // Totale contanti dichiarati o calcolati
+  totalCard       Float    // Totale carte calcolate
+  totalTip        Float    @default(0) // Mance totali
+  
+  orderCount      Int      // Numero di ordini chiusi
+  status          String   @default("GENERATED") // GENERATED, TRANSMITTED, ERROR
+  arubaXmlId      String?  // ID eventuale fattura/corrispettivo Aruba
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([restaurantId])
 }
 
 /** Risposte cache per X-Idempotency-Key (retry offline / doppio tap) */
@@ -166,7 +189,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  orders       Order[]
+  orders       Order[] @relation("OrderWaiter")
+  tipOrders    Order[] @relation("TipWaiter")
   shifts       Shift[]
   pushSubscriptions PushSubscription[]
 
@@ -274,6 +298,31 @@ model MenuItem {
 
   orderItems   OrderItem[]
   inventoryLinks InventoryItemLink[]
+  modifierGroups MenuModifierGroup[]
+}
+
+
+model MenuModifierGroup {
+  id           String     @id @default(cuid())
+  menuItemId   String
+  menuItem     MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  name         String
+  isRequired   Boolean    @default(false)
+  multiSelect  Boolean    @default(false)
+  minOptions   Int        @default(0)
+  maxOptions   Int?
+  sortOrder    Int        @default(0)
+
+  options      MenuModifierOption[]
+}
+
+model MenuModifierOption {
+  id           String     @id @default(cuid())
+  groupId      String
+  group        MenuModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float      @default(0)
+  sortOrder    Int        @default(0)
 }
 
 // ===== ORDINI =====
@@ -284,7 +333,7 @@ model Order {
   tableId      String?
   table        Table?      @relation(fields: [tableId], references: [id])
   waiterId     String?
-  waiter       User?       @relation(fields: [waiterId], references: [id])
+  waiter       User?       @relation("OrderWaiter", fields: [waiterId], references: [id])
   customerId   String?
   customer     Customer?   @relation(fields: [customerId], references: [id])
   status       OrderStatus @default(PENDING)
@@ -298,6 +347,8 @@ model Order {
   total        Float       @default(0)
   revenueAmount Float
   tipAmount     Float      @default(0)
+  tipWaiterId   String?
+  tipWaiter     User?      @relation("TipWaiter", fields: [tipWaiterId], references: [id])
   paidAt              DateTime?
   paymentMethod       PaymentMethod?
   stripeSessionId     String?
@@ -331,12 +382,24 @@ model OrderItem {
   menuItem   MenuItem    @relation(fields: [menuItemId], references: [id])
   quantity   Int         @default(1)
   unitPrice  Float
+  course     Int         @default(1)
   notes      String?
   status     ItemStatus  @default(PENDING)
   /** Ingredienti già scalati dal magazzino per questa riga */
   inventoryDeducted Boolean @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+
+  modifiers  OrderItemModifier[]
+}
+
+model OrderItemModifier {
+  id          String    @id @default(cuid())
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  optionId    String?
+  name        String
+  price       Float
 }
 
 enum OrderStatus {

@@ -63,7 +63,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Restaurant-Id', 'X-Admin-Key'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Restaurant-Id', 'X-Admin-Key', 'x-idempotency-key'],
 }
 
 export const io = new Server(httpServer, {

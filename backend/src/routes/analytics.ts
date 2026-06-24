@@ -59,6 +59,21 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
     ? ((monthFood - lastMonthFood) / lastMonthFood) * 100
     : 0
 
+  // Rotazione tavoli (Table Turnover): tempo medio in minuti tra apertura e pagamento (oggi)
+  const turnoverOrders = await prisma.order.findMany({
+    where: { restaurantId, ...paidInRange(today, tomorrow), tableId: { not: null } },
+    select: { createdAt: true, paidAt: true }
+  })
+  let totalMinutes = 0
+  let turnoverCount = 0
+  turnoverOrders.forEach(o => {
+    if (o.paidAt) {
+      totalMinutes += (o.paidAt.getTime() - o.createdAt.getTime()) / 60000
+      turnoverCount++
+    }
+  })
+  const avgTurnoverMinutes = turnoverCount > 0 ? Math.round(totalMinutes / turnoverCount) : 0
+
   res.json({
     today: {
       orders: todayOrders,
@@ -74,7 +89,7 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
       collected: monthRevenue._sum.total || 0,
       revenueGrowth: Math.round(revenueGrowth * 10) / 10,
     },
-    totals: { customers: totalCustomers, lowStockAlerts: lowStockItems },
+    totals: { customers: totalCustomers, lowStockAlerts: lowStockItems, avgTurnoverMinutes },
   })
 })
 

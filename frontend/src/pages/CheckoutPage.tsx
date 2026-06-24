@@ -57,6 +57,7 @@ export default function CheckoutPage() {
   const [itemAssignments, setItemAssignments] = useState<Record<string, number>>({})
   const [wantsTip, setWantsTip] = useState(false)
   const [tipAmount, setTipAmount] = useState('')
+  const [tipWaiterId, setTipWaiterId] = useState('')
   const [receiptEmail, setReceiptEmail] = useState('')
   const [discountCode, setDiscountCode] = useState('')
   const [finalizeResult, setFinalizeResult] = useState<CheckoutFinalizeResult | null>(null)
@@ -78,6 +79,11 @@ export default function CheckoutPage() {
     queryKey: tq(tk, 'checkout', orderId),
     queryFn: () => api.get(`/payments/checkout/${orderId}`).then(r => r.data),
     enabled: !!orderId,
+  })
+
+  const { data: staff } = useQuery<{ id: string; name: string; role: string }[]>({
+    queryKey: tq(tk, 'staff'),
+    queryFn: () => api.get('/staff').then(r => r.data),
   })
 
   const order = data?.order
@@ -143,6 +149,7 @@ export default function CheckoutPage() {
       const payload: Record<string, unknown> = {
         orderId,
         tipAmount: parsedTip,
+        tipWaiterId: tipWaiterId || undefined,
         paymentMethod,
         splitSettlement: paymentMethod === 'SPLIT' ? splitSettlement : undefined,
         simulateEmail: receiptEmail || undefined,
@@ -171,7 +178,12 @@ export default function CheckoutPage() {
       setFinalizeResult(result)
       toast.success(t('checkout.paymentSuccess'))
     },
-    onError: () => toast.error(t('checkout.paymentError')),
+    onError: (err: any) => {
+      console.error("FINALIZE ERROR:", err.response?.data)
+      const serverMsg = err.response?.data?.error || t('checkout.paymentError')
+      const details = err.response?.data?.details ? JSON.stringify(err.response?.data?.details) : ''
+      toast.error(`${serverMsg} ${details}`)
+    },
   })
 
   const assignItem = (itemId: string, guestIndex: number) => {
@@ -347,15 +359,27 @@ export default function CheckoutPage() {
             </div>
           </div>
           {wantsTip && (
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={tipAmount}
-              onChange={e => setTipAmount(e.target.value)}
-              placeholder="0.00"
-              className="saas-input mt-3 w-full py-3 text-center text-sm text-pietra"
-            />
+            <div className="mt-4 flex gap-3">
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={tipAmount}
+                onChange={e => setTipAmount(e.target.value)}
+                placeholder="0.00"
+                className="saas-input w-full py-3 text-center text-sm text-pietra"
+              />
+              <select
+                value={tipWaiterId}
+                onChange={e => setTipWaiterId(e.target.value)}
+                className="saas-input w-full py-3 text-sm text-pietra appearance-none bg-navy-mid focus:border-aura-gold focus:ring-1 focus:ring-aura-gold"
+              >
+                <option value="">Assegna cameriere</option>
+                {staff?.map(user => (
+                  <option key={user.id} value={user.id}>{user.name}</option>
+                ))}
+              </select>
+            </div>
           )}
           <p className="mt-4 text-xs text-fumo">{tRegime(t, fiscal.taxRegion, 'tipExemptNote')}</p>
         </section>
