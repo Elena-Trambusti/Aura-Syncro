@@ -15,6 +15,41 @@ export type InvoicePaidResult =
   | { processed: false; reason: string }
   | { processed: true; stripeInvoiceId: string; status: 'sent' | 'failed' | 'skipped_duplicate'; retryable?: boolean }
 
+function isLikelyPlaceholder(value: string | undefined): boolean {
+  if (!value) return false
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return false
+  return (
+    normalized.includes('test') ||
+    normalized.includes('example.com') ||
+    normalized.includes('placeholder') ||
+    normalized === 'it12345678901' ||
+    normalized === '12345678901'
+  )
+}
+
+function hasTestFiscalData(profile: SaasCustomerFiscalProfile): boolean {
+  return (
+    isLikelyPlaceholder(profile.legalName) ||
+    isLikelyPlaceholder(profile.vatNumber) ||
+    isLikelyPlaceholder(profile.email) ||
+    isLikelyPlaceholder(profile.sdiRecipientCode) ||
+    isLikelyPlaceholder(profile.pec)
+  )
+}
+
+function isSdiValidationFailure(code?: string, message?: string): boolean {
+  const text = `${code ?? ''} ${message ?? ''}`.toLowerCase()
+  return (
+    text.includes('sdi') ||
+    text.includes('codice destinatario') ||
+    text.includes('destinatario') ||
+    text.includes('pec') ||
+    text.includes('partita iva') ||
+    text.includes('nif')
+  )
+}
+
 function isSaasPlatformInvoice(invoice: StripeInvoicePayload): boolean {
   if (invoice.metadata?.source === 'restaurant_pos') return false
   if (invoice.metadata?.orderId) return false
@@ -198,6 +233,31 @@ export async function handleStripeInvoicePaid(
     return { processed: true, stripeInvoiceId: invoice.id, status: 'failed' }
   }
 
+  if (hasTestFiscalData(profile)) {
+    const errorMessage = 'Stripe customer metadata contiene dati di test/placeholder'
+    console.error('[stripe-invoice] Blocco invio Aruba: dati fiscali non validi per produzione', {
+      invoiceId: invoice.id,
+      restaurantId,
+      customerId,
+      legalName: profile.legalName,
+      vatNumber: profile.vatNumber,
+      sdiRecipientCode: profile.sdiRecipientCode,
+    })
+
+    await persistInvoiceRecord({
+      restaurantId,
+      stripeInvoiceId: invoice.id,
+      stripeCustomerId: customerId,
+      stripeEventId,
+      profile,
+      mapped,
+      status: 'failed',
+      arubaErrorMessage: errorMessage,
+    })
+
+    return { processed: true, stripeInvoiceId: invoice.id, status: 'failed' }
+  }
+
   const invoiceNumber = invoice.number ?? `SAAS-${invoice.id.replace('in_', '').slice(0, 12).toUpperCase()}`
   const invoiceDate = invoice.status_transitions?.paid_at
     ? new Date(invoice.status_transitions.paid_at * 1000)
@@ -261,6 +321,21 @@ export async function handleStripeInvoicePaid(
   if (!arubaResult.success) {
     const retryable = arubaResult.errorMessage !== 'ARUBA_FE_DISABLED'
       && arubaResult.errorMessage !== 'ARUBA_FE_CREDENTIALS_MISSING'
+
+    const sdiValidationError = isSdiValidationFailure(arubaResult.errorCode, arubaResult.errorMessage)
+    if (process.env.NODE_ENV === 'production' && sdiValidationError) {
+      console.error('[ALERT][ARUBA_SDI_VALIDATION]', {
+        invoiceId: invoice.id,
+        restaurantId,
+        customerId,
+        sdiRecipientCode: mapped.sdiRecipientCode,
+        vatNumber: profile.vatNumber,
+        legalName: profile.legalName,
+        errorCode: arubaResult.errorCode,
+        errorMessage: arubaResult.errorMessage,
+        action: 'Intervento manuale immediato richiesto',
+      })
+    }
 
     console.error('[stripe-invoice] Invio Aruba fallito — intervento manuale richiesto', {
       invoiceId: invoice.id,

@@ -39,10 +39,15 @@ type CachedToken = {
 let tokenCache: CachedToken | null = null
 
 export function loadArubaFeConfig(): ArubaFeConfig {
+  const isProd = process.env.NODE_ENV === 'production'
+  const defaultApiUrl = isProd
+    ? 'https://ws.fatturazioneelettronica.aruba.it'
+    : 'https://demows.fatturazioneelettronica.aruba.it'
+
   return {
     enabled: process.env.ARUBA_FE_ENABLED === 'true',
     authUrl: process.env.ARUBA_FE_AUTH_URL?.trim() || 'https://auth.fatturazioneelettronica.aruba.it',
-    apiUrl: process.env.ARUBA_FE_API_URL?.trim() || 'https://demows.fatturazioneelettronica.aruba.it',
+    apiUrl: process.env.ARUBA_FE_API_URL?.trim() || defaultApiUrl,
     username: process.env.ARUBA_FE_USERNAME?.trim() || '',
     password: process.env.ARUBA_FE_PASSWORD?.trim() || '',
     domain: process.env.ARUBA_FE_DOMAIN?.trim(),
@@ -118,7 +123,13 @@ export async function submitElectronicInvoice(xmlContent: string): Promise<Aruba
 
   const isDemo = config.apiUrl.includes('demows.')
   if (isDemo && process.env.NODE_ENV === 'production') {
-    console.warn('[aruba-fe] ATTENZIONE: endpoint demo in produzione — verifica ARUBA_FE_API_URL')
+    console.error('[aruba-fe] BLOCCO SICUREZZA: endpoint demo in produzione')
+    return { success: false, mode: 'disabled', errorMessage: 'ARUBA_FE_DEMO_ENDPOINT_IN_PRODUCTION' }
+  }
+
+  if (process.env.ARUBA_FE_MOCK_UPLOAD === 'true' && process.env.NODE_ENV === 'production') {
+    console.error('[aruba-fe] BLOCCO SICUREZZA: ARUBA_FE_MOCK_UPLOAD=true in produzione')
+    return { success: false, mode: 'disabled', errorMessage: 'ARUBA_FE_MOCK_IN_PRODUCTION' }
   }
 
   if (process.env.ARUBA_FE_MOCK_UPLOAD === 'true') {

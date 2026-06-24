@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { stripe } from '../../lib/stripe'
+import { stripe, pickStripeWebhookSecret } from '../../lib/stripe'
 import { handleCheckoutSessionCompleted } from '../../lib/stripeCheckoutWebhook'
 import { syncRestaurantSubscriptionStatus } from '../../lib/stripeSubscriptionWebhook'
 import { handleStripeInvoicePaid } from '../../lib/stripeInvoiceWebhook'
@@ -77,6 +77,14 @@ async function dispatchStripeEvent(event: StripeEventPayload): Promise<void> {
   }
 
   if (event.type === 'invoice.paid' || event.type === 'invoice.payment_succeeded') {
+    if (!event.livemode) {
+      console.warn('[stripe-webhook] Evento fattura TEST ignorato (livemode=false)', {
+        eventId: event.id,
+        eventType: event.type,
+      })
+      return
+    }
+
     const invoice = event.data.object as StripeInvoicePayload
     const result = await handleStripeInvoicePaid(invoice, event.id)
 
@@ -100,7 +108,7 @@ async function dispatchStripeEvent(event: StripeEventPayload): Promise<void> {
  */
 stripeWebhookRouter.post('/', asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature']
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecret = pickStripeWebhookSecret()
 
   if (!sig || typeof sig !== 'string') {
     res.status(400).json({ error: 'Header stripe-signature mancante' })
@@ -108,7 +116,7 @@ stripeWebhookRouter.post('/', asyncHandler(async (req: Request, res: Response): 
   }
 
   if (!webhookSecret || webhookSecret.includes('inserisci')) {
-    res.status(400).json({ error: 'STRIPE_WEBHOOK_SECRET non configurato' })
+    res.status(400).json({ error: 'Webhook secret Stripe non configurato' })
     return
   }
 
