@@ -224,40 +224,59 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   const grossTotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
   const { subtotal, tax, total, taxRateApplied } = await computeTaxForRestaurant(req.restaurantId!, grossTotal)
 
-  const order = await prisma.$transaction(async tx => {
-    const created = await tx.order.create({
-      data: {
-        restaurantId: req.restaurantId!,
-        waiterId: req.userId,
-        subtotal,
-        tax,
-        total,
-        taxRateApplied,
-        revenueAmount: total,
-        tipAmount: 0,
-        ...orderData,
-        customerId: resolvedCustomerId,
-        items: {
-          create: itemsWithPrice.map(item => ({
-            menuItemId: item.menuItemId,
-            quantity: item.quantity,
-            course: item.course,
-            unitPrice: item.unitPrice,
-            notes: item.notes,
-            modifiers: {
-              create: item.selectedOptions.map(opt => ({
-                 optionId: opt.optionId,
-                 name: opt.name,
-                 price: opt.price
-              }))
-            }
-          })),
+  let order;
+  try {
+    order = await prisma.$transaction(async tx => {
+      if (orderData.tableId) {
+        const tableUpdated = await tx.table.updateMany({
+          where: { id: orderData.tableId, restaurantId: req.restaurantId!, status: 'FREE' },
+          data: { status: 'OCCUPIED' },
+        })
+        if (tableUpdated.count === 0) {
+          throw Object.assign(new Error('Tavolo già occupato o non trovato'), { code: 'TABLE_OCCUPIED' })
+        }
+      }
+
+      const created = await tx.order.create({
+        data: {
+          restaurantId: req.restaurantId!,
+          waiterId: req.userId,
+          subtotal,
+          tax,
+          total,
+          taxRateApplied,
+          revenueAmount: total,
+          tipAmount: 0,
+          ...orderData,
+          customerId: resolvedCustomerId,
+          items: {
+            create: itemsWithPrice.map(item => ({
+              menuItemId: item.menuItemId,
+              quantity: item.quantity,
+              course: item.course,
+              unitPrice: item.unitPrice,
+              notes: item.notes,
+              modifiers: {
+                create: item.selectedOptions.map(opt => ({
+                   optionId: opt.optionId,
+                   name: opt.name,
+                   price: opt.price
+                }))
+              }
+            })),
+          },
         },
-      },
-      include: orderInclude,
+        include: orderInclude,
+      })
+      return created
     })
-    return created
-  })
+  } catch (e) {
+    if ((e as any).code === 'TABLE_OCCUPIED') {
+      res.status(409).json({ error: 'Il tavolo è stato appena occupato da un altro collega. Aggiorna la pagina.' })
+      return
+    }
+    throw e
+  }
 
   let finalOrder = order
   if (resolvedCustomerId) {
@@ -269,14 +288,6 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   }
 
   if (orderData.tableId) {
-    const tableUpdated = await prisma.table.updateMany({
-      where: { id: orderData.tableId, restaurantId: tenantId(req) },
-      data: { status: 'OCCUPIED' },
-    })
-    if (tableUpdated.count === 0) {
-      tenantNotFound(res, 'Tavolo non trovato')
-      return
-    }
     const table = await prisma.table.findFirst({ where: { id: orderData.tableId, restaurantId: tenantId(req) } })
     if (table) io.to(req.restaurantId!).emit('table:updated', table)
   }

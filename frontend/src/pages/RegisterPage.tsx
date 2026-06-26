@@ -93,6 +93,18 @@ export default function RegisterPage() {
               <label className={ui.label}>{t('common.password')}</label>
               <input type="password" value={form.password} onChange={e => update('password', e.target.value)} className={ui.input} placeholder={t('auth.passwordMinLength')} minLength={8} required />
             </div>
+
+            <div className="flex items-start gap-3 pt-2 pb-1">
+              <input 
+                type="checkbox" 
+                id="legalAccept" 
+                required 
+                className="mt-1 h-4 w-4 shrink-0 cursor-pointer rounded border border-white/20 bg-black/50 text-aura-gold focus:ring-1 focus:ring-aura-gold focus:ring-offset-0 focus:ring-offset-transparent"
+              />
+              <label htmlFor="legalAccept" className="text-xs text-slate-400 leading-relaxed cursor-pointer select-none">
+                Dichiaro di aver letto e accettato i <Link to="/termini" className="text-aura-gold hover:underline" target="_blank">Termini di Servizio</Link>, la <Link to="/privacy" className="text-aura-gold hover:underline" target="_blank">Privacy Policy</Link> e firmo digitalmente il <Link to="/dpa" className="text-aura-gold hover:underline" target="_blank">DPA (Data Processing Agreement)</Link> per la gestione dei dati dei miei clienti.
+              </label>
+            </div>
             <button
               type="submit"
               disabled={loading}

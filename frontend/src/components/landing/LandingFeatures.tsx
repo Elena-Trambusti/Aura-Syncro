@@ -6,8 +6,8 @@ const FEATURES = [
   { key: 'qrMenu', icon: QrCode, className: '', iconBg: 'bg-blue-100 text-blue-700' },
   { key: 'stripe', icon: CreditCard, className: '', iconBg: 'bg-emerald-100 text-emerald-700' },
   { key: 'fiscal', icon: Scale, className: 'lg:col-span-2', iconBg: 'bg-violet-100 text-violet-700' },
-  { key: 'crm', icon: Users, className: '', iconBg: 'bg-rose-100 text-rose-700' },
-  { key: 'ai', icon: BrainCircuit, className: '', iconBg: 'bg-cyan-100 text-cyan-700' },
+  { key: 'crm', icon: Users, className: 'lg:col-span-2', iconBg: 'bg-rose-100 text-rose-700' },
+  { key: 'ai', icon: BrainCircuit, className: 'lg:col-span-2', iconBg: 'bg-cyan-100 text-cyan-700' },
 ] as const
 
 export default function LandingFeatures() {

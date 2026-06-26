@@ -3,7 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
   CalendarDays, Users, UserCog, Package, BarChart3, Settings,
-  ChefHat, Star, Megaphone, FileText, CreditCard, Brain, Scale, X, QrCode, Crown, Sparkles, Lock,
+  ChefHat, Star, Megaphone, FileText, CreditCard, Brain, Scale, X, QrCode, Crown, Sparkles, Lock, Receipt
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '../../lib/utils'
@@ -42,6 +42,7 @@ const navItems: Array<{
   { to: '/fedelta', icon: Star, labelKey: 'nav.loyalty', proOnly: true },
   { to: '/marketing', icon: Megaphone, labelKey: 'nav.marketing', proOnly: true },
   { to: '/pagamenti', icon: CreditCard, labelKey: 'nav.payments', adminOnly: true, proOnly: true },
+  { to: '/fatture', icon: Receipt, labelKey: 'Fatturazione B2B', adminOnly: true, proOnly: true },
   { to: '/report', icon: FileText, labelKey: 'nav.reports', exact: true, permission: 'reports.read' },
   { to: '/report/fiscal', icon: Scale, labelKey: 'nav.reportFiscal', exact: true, adminOnly: true, proOnly: true },
   { to: '/dashboard/staff', icon: UserCog, labelKey: 'nav.staff', staffManagersOnly: true },

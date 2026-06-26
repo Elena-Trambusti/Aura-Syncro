@@ -35,20 +35,32 @@ export default function LandingHero() {
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-500 backdrop-blur-md opacity-0 animate-[fade-in-up_1s_ease-out_forwards]">
+          <div 
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-aura-gold/20 bg-aura-gold/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold backdrop-blur-md"
+            style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both' }}
+          >
             <Sparkles className="h-3.5 w-3.5" />
             {t('landing.hero.badge')}
           </div>
-          <h1 className="text-4xl font-black tracking-tighter sm:text-5xl lg:text-6xl lg:leading-[1.05] bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-neutral-400 opacity-0 animate-[fade-in-up_1s_ease-out_150ms_forwards]">
+          <h1 
+            className="text-4xl font-display font-medium tracking-tight sm:text-5xl lg:text-7xl lg:leading-[1.1] text-white drop-shadow-2xl"
+            style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '150ms' }}
+          >
             {t('landing.hero.title')}
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg opacity-0 animate-[fade-in-up_1s_ease-out_300ms_forwards]">
+          <p 
+            className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg font-light"
+            style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '300ms' }}
+          >
             {t('landing.hero.subtitle', { brand: BRAND.name })}
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row opacity-0 animate-[fade-in-up_1s_ease-out_450ms_forwards]">
+          <div 
+            className="mt-10 flex flex-col gap-4 sm:flex-row"
+            style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '450ms' }}
+          >
             <Link
               to="/register"
-              className="relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] group"
+              className="relative overflow-hidden inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#d4af37] to-[#aa8c2c] px-8 py-4 text-xs uppercase tracking-[0.15em] font-bold text-black shadow-[0_0_40px_rgba(212,175,55,0.4)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_rgba(212,175,55,0.6)] group ring-1 ring-white/40"
             >
               <div className="absolute inset-0 w-[50%] bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer-sweep_3s_ease-in-out_infinite]" />
               <span className="relative">{t('landing.hero.ctaPrimary')}</span>
@@ -57,46 +69,51 @@ export default function LandingHero() {
             <button
               onClick={handleDemoLogin}
               disabled={isDemoLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+              className="inline-flex items-center justify-center gap-3 rounded-full border border-white/10 bg-black/40 backdrop-blur-xl px-8 py-4 text-xs uppercase tracking-[0.15em] font-bold text-white transition-all duration-500 hover:-translate-y-1 hover:bg-white/10 hover:border-aura-gold/50 hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]"
             >
-              {isDemoLoading ? <Loader2 className="h-4 w-4 animate-spin text-amber-500" /> : <Zap className="h-4 w-4 text-amber-500" />}
-              Entra nella Demo Live (Senza Registrazione)
+              {isDemoLoading ? <Loader2 className="h-4 w-4 animate-spin text-aura-gold" /> : <Zap className="h-4 w-4 text-aura-gold" />}
+              Entra nella Demo Live
             </button>
           </div>
         </div>
 
-        <div className="relative animate-[float_6s_ease-in-out_infinite]">
-          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5 shadow-[0_8_32px_0_rgba(0,0,0,0.37)] backdrop-blur-xl">
-            <div className="rounded-2xl border border-white/5 bg-slate-950/80 p-4 text-slate-100 shadow-inner backdrop-blur-md">
-              <div className="flex items-center justify-between rounded-xl bg-slate-800 px-4 py-3">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Zap className="h-4 w-4 text-amber-400" />
+        <div 
+          className="relative pt-10 lg:pt-0"
+          style={{ animation: 'reveal-slide 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '600ms' }}
+        >
+          <div className="rounded-[2.5rem] border border-white/[0.04] bg-gradient-to-b from-white/[0.05] to-transparent p-6 shadow-[0_20px_80px_rgba(0,0,0,0.8)] backdrop-blur-3xl ring-1 ring-white/5">
+            <div className="rounded-[2rem] border border-white/[0.03] bg-[#050505]/80 p-5 text-slate-100 shadow-inner backdrop-blur-md">
+              <div className="flex items-center justify-between rounded-2xl bg-[#0a0a0a] px-5 py-4 ring-1 ring-white/[0.02]">
+                <div className="flex items-center gap-3 text-sm font-bold tracking-wide">
+                  <Zap className="h-4 w-4 text-aura-gold" />
                   {BRAND.name}
                 </div>
-                <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-300">
+                <span className="rounded-full border border-aura-gold/20 bg-aura-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                   Live
                 </span>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-slate-800 p-3">
-                  <p className="text-xs text-slate-400">{t('landing.hero.previewKpi1')}</p>
-                  <p className="mt-1 text-xl font-bold text-white">+18%</p>
+              <div className="mt-5 grid grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-[#0a0a0a] p-5 ring-1 ring-white/[0.02] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-aura-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{t('landing.hero.previewKpi1')}</p>
+                  <p className="mt-2 text-3xl font-display font-medium text-white">+18%</p>
                 </div>
-                <div className="rounded-xl bg-slate-800 p-3">
-                  <p className="text-xs text-slate-400">{t('landing.hero.previewKpi2')}</p>
-                  <p className="mt-1 text-xl font-bold text-white">124</p>
+                <div className="rounded-2xl bg-[#0a0a0a] p-5 ring-1 ring-white/[0.02] relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-aura-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{t('landing.hero.previewKpi2')}</p>
+                  <p className="mt-2 text-3xl font-display font-medium text-white">124</p>
                 </div>
               </div>
-              <div className="mt-4 rounded-xl bg-slate-800 p-4">
-                <div className="mb-3 flex items-center gap-2 text-xs text-slate-400">
+              <div className="mt-5 rounded-2xl bg-[#0a0a0a] p-5 ring-1 ring-white/[0.02]">
+                <div className="mb-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   <BarChart3 className="h-3.5 w-3.5" />
                   {t('landing.hero.previewChart')}
                 </div>
-                <div className="flex h-24 items-end gap-2">
+                <div className="flex h-28 items-end gap-2 sm:gap-3">
                   {[35, 55, 40, 68, 72, 58, 80].map((height, idx) => (
                     <div
                       key={idx}
-                      className="flex-1 rounded-md bg-gradient-to-t from-amber-500 to-orange-400"
+                      className="flex-1 rounded-sm bg-gradient-to-t from-aura-gold/10 to-aura-gold shadow-[0_0_15px_rgba(212,175,55,0.3)] relative group cursor-crosshair transition-all duration-500 hover:scale-y-[1.05] hover:brightness-125"
                       style={{ height: `${height}%` }}
                     />
                   ))}

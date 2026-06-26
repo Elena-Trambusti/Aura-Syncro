@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
@@ -62,11 +62,11 @@ function CampaignFormModal({
   onSave,
   onCancel,
 }: {
-  onSave: (data: { name: string; subject: string; message: string; targetFilter: string }) => void
+  onSave: (data: { name: string; subject: string; message: string; targetFilter: string; discountCode?: string; discountPct?: number }) => void
   onCancel: () => void
 }) {
   const { t } = useTranslation()
-  const [form, setForm] = useState({ name: '', subject: '', message: '' })
+  const [form, setForm] = useState({ name: '', subject: '', message: '', discountCode: '', discountPct: '' })
   const [segment, setSegment] = useState<CampaignSegment>('all')
   const [previewCount, setPreviewCount] = useState<number | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -139,6 +139,29 @@ function CampaignFormModal({
               rows={5}
             />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={ui.label}>{t('marketing.discountCode', { defaultValue: 'Codice Sconto' })} (Opzionale)</label>
+              <input
+                value={form.discountCode}
+                onChange={e => setForm(f => ({ ...f, discountCode: e.target.value.toUpperCase() }))}
+                className={ui.input}
+                placeholder="Es. SCONTO10"
+              />
+            </div>
+            <div>
+              <label className={ui.label}>{t('marketing.discountPct', { defaultValue: '% di Sconto' })}</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={form.discountPct}
+                onChange={e => setForm(f => ({ ...f, discountPct: e.target.value }))}
+                className={ui.input}
+                placeholder="Es. 10"
+              />
+            </div>
+          </div>
         </div>
         <div className="flex gap-3 mt-6">
           <button type="button" onClick={onCancel} className={`flex-1 py-2.5 ${ui.chipInactive} rounded-xl text-sm font-medium`}>
@@ -147,10 +170,19 @@ function CampaignFormModal({
           <button
             type="button"
             disabled={!form.name.trim() || !form.message.trim()}
-            onClick={() => onSave({
-              ...form,
-              targetFilter: segment === 'all' ? '' : JSON.stringify({ segment }),
-            })}
+            onClick={() => {
+              const base = {
+                name: form.name,
+                subject: form.subject,
+                message: form.message,
+                targetFilter: segment === 'all' ? '' : JSON.stringify({ segment }),
+              }
+              onSave({
+                ...base,
+                ...(form.discountCode.trim() ? { discountCode: form.discountCode.trim() } : {}),
+                ...(parseFloat(form.discountPct) > 0 ? { discountPct: parseFloat(form.discountPct) } : {})
+              })
+            }}
             className={`flex-1 py-2.5 ${ui.btnPrimary} text-sm disabled:opacity-50`}
           >
             {t('common.save')}
@@ -190,7 +222,7 @@ export default function MarketingPage() {
   })
 
   const createCampaign = useMutation({
-    mutationFn: (data: { name: string; subject: string; message: string; targetFilter?: string }) =>
+    mutationFn: (data: { name: string; subject: string; message: string; targetFilter?: string; discountCode?: string; discountPct?: number }) =>
       api.post('/marketing', { ...data, type: 'EMAIL', ...(data.targetFilter ? { targetFilter: data.targetFilter } : {}) }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: tq(tk, 'marketing', 'campaigns') })

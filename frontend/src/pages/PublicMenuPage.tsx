@@ -65,7 +65,7 @@ function MenuItemCard({
   const canOrder = orderable && item.orderable !== false && !item.soldOut
 
   return (
-    <article className="rounded-xl border border-white/[0.08] bg-navy-surface p-4 shadow-lg transition-transform hover:-translate-y-0.5 hover:border-aura-gold/30">
+    <article className="rounded-[1.5rem] premium-card backdrop-blur-2xl bg-navy-surface/60 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.01] hover:border-aura-gold/40 hover:bg-navy-surface/80 ring-1 ring-white/[0.05]">
       <div className="flex gap-4">
         {item.image && (
           <div className="shrink-0 overflow-hidden rounded-xl border border-white/[0.08]">
@@ -173,6 +173,7 @@ export default function PublicMenuPage() {
     restaurant: {
       name: string
       logo?: string | null
+      coverImage?: string | null
       description?: string | null
       colorTheme?: string
       slug: string
@@ -238,28 +239,53 @@ export default function PublicMenuPage() {
     )
   }
 
+  const heroImage = data.restaurant.coverImage 
+    || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80"
+
   return (
-    <div className="mx-auto min-h-[100dvh] max-w-2xl bg-navy text-pietra relative">
-      <header className="sticky top-0 z-20 border-b border-white/[0.08] bg-navy-elevated/90 backdrop-blur-md shadow-xl">
-        <div className="flex items-center justify-between gap-3 px-5 py-4">
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-bold tracking-tight text-pietra">{data.restaurant.name}</h1>
-            {data.restaurant.description && (
-              <p className="mt-0.5 truncate text-sm text-fumo">{data.restaurant.description}</p>
-            )}
-            {tableNumber != null && (
-              <p className="mt-2 inline-flex items-center rounded-full border border-aura-gold/30 bg-aura-gold/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-aura-gold">
-                {t('publicMenu.tableBadge', { number: tableNumber })}
-              </p>
+    <div 
+      className="min-h-[100dvh] w-full text-pietra relative"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 7, 18, 0.6) 0%, rgba(3, 7, 18, 0.98) 100%), url('${heroImage}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
+      <div className="absolute top-0 inset-x-0 p-5 flex justify-end z-30">
+        <PublicLanguageSwitcher />
+      </div>
+
+      <div className="mx-auto max-w-2xl min-h-[100dvh] flex flex-col relative pb-28 pt-12 sm:pt-16 px-3 sm:px-6">
+        
+        <div className="text-center flex flex-col items-center mb-10">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-aura-gold/40 bg-navy-surface/90 shadow-[0_0_40px_rgba(212,175,55,0.3)] backdrop-blur-xl mb-6">
+            {data.restaurant.logo ? (
+              <img src={data.restaurant.logo} alt={data.restaurant.name} className="h-full w-full object-cover" />
+            ) : (
+              <UtensilsCrossed className="h-10 w-10 text-aura-gold" strokeWidth={1.5} />
             )}
           </div>
-          <PublicLanguageSwitcher />
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-aura-gold mb-3">
+            {t('publicMenu.badge', { defaultValue: 'MENU' })}
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight text-white drop-shadow-2xl">
+            {data.restaurant.name}
+          </h1>
+          {data.restaurant.description && (
+            <p className="mt-4 text-sm leading-relaxed text-slate-300 max-w-md mx-auto">{data.restaurant.description}</p>
+          )}
+          {tableNumber != null && (
+            <p className="mt-4 inline-flex items-center rounded-full border border-aura-gold/30 bg-aura-gold/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-aura-gold">
+              {t('publicMenu.tableBadge', { number: tableNumber })}
+            </p>
+          )}
         </div>
 
-        <div className="border-t border-white/[0.04] bg-navy-surface/50 px-5 py-3">
-          <div className="flex items-start gap-3">
-            <UtensilsCrossed className="mt-0.5 h-4 w-4 shrink-0 text-aura-gold" aria-hidden />
-            <p className="text-sm font-medium leading-relaxed text-pietra">
+        <div className="mb-6 rounded-2xl border border-white/[0.04] bg-navy-surface/40 backdrop-blur-md px-4 sm:px-6 py-4 sm:py-5 text-center shadow-lg ring-1 ring-white/[0.02]">
+          <div className="flex flex-col items-center gap-2">
+            <UtensilsCrossed className="h-5 w-5 text-aura-gold/70" aria-hidden />
+            <p className="text-sm font-medium leading-relaxed text-slate-200">
               {guestOrderingEnabled
                 ? (tableNumber != null
                   ? t('publicMenu.orderHint')
@@ -271,15 +297,15 @@ export default function PublicMenuPage() {
           </div>
         </div>
 
-        <div className="px-5 py-4 border-t border-white/[0.04]">
-          <div className="relative group">
+        <div className="sticky top-4 z-20 space-y-3 mb-8">
+          <div className="relative group shadow-[0_8px_30px_rgba(0,0,0,0.4)] rounded-2xl">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-fumo group-focus-within:text-aura-gold transition-colors" aria-hidden />
             <input
               type="search"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder={t('publicMenu.searchPlaceholder')}
-              className="w-full rounded-2xl border border-white/[0.1] bg-navy-mid py-3 pl-11 pr-11 text-sm text-pietra placeholder:text-fumo/50 focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold transition-all shadow-inner"
+              className="w-full rounded-2xl border border-white/[0.06] bg-navy-elevated/40 py-3.5 pl-11 pr-11 text-sm text-white placeholder:text-fumo/50 focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50 transition-all shadow-inner"
             />
             {search && (
               <button
@@ -292,15 +318,13 @@ export default function PublicMenuPage() {
               </button>
             )}
           </div>
-        </div>
-      </header>
 
-      {!search.trim() && categories.length > 1 && (
-        <nav
-          className="sticky top-[13.5rem] z-10 border-b border-white/[0.08] bg-navy/95 backdrop-blur-md shadow-lg"
-          aria-label={t('publicMenu.categories')}
-        >
-          <div className="flex gap-2 overflow-x-auto px-5 py-3 scrollbar-none">
+          {!search.trim() && categories.length > 1 && (
+            <nav
+              className="rounded-2xl border border-white/[0.05] bg-navy-surface/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden ring-1 ring-white/[0.02]"
+              aria-label={t('publicMenu.categories')}
+            >
+              <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
             {categories.map(cat => {
               const isActive = (selectedCategory ?? categories[0]?.id) === cat.id
               return (
@@ -311,7 +335,7 @@ export default function PublicMenuPage() {
                   className={`shrink-0 rounded-full border px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                     isActive
                       ? 'border-aura-gold bg-aura-gold text-navy shadow-[0_0_15px_rgba(212,175,55,0.3)]'
-                      : 'border-white/[0.1] bg-navy-surface text-fumo hover:border-aura-gold/50 hover:bg-white/[0.05] hover:text-white'
+                      : 'border-white/[0.08] bg-navy-surface/60 backdrop-blur-md text-fumo hover:border-aura-gold/50 hover:bg-white/[0.08] hover:text-white shadow-sm'
                   }`}
                 >
                   {cat.name}
@@ -319,10 +343,11 @@ export default function PublicMenuPage() {
               )
             })}
           </div>
-        </nav>
-      )}
+            </nav>
+          )}
+        </div>
 
-      <main className={cn('px-5 py-8 min-h-[50vh]', hasCartItems ? 'pb-32' : 'pb-12')}>
+        <main className="w-full">
         <h2 className="mb-6 text-sm font-bold uppercase tracking-[0.2em] text-aura-gold flex items-center gap-4">
           <span>{displayTitle}</span>
           <div className="h-px flex-1 bg-gradient-to-r from-aura-gold/30 to-transparent" />
@@ -391,6 +416,7 @@ export default function PublicMenuPage() {
           />
         </>
       )}
+      </div>
     </div>
   )
 }

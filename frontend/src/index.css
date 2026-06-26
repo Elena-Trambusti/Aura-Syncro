@@ -58,6 +58,21 @@
   --shadow-gold-glow: 0 0 20px rgba(212, 175, 55, 0.12);
   --shadow-kpi-depth: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --aura-signature-glow: 0 0 0 1px rgba(212, 175, 55, 0.18), 0 8px 32px rgba(212, 175, 55, 0.08);
+
+  --animate-reveal-blur: reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-reveal-slide: reveal-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@layer utilities {
+  @keyframes reveal-blur {
+    0% { opacity: 0; filter: blur(12px); transform: translateY(24px); }
+    100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  }
+
+  @keyframes reveal-slide {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
@@ -396,15 +411,24 @@
   }
 
   .table-tile {
-    @apply absolute flex flex-col items-center justify-center gap-0.5 rounded-xl border border-white/10 bg-navy-surface text-pietra cursor-pointer transition-all duration-300;
+    @apply absolute flex flex-col items-center justify-center gap-0.5 rounded-xl border border-white/10 bg-gradient-to-br from-[#1a1c23] to-[#0f111a] text-pietra cursor-pointer transition-all duration-300;
     transform: translate(-50%, -50%);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 8px 16px -4px rgba(0, 0, 0, 0.6), 0 4px 8px -4px rgba(0, 0, 0, 0.4);
+    /* Effetto texture simil-materiale */
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%), var(--aura-surface-card);
+  }
+
+  .table-tile::before {
+    /* Effetto alone interno */
+    content: '';
+    @apply absolute inset-0 rounded-[inherit] opacity-50 pointer-events-none transition-opacity duration-300;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
   }
 
   .table-tile:hover {
     transform: translate(-50%, -50%) scale(1.05);
-    @apply border-white/30 bg-navy-elevated z-10;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    @apply border-white/20 bg-[#1e2028] z-20;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.08), 0 15px 25px -5px rgba(0, 0, 0, 0.8), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
   }
 
   .table-tile--static {
@@ -416,29 +440,42 @@
   }
 
   .table-tile--free {
-    @apply border border-emerald-900/50 text-emerald-400 bg-emerald-950/20;
-    box-shadow: 0 0 10px -2px rgba(16, 185, 129, 0.15);
+    @apply border-white/5 text-pietra;
   }
   .table-tile--free:hover {
-    box-shadow: 0 0 20px -2px rgba(16, 185, 129, 0.35);
+    @apply border-emerald-500/30;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.08), 0 0 20px -2px rgba(16, 185, 129, 0.2);
   }
 
-  .table-tile--occupied,
-  .table-tile--reserved {
-    @apply border border-aura-gold/50 text-aura-gold bg-aura-gold/10;
-    box-shadow: 0 0 15px -1px rgba(212, 175, 55, 0.25);
+  .table-tile--occupied {
+    @apply border-aura-gold/50 text-aura-gold;
+    box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1), 0 0 25px -2px rgba(212, 175, 55, 0.35);
   }
-  .table-tile--occupied:hover,
+  .table-tile--occupied:hover {
+    box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.2), 0 0 40px 2px rgba(212, 175, 55, 0.6);
+  }
+
+  .table-tile--reserved {
+    @apply border-amber-400/50 text-amber-400;
+    box-shadow: inset 0 0 10px rgba(251, 191, 36, 0.1), 0 0 20px -2px rgba(251, 191, 36, 0.25);
+  }
   .table-tile--reserved:hover {
-    box-shadow: 0 0 30px 2px rgba(212, 175, 55, 0.5);
+    box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.2), 0 0 30px 2px rgba(251, 191, 36, 0.4);
+  }
+
+  @keyframes breathe {
+    0%, 100% { box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1), 0 0 15px -2px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: inset 0 0 25px rgba(59, 130, 246, 0.3), 0 0 35px 5px rgba(59, 130, 246, 0.6); border-color: rgba(59, 130, 246, 0.8); }
   }
 
   .table-tile--cleaning {
-    @apply border border-blue-900/50 text-blue-400 bg-blue-950/20;
-    box-shadow: 0 0 15px -2px rgba(59, 130, 246, 0.2);
+    @apply text-blue-400;
+    animation: breathe 2.5s ease-in-out infinite;
   }
   .table-tile--cleaning:hover {
-    box-shadow: 0 0 25px 0px rgba(59, 130, 246, 0.4);
+    animation: none;
+    @apply border-blue-500/80;
+    box-shadow: inset 0 0 25px rgba(59, 130, 246, 0.3), 0 0 40px 5px rgba(59, 130, 246, 0.7);
   }
 
   .glass-chip { @apply rounded-lg border border-white/[0.08] bg-navy-surface text-pietra; box-shadow: var(--shadow-premium-sm); }

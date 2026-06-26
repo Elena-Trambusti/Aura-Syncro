@@ -41,6 +41,7 @@ export interface CustomerEditData {
   lastName: string
   email: string
   phone: string
+  birthDate: string
   notes: string
   allergens: string
   tags: string
@@ -67,6 +68,7 @@ function toEditForm(customer: CustomerDetail): CustomerEditData {
     lastName: customer.lastName || '',
     email: customer.email || '',
     phone: customer.phone || '',
+    birthDate: customer.birthDate ? customer.birthDate.split('T')[0] : '',
     notes: customer.notes || '',
     allergens: customer.allergens || '',
     tags: customer.tags.join(', '),
@@ -81,7 +83,7 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<CustomerEditData>({
-    firstName: '', lastName: '', email: '', phone: '', notes: '', allergens: '', tags: '',
+    firstName: '', lastName: '', email: '', phone: '', birthDate: '', notes: '', allergens: '', tags: '',
     taxId: '', fiscalCode: '', sdiRecipientCode: '', pec: '',
   })
 
@@ -193,14 +195,25 @@ export default function CustomerSlideOver({ customer, onClose, isLoading, onSave
                 className={ui.input}
               />
             </div>
-            <div>
-              <label className={ui.label}>{t('common.phone')}</label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                className={ui.input}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={ui.label}>{t('common.phone')}</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                  className={ui.input}
+                />
+              </div>
+              <div>
+                <label className={ui.label}>{t('crm.form.birthDate', { defaultValue: 'Data di Nascita' })}</label>
+                <input
+                  type="date"
+                  value={form.birthDate}
+                  onChange={e => setForm(p => ({ ...p, birthDate: e.target.value }))}
+                  className={ui.input}
+                />
+              </div>
             </div>
             <div>
               <label className={ui.label}>{t('crm.form.tags')}</label>

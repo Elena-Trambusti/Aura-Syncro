@@ -89,6 +89,36 @@ tablesRouter.patch('/positions', requirePermission('tables.manage'), async (req:
   res.json({ success: true, count: result.data.length })
 })
 
+tablesRouter.patch('/area', requirePermission('tables.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
+  const schema = z.object({
+    oldName: z.string().nullable(),
+    newName: z.string(),
+  })
+  const result = schema.safeParse(req.body)
+  if (!result.success) {
+    res.status(400).json({ error: 'Dati non validi' })
+    return
+  }
+
+  const { oldName, newName } = result.data
+  
+  // Update all tables in this area
+  const count = await prisma.table.updateMany({
+    where: { restaurantId: tenantId(req), area: oldName },
+    data: { area: newName }
+  })
+  
+  if (count.count > 0) {
+    const updatedTables = await prisma.table.findMany({
+      where: tenantWhere(req),
+      orderBy: { number: 'asc' }
+    })
+    io.to(tenantId(req)).emit('tables:updated', updatedTables)
+  }
+  
+  res.json({ success: true, count: count.count })
+})
+
 tablesRouter.post('/', requirePermission('tables.manage'), async (req: AuthRequest, res: Response): Promise<void> => {
   const schema = z.object({
     number: z.number().int().positive(),

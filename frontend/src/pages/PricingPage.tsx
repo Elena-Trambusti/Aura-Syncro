@@ -17,12 +17,12 @@ export default function PricingPage() {
           <div className="space-y-4 mb-8">
             <div className="p-4 rounded-xl border border-white/10 bg-white/5">
               <p className="text-sm text-fumo uppercase tracking-wider mb-1">Setup Iniziale (Una tantum)</p>
-              <p className="text-3xl font-bold text-pietra tabular-nums">€ 500</p>
+              <p className="text-3xl font-bold text-pietra tabular-nums">€ 500<span className="text-sm text-fumo ml-1">+ IVA</span></p>
             </div>
             
             <div className="p-4 rounded-xl border border-aura-gold/30 bg-aura-gold/5 shadow-[inset_0_0_20px_rgba(212,175,55,0.05)]">
               <p className="text-sm text-aura-gold/80 uppercase tracking-wider mb-1">Canone Ricorrente</p>
-              <p className="text-4xl font-display font-bold text-aura-gold tabular-nums">€ 199<span className="text-lg text-aura-gold/60 font-medium">/mese</span></p>
+              <p className="text-4xl font-display font-bold text-aura-gold tabular-nums">€ 199<span className="text-lg text-aura-gold/60 font-medium">/mese + IVA</span></p>
             </div>
           </div>
 

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
 import PublicLanguageSwitcher from '../components/public/PublicLanguageSwitcher'
-import { AlertCircle, CalendarDays, CheckCircle2, Users, Phone, Mail, User } from 'lucide-react'
+import { AlertCircle, CalendarDays, CheckCircle2, Users, Phone, Mail, User, UtensilsCrossed } from 'lucide-react'
 
 interface BookingInfo {
   restaurant: {
@@ -136,41 +136,39 @@ export default function PublicReservationPage() {
   } as CSSProperties
 
   return (
-    <div className="min-h-[100dvh] bg-navy text-pietra" style={introStyle}>
-      <div className="mx-auto max-w-3xl">
-        <div
-          className="relative h-64 sm:h-80 overflow-hidden"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(10, 15, 36, 0.2) 0%, #0a0f24 100%), url('${heroImage}')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          <div className="flex items-start justify-end p-5">
-            <PublicLanguageSwitcher />
-          </div>
-          <div className="absolute bottom-6 left-1/2 w-[calc(100%-3rem)] max-w-xl -translate-x-1/2 rounded-2xl border border-white/[0.08] bg-navy-elevated/80 p-5 shadow-2xl backdrop-blur-md">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.1] bg-navy-surface shadow-inner">
-                {data.restaurant.logo ? (
-                  <img src={data.restaurant.logo} alt={data.restaurant.name} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="text-lg font-bold text-pietra tracking-widest">{getInitials(data.restaurant.name)}</span>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold">
-                  {t('publicBooking.badge')}
-                </p>
-                <h1 className="mt-1 truncate text-xl font-bold text-pietra">{data.restaurant.name}</h1>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div 
+      className="min-h-[100dvh] text-pietra flex flex-col relative" 
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 7, 18, 0.5) 0%, rgba(3, 7, 18, 0.95) 100%), url('${heroImage}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        ...introStyle
+      }}
+    >
+      <div className="absolute top-0 inset-x-0 p-5 flex justify-end z-10">
+        <PublicLanguageSwitcher />
       </div>
 
-      <div className="mx-auto max-w-3xl px-5 pb-16 pt-8">
-        <div className="mx-auto w-full max-w-xl rounded-2xl border border-white/[0.08] bg-navy-surface p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center py-10 sm:py-16 px-3 sm:px-6 mb-8 sm:mb-0">
+        
+        <div className="text-center flex flex-col items-center mb-10">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-aura-gold/40 bg-navy-surface/90 shadow-[0_0_40px_rgba(212,175,55,0.3)] backdrop-blur-xl mb-6">
+            {data.restaurant.logo ? (
+              <img src={data.restaurant.logo} alt={data.restaurant.name} className="h-full w-full object-cover" />
+            ) : (
+              <UtensilsCrossed className="h-10 w-10 text-aura-gold" strokeWidth={1.5} />
+            )}
+          </div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-aura-gold mb-3">
+            {t('publicBooking.badge')}
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold tracking-tight text-white drop-shadow-2xl">
+            {data.restaurant.name}
+          </h1>
+        </div>
+
+        <div className="w-full max-w-xl premium-card backdrop-blur-3xl bg-navy/60 p-5 sm:p-12 shadow-[0_0_60px_rgba(0,0,0,0.6)] relative overflow-hidden ring-1 ring-white/[0.1] rounded-3xl sm:rounded-[2rem]">
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-aura-gold to-amber-400 opacity-80" />
           
           <p className="text-center text-sm leading-relaxed text-fumo">
@@ -199,7 +197,7 @@ export default function PublicReservationPage() {
                 minLength={2}
                 value={form.guestName}
                 onChange={e => setForm(f => ({ ...f, guestName: e.target.value }))}
-                className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold"
+                className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50"
               />
             </div>
 
@@ -213,7 +211,7 @@ export default function PublicReservationPage() {
                 type="tel"
                 value={form.guestPhone}
                 onChange={e => setForm(f => ({ ...f, guestPhone: e.target.value }))}
-                className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold"
+                className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50"
               />
             </div>
 
@@ -225,7 +223,7 @@ export default function PublicReservationPage() {
                 type="email"
                 value={form.guestEmail}
                 onChange={e => setForm(f => ({ ...f, guestEmail: e.target.value }))}
-                className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold"
+                className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50"
               />
             </div>
 
@@ -240,7 +238,7 @@ export default function PublicReservationPage() {
                   min={minDate}
                   value={form.date}
                   onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                  className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold [color-scheme:dark]"
+                  className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50 [color-scheme:dark]"
                 />
               </div>
               <div>
@@ -250,7 +248,7 @@ export default function PublicReservationPage() {
                   type="time"
                   value={form.time}
                   onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                  className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold [color-scheme:dark]"
+                  className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50 [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -266,7 +264,7 @@ export default function PublicReservationPage() {
                 max={data.settings.maxCoversPerSlot}
                 value={form.covers}
                 onChange={e => setForm(f => ({ ...f, covers: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold"
+                className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50"
               />
               <p className="mt-2 text-xs text-fumo/50">
                 {t('publicBooking.maxCovers', { max: data.settings.maxCoversPerSlot })}
@@ -279,7 +277,7 @@ export default function PublicReservationPage() {
                 rows={3}
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="w-full rounded-xl border border-white/[0.1] bg-navy-mid px-4 py-3 text-sm text-pietra transition-colors focus:border-aura-gold focus:bg-navy-elevated focus:outline-none focus:ring-1 focus:ring-aura-gold resize-none"
+                className="w-full rounded-xl border border-white/[0.06] bg-navy-elevated/40 px-4 py-3.5 text-sm text-white shadow-inner transition-all hover:border-white/[0.1] focus:border-aura-gold/50 focus:bg-navy-elevated/80 focus:outline-none focus:ring-1 focus:ring-aura-gold/50 resize-none"
                 placeholder={t('publicBooking.notesPlaceholder')}
               />
             </div>
@@ -298,7 +296,7 @@ export default function PublicReservationPage() {
               <button
                 type="submit"
                 disabled={bookMutation.isPending}
-                className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-aura-gold to-amber-400 py-4 text-sm font-bold uppercase tracking-wider text-navy shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
+                className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-aura-gold to-amber-400 py-4 text-sm font-extrabold uppercase tracking-[0.15em] text-navy shadow-[0_0_30px_rgba(212,175,55,0.25)] transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.4)] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:hover:scale-100"
               >
                 {bookMutation.isPending ? t('common.loading') : t('publicBooking.submit')}
               </button>

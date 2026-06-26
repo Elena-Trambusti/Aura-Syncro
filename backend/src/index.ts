@@ -34,6 +34,7 @@ import { adminRouter } from './routes/admin'
 import { aiRouter } from './routes/ai'
 import { pushRouter } from './routes/push'
 import { sentryTunnelRouter } from './routes/sentryTunnel'
+import invoicesRouter from './routes/invoices'
 import { AuthRequest, authenticate } from './middleware/auth'
 import { requireDashboardAccess } from './middleware/dashboardAccess'
 import { requireProPlan } from './middleware/planTier'
@@ -45,6 +46,7 @@ import { setupSocketHandlers } from './socket/handlers'
 import { validateEnv } from './lib/env'
 import { getVapidPublicKey } from './lib/webPush'
 import { globalApiLimiter } from './middleware/rateLimit'
+import { startInvoicePoller } from './lib/invoicePoller'
 
 // In produzione (DigitalOcean) le variabili sono iniettate dalla piattaforma;
 // in locale carichiamo backend/.env tramite dotenv.
@@ -139,6 +141,7 @@ app.use('/api/push', authenticate, requireDashboardAccess, pushRouter)
 app.use('/api/tables', authenticate, requireDashboardAccess, tablesRouter)
 app.use('/api/menu', authenticate, requireDashboardAccess, menuRouter)
 app.use('/api/orders', authenticate, requireDashboardAccess, ordersRouter)
+app.use('/api/invoices', authenticate, requireDashboardAccess, invoicesRouter)
 app.use('/api/reservations', authenticate, requireDashboardAccess, reservationsRouter)
 app.use('/api/customers', authenticate, requireDashboardAccess, requireProPlan, customersRouter)
 app.use('/api/staff', authenticate, requireDashboardAccess, staffRouter)
@@ -170,6 +173,11 @@ httpServer.listen(PORT, () => {
   console.log(`🚀 Server avviato su http://localhost:${PORT}`)
   console.log(`📦 Database: ${process.env.DATABASE_URL?.includes('postgresql') ? 'PostgreSQL (Supabase)' : 'SQLite'}`)
   console.log(`🔌 WebSocket pronto`)
+
+  // Avvia il poller per lo stato SDI di Aruba
+  if (process.env.NODE_ENV !== 'test') {
+    startInvoicePoller()
+  }
 
   const schedulerMs = Number(process.env.MARKETING_SCHEDULER_MS || 3600_000)
   setInterval(async () => {

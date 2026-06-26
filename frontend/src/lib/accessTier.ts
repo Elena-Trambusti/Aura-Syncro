@@ -34,6 +34,7 @@ export function isFreeTierPath(pathname: string): boolean {
   const path = normalizePath(pathname)
 
   if (path === BILLING_PATH || path.startsWith(`${BILLING_PATH}/`)) return true
+  if (path === ONBOARDING_PATH) return true // SBLOCCO TEMPORANEO PER TEST UTENTE
   if (path === '/dashboard') return true
   if (path === '/report') return true
   if (path.startsWith('/report/')) return false

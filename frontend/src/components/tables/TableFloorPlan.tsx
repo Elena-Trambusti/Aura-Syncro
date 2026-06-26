@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Box } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 export type TableStatus = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING'
@@ -107,16 +108,20 @@ export default function TableFloorPlan({
     onTableClick(table)
   }
   return (
-    <div ref={containerRef} className="w-full overflow-hidden saas-floor bg-navy-mid/30">
+    <div ref={containerRef} className="w-full overflow-hidden bg-navy-mid/30 relative">
+
       <div className="p-4 sm:p-6" style={{ height: (800 * scale) + 48 }}>
         <div 
-          className="origin-top-left transition-transform duration-200"
+          className="origin-top-left transition-all duration-300"
           style={{ transform: `scale(${scale})` }}
         >
           <div
-            className="relative w-[1000px] h-[800px] bg-[#0f111a] rounded-2xl border border-white/10 shadow-xl overflow-hidden"
+            className="relative w-[1000px] h-[800px] rounded-3xl border border-white/10 overflow-hidden shadow-2xl"
           >
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+            {/* Sfondo Marmo/Lusso Scuro - Nessuna Griglia */}
+            <div className="absolute inset-0 bg-[#0f111a]" />
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 10px)' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-aura-gold/10 rounded-full blur-[120px] pointer-events-none" />
         
         {tables.map(table => {
           return (
@@ -176,47 +181,110 @@ function TableTile({
 
   const isDisabledInTransfer = transferRole === 'disabled'
 
+  // Generate chairs positions
+  const renderChairs = () => {
+    const chairs = []
+    const padding = 12 // Distance from table edge
+    const chairSize = 20
+    
+    if (shape === 'ROUND') {
+      const radius = (w / 2) + padding
+      const angleStep = (2 * Math.PI) / table.seats
+      for (let i = 0; i < table.seats; i++) {
+        const angle = i * angleStep - Math.PI / 2
+        const x = Math.cos(angle) * radius
+        const y = Math.sin(angle) * radius
+        chairs.push(
+          <div key={`chair-${i}`} className="absolute rounded-full bg-white/10 shadow-inner border border-white/5" 
+               style={{ width: chairSize, height: chairSize, left: `calc(50% + ${x}px - ${chairSize/2}px)`, top: `calc(50% + ${y}px - ${chairSize/2}px)` }} />
+        )
+      }
+    } else if (shape === 'RECTANGLE' || shape === 'SQUARE') {
+      // Simplistic chair placement for rect/square: top/bottom and sides
+      const topSeats = Math.ceil(table.seats / 2)
+      const bottomSeats = Math.floor(table.seats / 2)
+      // If table seats is even e.g. 4 -> 2 top, 2 bottom.
+      // If table seats is 6 -> 2 top, 2 bottom, 1 left, 1 right.
+      
+      let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
+      if (table.seats === 2) { leftCount = 1; rightCount = 1; }
+      else if (table.seats === 4) { topCount = 2; bottomCount = 2; }
+      else if (table.seats === 6) { topCount = 2; bottomCount = 2; leftCount = 1; rightCount = 1; }
+      else if (table.seats >= 8) { topCount = Math.floor((table.seats - 2) / 2); bottomCount = Math.ceil((table.seats - 2) / 2); leftCount = 1; rightCount = 1; }
+      else { topCount = Math.ceil(table.seats / 2); bottomCount = Math.floor(table.seats / 2); }
+
+      const addChairRow = (count: number, side: 'top' | 'bottom' | 'left' | 'right') => {
+        for (let i = 0; i < count; i++) {
+          const percent = ((i + 1) / (count + 1)) * 100;
+          let left, top;
+          if (side === 'top') { left = `${percent}%`; top = `-${padding}px`; }
+          else if (side === 'bottom') { left = `${percent}%`; top = `calc(100% + ${padding}px)`; }
+          else if (side === 'left') { left = `-${padding}px`; top = `${percent}%`; }
+          else { left = `calc(100% + ${padding}px)`; top = `${percent}%`; }
+
+          chairs.push(
+            <div key={`chair-${side}-${i}`} className={cn("absolute bg-white/10 shadow-inner border border-white/5", side === 'left' || side === 'right' ? 'w-[14px] h-[24px] rounded-sm' : 'w-[24px] h-[14px] rounded-sm')}
+                 style={{ left, top, transform: 'translate(-50%, -50%)' }} />
+          )
+        }
+      }
+
+      addChairRow(topCount, 'top')
+      addChairRow(bottomCount, 'bottom')
+      addChairRow(leftCount, 'left')
+      addChairRow(rightCount, 'right')
+    }
+    return chairs;
+  }
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={isDisabledInTransfer}
-      style={{ width: w, height: h, ...style }}
-      className={cn(
-        'table-tile',
-        STATUS_CLASS[table.status],
-        shape === 'ROUND' && 'rounded-full',
-        transferRole === 'source' && 'table-tile--transfer-source',
-        transferRole === 'target' && 'table-tile--transfer-target',
-        transferRole === 'disabled' && 'table-tile--transfer-disabled',
-        className,
-      )}
-      aria-label={`Tavolo ${table.number}, ${seatsLabel(table.seats)}, ${statusLabel(table.status)}`}
-    >
-      <span className="text-base font-bold leading-none">T{table.number}</span>
-      <span className="text-xs opacity-80 leading-none">{table.seats}p</span>
-      {table.status !== 'FREE' && (
-        <span className={cn(
-          'text-[10px] font-bold uppercase leading-none mt-1 px-2 py-1 rounded-full',
-          table.status === 'CLEANING' && 'bg-blue-600/90 text-white',
-          table.status === 'OCCUPIED' && 'bg-amber-600/90 text-white',
-          table.status === 'RESERVED' && 'bg-aura-gold/90 text-white',
-        )}>
-          {statusLabel(table.status as TableStatus)}
-        </span>
-      )}
-      {orderTotal && transferRole !== 'target' && (
-        <span className="text-xs font-bold leading-none mt-1">{orderTotal}</span>
-      )}
-      {reservationHint && !orderTotal && transferRole !== 'target' && (
-        <span className="text-xs font-semibold leading-tight mt-1 text-center px-1.5 drop-shadow-md">{reservationHint}</span>
-      )}
-      {transferHint && (
-        <span className="text-[9px] font-bold uppercase leading-none mt-0.5 px-1.5 py-0.5 rounded-full bg-slate-900 text-white">
-          {transferHint}
-        </span>
-      )}
-    </button>
+    <div className={cn("absolute", className)} style={style}>
+      {/* Chairs Layer */}
+      <div className="absolute inset-0 pointer-events-none">
+        {renderChairs()}
+      </div>
+
+      {/* Main Table Layer */}
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={isDisabledInTransfer}
+        style={{ width: w, height: h }}
+        className={cn(
+          'table-tile !relative !top-0 !left-0 !transform-none',
+          STATUS_CLASS[table.status],
+          shape === 'ROUND' && 'rounded-full',
+          transferRole === 'source' && 'table-tile--transfer-source',
+          transferRole === 'target' && 'table-tile--transfer-target',
+          transferRole === 'disabled' && 'table-tile--transfer-disabled',
+        )}
+        aria-label={`Tavolo ${table.number}, ${seatsLabel(table.seats)}, ${statusLabel(table.status)}`}
+      >
+        <span className="text-base font-bold leading-none z-10 drop-shadow-md">T{table.number}</span>
+        <span className="text-xs opacity-80 leading-none z-10 drop-shadow-md">{table.seats}p</span>
+        {table.status !== 'FREE' && (
+          <span className={cn(
+            'text-[10px] font-bold uppercase leading-none mt-1 px-2 py-1 rounded-full z-10 shadow-lg',
+            table.status === 'CLEANING' && 'bg-blue-600/90 text-white',
+            table.status === 'OCCUPIED' && 'bg-amber-600/90 text-white',
+            table.status === 'RESERVED' && 'bg-aura-gold/90 text-navy',
+          )}>
+            {statusLabel(table.status as TableStatus)}
+          </span>
+        )}
+        {orderTotal && transferRole !== 'target' && (
+          <span className="text-sm font-black leading-none mt-1 text-white drop-shadow-lg z-10">{orderTotal}</span>
+        )}
+        {reservationHint && !orderTotal && transferRole !== 'target' && (
+          <span className="text-xs font-semibold leading-tight mt-1 text-center px-1.5 text-white drop-shadow-lg z-10">{reservationHint}</span>
+        )}
+        {transferHint && (
+          <span className="text-[9px] font-bold uppercase leading-none mt-0.5 px-1.5 py-0.5 rounded-full bg-slate-900 text-white z-10 shadow-md">
+            {transferHint}
+          </span>
+        )}
+      </button>
+    </div>
   )
 }
 

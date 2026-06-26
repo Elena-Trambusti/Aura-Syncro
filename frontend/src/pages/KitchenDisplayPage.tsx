@@ -69,14 +69,14 @@ const KitchenOrderItemRow = memo(function KitchenOrderItemRow({
       } ${busy ? 'opacity-70' : ''}`}
     >
       <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${ITEM_STATUS_COLORS[item.status] || 'bg-slate-400'}`} />
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-600 text-xs font-bold text-white">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-600 text-sm font-bold text-white">
         {item.quantity}
       </span>
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold ${item.status === 'READY' ? 'text-emerald-400 line-through' : 'text-white'}`}>
+        <p className={`text-lg font-semibold ${item.status === 'READY' ? 'text-emerald-400 line-through' : 'text-white'}`}>
           {item.menuItem.name}
         </p>
-        {item.notes && <p className="mt-0.5 text-xs text-yellow-400">⚠ {item.notes}</p>}
+        {item.notes && <p className="mt-1 text-sm font-medium text-yellow-400">⚠ {item.notes}</p>}
         {item.quantity > 1 && item.status === 'PREPARING' && (
           <p className="mt-0.5 text-[10px] text-stone-400">
             {t('kitchen.partialReadyHint', { defaultValue: 'Usa +1 per segnare una porzione pronta' })}

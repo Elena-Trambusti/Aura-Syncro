@@ -197,7 +197,6 @@ export default function DashboardPage() {
     <ExecutivePageShell className="space-y-6">
       <ExecutivePageHeader
         title={t('dashboard.title', { name: restaurant?.name || t('common.restaurant') })}
-        subtitle={t('dashboard.executiveSubtitle', { defaultValue: 'Operating system del servizio — visione executive' })}
         actions={(
           <div className="flex flex-col items-end gap-2">
             <div className="aura-date-badge">

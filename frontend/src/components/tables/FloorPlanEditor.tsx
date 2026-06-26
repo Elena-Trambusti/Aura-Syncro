@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTenantQueryKey } from '../../contexts/AuthContext'
 import { tq } from '../../lib/queryKeys'
+import { cn } from '../../lib/utils'
 
 interface FloorPlanEditorProps {
   tables: FloorTable[]
@@ -173,14 +174,67 @@ export default function FloorPlanEditor({ tables, onClose }: FloorPlanEditorProp
             className="relative w-full bg-[#0f111a] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
             style={{ aspectRatio: '16/9', maxHeight: '100%' }}
           >
-            {/* Griglia Blueprint */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+            {/* Sfondo Marmo/Lusso Scuro - Nessuna Griglia */}
+            <div className="absolute inset-0 bg-[#0f111a]" />
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 10px)' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-aura-gold/10 rounded-full blur-[120px] pointer-events-none" />
           
           {layout.map(table => {
             const rot = table.rotation || 0
             const size = getTableSize(table.seats, table.shape || 'SQUARE')
             
             if (containerSize.width === 0) return null;
+
+            const renderEditorChairs = () => {
+              const chairs = []
+              const padding = 12
+              const chairSize = 20
+              const shape = table.shape || 'SQUARE'
+              
+              if (shape === 'ROUND') {
+                const radius = (size.width / 2) + padding
+                const angleStep = (2 * Math.PI) / table.seats
+                for (let i = 0; i < table.seats; i++) {
+                  const angle = i * angleStep - Math.PI / 2
+                  const x = Math.cos(angle) * radius
+                  const y = Math.sin(angle) * radius
+                  chairs.push(
+                    <div key={`chair-${i}`} className="absolute rounded-full bg-white/10 shadow-inner border border-white/5 pointer-events-none" 
+                         style={{ width: chairSize, height: chairSize, left: `calc(50% + ${x}px - ${chairSize/2}px)`, top: `calc(50% + ${y}px - ${chairSize/2}px)` }} />
+                  )
+                }
+              } else {
+                const topSeats = Math.ceil(table.seats / 2)
+                const bottomSeats = Math.floor(table.seats / 2)
+                let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
+                if (table.seats === 2) { leftCount = 1; rightCount = 1; }
+                else if (table.seats === 4) { topCount = 2; bottomCount = 2; }
+                else if (table.seats === 6) { topCount = 2; bottomCount = 2; leftCount = 1; rightCount = 1; }
+                else if (table.seats >= 8) { topCount = Math.floor((table.seats - 2) / 2); bottomCount = Math.ceil((table.seats - 2) / 2); leftCount = 1; rightCount = 1; }
+                else { topCount = Math.ceil(table.seats / 2); bottomCount = Math.floor(table.seats / 2); }
+          
+                const addChairRow = (count: number, side: 'top' | 'bottom' | 'left' | 'right') => {
+                  for (let i = 0; i < count; i++) {
+                    const percent = ((i + 1) / (count + 1)) * 100;
+                    let left, top;
+                    if (side === 'top') { left = `${percent}%`; top = `-${padding}px`; }
+                    else if (side === 'bottom') { left = `${percent}%`; top = `calc(100% + ${padding}px)`; }
+                    else if (side === 'left') { left = `-${padding}px`; top = `${percent}%`; }
+                    else { left = `calc(100% + ${padding}px)`; top = `${percent}%`; }
+          
+                    chairs.push(
+                      <div key={`chair-${side}-${i}`} className={cn("absolute bg-white/10 shadow-inner border border-white/5 pointer-events-none", side === 'left' || side === 'right' ? 'w-[14px] h-[24px] rounded-sm' : 'w-[24px] h-[14px] rounded-sm')}
+                           style={{ left, top, transform: 'translate(-50%, -50%)' }} />
+                    )
+                  }
+                }
+                addChairRow(topCount, 'top')
+                addChairRow(bottomCount, 'bottom')
+                addChairRow(leftCount, 'left')
+                addChairRow(rightCount, 'right')
+              }
+              return chairs;
+            }
 
             return (
               <Rnd
@@ -196,24 +250,38 @@ export default function FloorPlanEditor({ tables, onClose }: FloorPlanEditorProp
                 className="group"
                 style={{ position: 'absolute' }}
               >
-                <div 
-                  className={`w-full h-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing backdrop-blur-md transition-shadow duration-300 ${getTableGlow(table.status)} ${table.shape === 'ROUND' ? 'rounded-full' : 'rounded-xl'}`}
-                  style={{ transform: `rotate(${rot}deg)` }}
-                >
-                  <div className="flex flex-col items-center pointer-events-none">
-                    <span className="text-base font-display font-bold text-white/90 drop-shadow-md">
-                      {table.name || table.number}
-                    </span>
-                    <span className="text-[10px] font-semibold text-fumo">
-                      {table.seats}p
-                    </span>
+                <div style={{ transform: `rotate(${rot}deg)`, width: '100%', height: '100%', position: 'relative' }} className="cursor-grab active:cursor-grabbing">
+                  {/* Chairs Layer */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    {renderEditorChairs()}
+                  </div>
+                  
+                  {/* Main Table Layer */}
+                  <div 
+                    className={cn(
+                      "table-tile !relative !top-0 !left-0 !transform-none w-full h-full cursor-grab active:cursor-grabbing pointer-events-none",
+                      table.status === 'FREE' ? 'table-tile--free' :
+                      table.status === 'OCCUPIED' ? 'table-tile--occupied' :
+                      table.status === 'CLEANING' ? 'table-tile--cleaning' : 'table-tile--reserved',
+                      table.shape === 'ROUND' ? 'rounded-full' : 'rounded-xl'
+                    )}
+                  >
+                    <div className="flex flex-col items-center pointer-events-none">
+                      <span className="text-base font-display font-bold z-10 drop-shadow-md text-white">
+                        {table.name || `T${table.number}`}
+                      </span>
+                      <span className="text-[10px] font-semibold text-white/80 z-10">
+                        {table.seats}p
+                      </span>
+                    </div>
                   </div>
                 </div>
                 
                 {/* Rotate Handle */}
                 <button 
                   onClick={(e) => handleRotate(table.id, rot, e)}
-                  className="absolute -top-3 -right-3 w-7 h-7 bg-navy border border-aura-gold/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-aura-gold hover:text-navy cursor-pointer z-10"
+                  className="absolute -top-3 -right-3 w-7 h-7 bg-navy border border-aura-gold/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-aura-gold hover:text-navy cursor-pointer z-[100]"
+
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                 </button>

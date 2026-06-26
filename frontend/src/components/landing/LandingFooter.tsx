@@ -11,9 +11,9 @@ export default function LandingFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="relative border-t border-white/5 bg-transparent px-4 py-12 sm:px-6 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-full max-w-2xl h-32 bg-amber-500/5 blur-3xl pointer-events-none rounded-full" />
+    <footer className="relative border-t border-white/[0.02] bg-transparent px-4 py-12 sm:px-6 overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[1px] bg-gradient-to-r from-transparent via-aura-gold/60 to-transparent shadow-[0_0_20px_rgba(212,175,55,0.5)]" />
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-full max-w-2xl h-32 bg-aura-gold/10 blur-[100px] pointer-events-none rounded-full" />
       
       <div className="relative mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between z-10">
         <div>
@@ -33,9 +33,9 @@ export default function LandingFooter() {
           <Link to="/termini" className="hover:text-amber-400 transition-colors">
             {t('landing.footer.terms')}
           </Link>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-amber-400 transition-colors">
+          <Link to="/contatti" className="hover:text-amber-400 transition-colors">
             {t('landing.footer.contact')}
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

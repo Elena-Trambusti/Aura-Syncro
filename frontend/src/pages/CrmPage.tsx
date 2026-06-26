@@ -42,6 +42,7 @@ interface NewCustomerForm {
   lastName: string
   email: string
   phone: string
+  birthDate: string
   notes: string
   tags: string
 }
@@ -51,6 +52,7 @@ const emptyForm = (): NewCustomerForm => ({
   lastName: '',
   email: '',
   phone: '',
+  birthDate: '',
   notes: '',
   tags: '',
 })
@@ -94,6 +96,7 @@ export default function CrmPage() {
         lastName: data.lastName.trim(),
         ...(data.email.trim() ? { email: data.email.trim() } : {}),
         ...(data.phone.trim() ? { phone: data.phone.trim() } : {}),
+        ...(data.birthDate.trim() ? { birthdate: new Date(data.birthDate).toISOString() } : {}),
         ...(data.notes.trim() ? { notes: data.notes.trim() } : {}),
         ...(data.tags.trim()
           ? { tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean) }
@@ -118,6 +121,7 @@ export default function CrmPage() {
         lastName: data.lastName.trim(),
         email: data.email.trim() || null,
         phone: data.phone.trim() || null,
+        birthdate: data.birthDate ? new Date(data.birthDate).toISOString() : null,
         notes: data.notes.trim() || null,
         allergens: data.allergens.trim() || null,
         tags: data.tags.trim()
@@ -379,14 +383,25 @@ export default function CrmPage() {
                   className={ui.input}
                 />
               </div>
-              <div>
-                <label className={ui.label}>{t('common.phone')}</label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                  className={ui.input}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={ui.label}>{t('common.phone')}</label>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                    className={ui.input}
+                  />
+                </div>
+                <div>
+                  <label className={ui.label}>{t('crm.form.birthDate', { defaultValue: 'Data di Nascita' })}</label>
+                  <input
+                    type="date"
+                    value={form.birthDate}
+                    onChange={e => setForm(p => ({ ...p, birthDate: e.target.value }))}
+                    className={ui.input}
+                  />
+                </div>
               </div>
               <div>
                 <label className={ui.label}>{t('crm.form.tags')}</label>

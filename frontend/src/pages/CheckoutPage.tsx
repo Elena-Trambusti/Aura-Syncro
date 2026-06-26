@@ -173,7 +173,7 @@ export default function CheckoutPage() {
         }
       }
 
-      return api.post('/payments/finalize', payload).then(r => r.data)
+      return api.post('/payments/finalize', payload, { timeout: 20000 }).then(r => r.data)
     },
     onSuccess: (result: CheckoutFinalizeResult) => {
       queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
@@ -451,7 +451,7 @@ export default function CheckoutPage() {
               {splitMode === 'by_items' && (
                 <div className="space-y-2">
                   {activeItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg bg-navy-surface/50 px-3 py-2">
+                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg bg-navy-surface/50 px-3 py-2">
                       <span className="truncate text-sm text-pietra">{item.menuItem.name}</span>
                       <select
                         value={itemAssignments[item.id] ?? 0}

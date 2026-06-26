@@ -14,6 +14,9 @@ import RegisterPage from './pages/RegisterPage'
 import PricingPage from './pages/PricingPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import CookiePage from './pages/CookiePage'
+import DPAPage from './pages/DPAPage'
+import ContactPage from './pages/ContactPage'
 import DashboardLayout from './components/layout/DashboardLayout'
 import DashboardPage from './pages/DashboardPage'
 import TablesPage from './pages/TablesPage'
@@ -43,6 +46,7 @@ import QRBuilderPage from './pages/QRBuilderPage'
 import OnboardingPage from './pages/OnboardingPage'
 import PlatformAdminPage from './pages/PlatformAdminPage'
 import LandingPage from './pages/LandingPage'
+import InvoicesPage from './pages/InvoicesPage'
 import LandingRoute from './components/landing/LandingRoute'
 import RequireRole from './components/auth/RequireRole'
 import RequireProPlan from './components/auth/RequireProPlan'
@@ -50,6 +54,7 @@ import RequirePermission from './components/auth/RequirePermission'
 import DashboardAccessGate from './components/auth/DashboardAccessGate'
 import AuthLoadingScreen from './components/auth/AuthLoadingScreen'
 import PwaRegistrar from './components/PwaRegistrar'
+import { CookieBanner } from './components/landing/CookieBanner'
 import { ADMIN_NAV_ROLES, STAFF_MANAGE_ROLES } from './lib/rbac'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -74,6 +79,9 @@ function AppRoutes() {
       <Route path="/prezzi" element={<PricingPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/termini" element={<TermsPage />} />
+      <Route path="/cookie" element={<CookiePage />} />
+      <Route path="/dpa" element={<DPAPage />} />
+      <Route path="/contatti" element={<ContactPage />} />
       <Route path="/platform-admin" element={<PlatformAdminPage />} />
       {/* Pagine pubbliche senza auth */}
       <Route path="/menu/:slug" element={<PublicMenuPage />} />
@@ -125,6 +133,7 @@ function AppRoutes() {
           <Route path="fiscal" element={<RequireRole roles={ADMIN_NAV_ROLES}><RequireProPlan><ReportFiscal /></RequireProPlan></RequireRole>} />
         </Route>
         <Route path="pagamenti" element={<RequireRole roles={ADMIN_NAV_ROLES}><RequireProPlan><PaymentsPage /></RequireProPlan></RequireRole>} />
+        <Route path="fatture" element={<RequireRole roles={ADMIN_NAV_ROLES}><RequireProPlan><InvoicesPage /></RequireProPlan></RequireRole>} />
         <Route path="dashboard/ai-predictive" element={<RequireProPlan><AIPredictivePage /></RequireProPlan>} />
         <Route path="dashboard/qr-builder" element={<RequirePermission permissions={['menu.manage']}><QRBuilderPage /></RequirePermission>} />
         <Route path="ai" element={<Navigate to="/dashboard/ai-predictive" replace />} />
@@ -140,6 +149,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <PwaRegistrar />
+        <CookieBanner />
         <AppRoutes />
       </AuthProvider>
     </BrowserRouter>

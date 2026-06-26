@@ -10,6 +10,7 @@ import OrderModal from '../components/orders/OrderModal'
 import ModalPortal from '../components/ModalPortal'
 import TableFloorPlan, { TABLE_STATUS_BADGE, TABLE_LEGEND_DOT, type FloorTable, type TableStatus } from '../components/tables/TableFloorPlan'
 import FloorPlanEditor from '../components/tables/FloorPlanEditor'
+import AreaManagerModal from '../components/tables/AreaManagerModal'
 import { cn } from '../lib/utils'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
@@ -142,6 +143,7 @@ export default function TablesPage() {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [transferSourceId, setTransferSourceId] = useState<string | null>(null)
   const [showManage, setShowManage] = useState(false)
+  const [showAreaManager, setShowAreaManager] = useState(false)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [editingTable, setEditingTable] = useState<Table | null>(null)
   const allAreasKey = t('common.allAreas')
@@ -225,7 +227,8 @@ export default function TablesPage() {
     },
   })
 
-  const areas = [allAreasKey, ...Array.from(new Set(tables.map(tbl => tbl.area || defaultArea).filter(Boolean)))]
+  const allAreasRaw = Array.from(new Set(tables.map(tbl => tbl.area || defaultArea).filter(Boolean)))
+  const areas = [allAreasKey, ...allAreasRaw]
   const filtered = filterArea === allAreasKey ? tables : tables.filter(tbl => (tbl.area || defaultArea) === filterArea)
 
   const stats = {
@@ -279,7 +282,9 @@ export default function TablesPage() {
   const handleTableClick = (table: FloorTable) => {
     if (transferSourceId) return
     if (table.status === 'CLEANING') {
-      markTableFree.mutate(table.id)
+      if (confirm(t('tables.confirmMarkFree', { defaultValue: 'Segnare il tavolo come libero?' }))) {
+        markTableFree.mutate(table.id)
+      }
       return
     }
     const fullTable = tables.find(tbl => tbl.id === table.id)
@@ -362,14 +367,23 @@ export default function TablesPage() {
               <h2 className="text-base font-semibold text-pietra">{t('tables.manageSection')}</h2>
               <p className="mt-0.5 text-sm text-fumo">{t('tables.subtitle')}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setEditingTable({} as Table)}
-              className="flex items-center justify-center gap-2 rounded-xl bg-aura-gold px-4 py-2 text-sm font-semibold text-navy hover:bg-aura-gold-light"
-            >
-              <Plus className="h-4 w-4" />
-              {t('tables.newTable')}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAreaManager(true)}
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-pietra hover:bg-white/10"
+              >
+                Gestisci Zone
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingTable({} as Table)}
+                className="flex items-center justify-center gap-2 rounded-xl bg-aura-gold px-4 py-2 text-sm font-semibold text-navy hover:bg-aura-gold-light shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+              >
+                <Plus className="h-4 w-4" />
+                {t('tables.newTable')}
+              </button>
+            </div>
           </div>
 
           <div className={ui.tableWrap}>
@@ -495,7 +509,11 @@ export default function TablesPage() {
               <button
                 key={table.id}
                 type="button"
-                onClick={() => markTableFree.mutate(table.id)}
+                onClick={() => {
+                  if (confirm(t('tables.confirmMarkFree', { defaultValue: 'Segnare il tavolo come libero?' }))) {
+                    markTableFree.mutate(table.id)
+                  }
+                }}
                 disabled={markTableFree.isPending}
                 className="saas-chip px-3 py-2 rounded-lg text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/25 transition-colors"
               >
@@ -572,6 +590,13 @@ export default function TablesPage() {
         <FloorPlanEditor
           tables={tables}
           onClose={() => setIsEditorOpen(false)}
+        />
+      )}
+
+      {showAreaManager && (
+        <AreaManagerModal
+          areas={allAreasRaw}
+          onClose={() => setShowAreaManager(false)}
         />
       )}
     </ExecutivePageShell>

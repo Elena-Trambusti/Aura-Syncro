@@ -717,14 +717,28 @@ model Invoice {
   id             String     @id @default(cuid())
   restaurantId   String
   restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
-  orderId        String     @unique
-  order          Order      @relation(fields: [orderId], references: [id])
+  orderId        String?    @unique
+  order          Order?     @relation(fields: [orderId], references: [id])
   /** Numero leggibile: {prefix}-{anno}-{seq} */
   documentNumber String
   prefix         String     @default("FATT")
   fiscalYear     Int
   sequence       Int
   issuedAt       DateTime   @default(now())
+  
+  // Dati Fatturazione Elettronica B2B
+  clientePiva           String?
+  clienteCodiceFiscale  String?
+  clienteSdiCode        String?
+  clientePec            String?
+  clienteRagioneSociale String?
+  clienteIndirizzo      String?
+  
+  importoTotale         Float      @default(0)
+  statoSdi              String     @default("pending") // pending, sent, delivered, rejected
+  xmlBlob               String?    @db.Text
+  arubaUploadId         String?
+
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
