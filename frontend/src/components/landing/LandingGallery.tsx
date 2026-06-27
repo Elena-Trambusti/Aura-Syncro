@@ -6,7 +6,7 @@ export default function LandingGallery() {
   // Placeholder arrays per lo scorrimento infinito.
   // L'utente potrà sostituire le URL in questo array quando avrà gli screen definitivi.
   const placeholders = [
-    { id: 1, title: 'Dashboard', bg: 'bg-gradient-to-br from-slate-900 to-slate-800' },
+    { id: 1, title: 'Dashboard', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', imageUrl: '/screenshots/dashboard.png' },
     { id: 2, title: 'POS & Cassa', bg: 'bg-gradient-to-br from-aura-gold/10 to-slate-900' },
     { id: 3, title: 'Menu QR', bg: 'bg-gradient-to-br from-slate-800 to-slate-900' },
     { id: 4, title: 'Schermata Cucina', bg: 'bg-gradient-to-br from-slate-900 to-aura-gold/5' },
@@ -46,14 +46,15 @@ export default function LandingGallery() {
               key={`${item.id}-${index}`}
               className="relative w-[300px] h-[200px] sm:w-[450px] sm:h-[300px] shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl transition-transform duration-500 hover:scale-[1.02] hover:border-aura-gold/30 hover:shadow-aura-signature-glow"
             >
-              {/* Qui andrà il tag <img> quando ci saranno le foto reali. 
-                  Esempio: <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" /> 
-              */}
-              <div className={`w-full h-full ${item.bg} flex items-center justify-center`}>
-                <span className="text-white/30 font-display text-xl sm:text-2xl tracking-wide">
-                  {item.title}
-                </span>
-              </div>
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover object-top" />
+              ) : (
+                <div className={`w-full h-full ${item.bg} flex items-center justify-center`}>
+                  <span className="text-white/30 font-display text-xl sm:text-2xl tracking-wide">
+                    {item.title}
+                  </span>
+                </div>
+              )}
               
               {/* Overlay luxury in hover */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100 flex items-end p-6">
