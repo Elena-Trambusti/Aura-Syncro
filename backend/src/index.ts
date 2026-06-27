@@ -35,6 +35,7 @@ import { aiRouter } from './routes/ai'
 import { pushRouter } from './routes/push'
 import { sentryTunnelRouter } from './routes/sentryTunnel'
 import invoicesRouter from './routes/invoices'
+import { cashRouter } from './routes/cash'
 import { AuthRequest, authenticate } from './middleware/auth'
 import { requireDashboardAccess } from './middleware/dashboardAccess'
 import { requireProPlan } from './middleware/planTier'
@@ -143,6 +144,7 @@ app.use('/api/menu', authenticate, requireDashboardAccess, menuRouter)
 app.use('/api/orders', authenticate, requireDashboardAccess, ordersRouter)
 app.use('/api/invoices', authenticate, requireDashboardAccess, invoicesRouter)
 app.use('/api/reservations', authenticate, requireDashboardAccess, reservationsRouter)
+app.use('/api/cash', authenticate, requireDashboardAccess, cashRouter)
 app.use('/api/customers', authenticate, requireDashboardAccess, requireProPlan, customersRouter)
 app.use('/api/staff', authenticate, requireDashboardAccess, staffRouter)
 app.use('/api/inventory', authenticate, requireDashboardAccess, inventoryRouter)

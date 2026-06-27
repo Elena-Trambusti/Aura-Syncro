@@ -42,6 +42,7 @@ import PaymentsPage from './pages/PaymentsPage'
 import AIPredictivePage from './pages/AIPredictivePage'
 import CheckoutPage from './pages/CheckoutPage'
 import BillingPage from './pages/BillingPage'
+import CashDrawerPage from './pages/CashDrawerPage'
 import QRBuilderPage from './pages/QRBuilderPage'
 import OnboardingPage from './pages/OnboardingPage'
 import PlatformAdminPage from './pages/PlatformAdminPage'
@@ -116,6 +117,7 @@ function AppRoutes() {
         <Route path="tavoli" element={<RequirePermission permissions={['tables.read']}><TablesPage /></RequirePermission>} />
         <Route path="checkout/:orderId" element={<RequirePermission permissions={['orders.pay']}><CheckoutPage /></RequirePermission>} />
         <Route path="ordini" element={<RequirePermission permissions={['orders.read']}><OrdersPage /></RequirePermission>} />
+        <Route path="cassa" element={<RequirePermission permissions={['orders.pay']}><CashDrawerPage /></RequirePermission>} />
         <Route path="menu" element={<RequirePermission permissions={['menu.read']}><MenuPage /></RequirePermission>} />
         <Route path="prenotazioni" element={<RequirePermission permissions={['reservations.read']}><ReservationsPage /></RequirePermission>} />
         <Route path="crm" element={<RequireProPlan><CrmPage /></RequireProPlan>} />

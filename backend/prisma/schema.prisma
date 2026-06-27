@@ -88,6 +88,7 @@ model Restaurant {
   waitlist               WaitlistEntry[]
   invoices               Invoice[]
   fiscalSequences        FiscalSequence[]
+  cashRegisterSessions   CashRegisterSession[]
   fiscalChainState       FiscalChainState?
   stripeWebhookEvents    StripeWebhookEvent[]
   saasElectronicInvoices SaasElectronicInvoice[]
@@ -235,10 +236,13 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  orders            Order[]            @relation("OrderWaiter")
-  tipOrders         Order[]            @relation("TipWaiter")
-  shifts            Shift[]
-  pushSubscriptions PushSubscription[]
+  orders             Order[]               @relation("OrderWaiter")
+  tipOrders          Order[]               @relation("TipWaiter")
+  shifts             Shift[]
+  pushSubscriptions  PushSubscription[]
+  openedCashSessions CashRegisterSession[] @relation("OpenedSessions")
+  closedCashSessions CashRegisterSession[] @relation("ClosedSessions")
+  cashTransactions   CashTransaction[]
 
   @@unique([restaurantId, email])
 }
@@ -430,8 +434,9 @@ model Order {
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
 
-  items   OrderItem[]
-  invoice Invoice?
+  items            OrderItem[]
+  invoice          Invoice?
+  cashTransactions CashTransaction[]
 }
 
 model OrderItem {
@@ -601,6 +606,65 @@ enum ShiftStatus {
   ACTIVE
   COMPLETED
   ABSENT
+}
+
+// ===== GESTIONE CASSA (CASH DRAWER) =====
+model CashRegisterSession {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  openedById   String
+  openedBy     User       @relation("OpenedSessions", fields: [openedById], references: [id])
+  closedById   String?
+  closedBy     User?      @relation("ClosedSessions", fields: [closedById], references: [id])
+
+  openedAt DateTime  @default(now())
+  closedAt DateTime?
+
+  status CashSessionStatus @default(OPEN)
+
+  // Importi in contanti (tutto in valuta locale)
+  openingBalance  Float  @default(0) // Fondo cassa iniziale
+  closingBalance  Float? // Il contante contato a fine turno (Blind Drop)
+  expectedBalance Float? // Il contante atteso calcolato dal sistema
+  difference      Float? // closingBalance - expectedBalance (se < 0 c'è un ammanco)
+
+  notes String?
+
+  transactions CashTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CashSessionStatus {
+  OPEN
+  CLOSED
+}
+
+model CashTransaction {
+  id        String              @id @default(cuid())
+  sessionId String
+  session   CashRegisterSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User                @relation(fields: [userId], references: [id])
+
+  type   CashTransactionType // PAYIN, PAYOUT, SALE, REFUND
+  amount Float // Deve essere positivo
+  reason String?
+
+  // Se legato a un ordine specifico
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+}
+
+enum CashTransactionType {
+  PAYIN
+  PAYOUT
+  SALE
+  REFUND
 }
 
 // ===== FEDELTÀ =====

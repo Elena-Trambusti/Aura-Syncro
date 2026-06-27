@@ -3,7 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
   CalendarDays, Users, UserCog, Package, BarChart3, Settings,
-  ChefHat, Star, Megaphone, FileText, CreditCard, Brain, Scale, X, QrCode, Crown, Sparkles, Lock, Receipt
+  ChefHat, Star, Megaphone, FileText, CreditCard, Brain, Scale, X, QrCode, Crown, Sparkles, Lock, Receipt, Wallet
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '../../lib/utils'
@@ -34,6 +34,7 @@ const navItems: Array<{
   { to: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard', exact: true },
   { to: '/tavoli', icon: UtensilsCrossed, labelKey: 'nav.tables', permission: 'tables.read' },
   { to: '/ordini', icon: ClipboardList, labelKey: 'nav.orders', permission: 'orders.read' },
+  { to: '/cassa', icon: Wallet, labelKey: 'Cassa', permission: 'orders.pay' },
   { to: '/prenotazioni', icon: CalendarDays, labelKey: 'nav.reservations', permission: 'reservations.read' },
   { to: '/menu', icon: BookOpen, labelKey: 'nav.menu', permission: 'menu.read' },
   { to: '/dashboard/qr-builder', icon: QrCode, labelKey: 'nav.qrMenu', permission: 'menu.manage' },
