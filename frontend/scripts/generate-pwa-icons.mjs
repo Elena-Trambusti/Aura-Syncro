@@ -40,17 +40,7 @@ async function writeStandardIcon(size) {
  * @see https://w3c.github.io/manifest/#icon-masks
  */
 async function writeMaskableIcon(size) {
-  const logoSize = Math.round(size * 0.58)
-  const offset = Math.round((size - logoSize) / 2)
-  const logo = await sharp(svg).resize(logoSize, logoSize).png().toBuffer()
-
-  await sharp({
-    create: { width: size, height: size, channels: 4, background: BRAND_NAVY },
-  })
-    .composite([{ input: logo, top: offset, left: offset }])
-    .png()
-    .toFile(join(outDir, `maskable-${size}.png`))
-
+  await sharp(svg).resize(size, size).png().toFile(join(outDir, `maskable-${size}.png`))
   console.log(`  maskable-${size}.png`)
 }
 
