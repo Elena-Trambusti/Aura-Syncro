@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express'
-import { PosIntegrationMode } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { requireAdminKey } from '../middleware/adminAuth'
@@ -177,7 +176,7 @@ adminRouter.get('/registrations', async (req: Request, res: Response): Promise<v
     },
   })
 
-  let registrations = owners.map(u => ({
+  let registrations = owners.map((u: any) => ({
     userId: u.id,
     ownerName: u.name,
     email: u.email,
@@ -196,7 +195,7 @@ adminRouter.get('/registrations', async (req: Request, res: Response): Promise<v
 
   if (dateFilter) {
     registrations = registrations
-      .filter(r => formatRomeDate(r.registeredAt) === dateFilter)
+      .filter((r: any) => formatRomeDate(r.registeredAt) === dateFilter)
       .slice(0, limit)
   }
 
@@ -250,7 +249,7 @@ const posConfigSchema = z.object({
   restaurantId: z.string().min(1).optional(),
   slug: z.string().min(1).optional(),
   ownerEmail: z.string().email().optional(),
-  mode: z.nativeEnum(PosIntegrationMode),
+  mode: z.enum(['PENDING_SETUP', 'SIMULATION', 'STRIPE_TERMINAL', 'EXTERNAL']),
   posProviderLabel: z.string().max(120).optional().nullable(),
   posTerminalId: z.string().max(120).optional().nullable(),
   posMerchantId: z.string().max(120).optional().nullable(),
@@ -272,7 +271,7 @@ adminRouter.post('/pos-config', async (req: Request, res: Response): Promise<voi
     return
   }
 
-  const restaurantId = await resolveRestaurantId(parsed.data)
+  const restaurantId = await resolveRestaurantId(parsed.data as any)
   if (!restaurantId) {
     res.status(404).json({ error: 'Ristorante non trovato con i criteri indicati' })
     return
