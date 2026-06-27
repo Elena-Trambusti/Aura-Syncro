@@ -42,29 +42,42 @@ export async function getTargetCustomers(restaurantId: string, filterJson: strin
     /* filtro vuoto */
   }
 
-  const where: Record<string, unknown> = { restaurantId, email: { not: null } }
+  const where: Record<string, unknown> = { restaurantId, email: { contains: '@' } }
+  const andConditions: any[] = []
+
   if (filter.minSpent) where.totalSpent = { gte: filter.minSpent }
   if (filter.minVisits) where.totalVisits = { gte: filter.minVisits }
   if (filter.tierId) where.loyaltyTierId = filter.tierId
+
   if (filter.inactiveDays) {
     const cutoff = new Date()
     cutoff.setDate(cutoff.getDate() - filter.inactiveDays)
-    where.OR = [
-      { lastVisit: { lte: cutoff } },
-      { lastVisit: null, createdAt: { lte: cutoff } },
-    ]
+    andConditions.push({
+      OR: [
+        { lastVisit: { lte: cutoff } },
+        { lastVisit: null, createdAt: { lte: cutoff } },
+      ],
+    })
   }
+
   if (filter.newWithinDays) {
     const since = new Date()
     since.setDate(since.getDate() - filter.newWithinDays)
     where.createdAt = { gte: since }
   }
+
   if (filter.vipOnly) {
-    where.OR = [
-      { tags: { has: 'VIP' } },
-      { totalSpent: { gte: 500 } },
-      { totalVisits: { gte: 10 } },
-    ]
+    andConditions.push({
+      OR: [
+        { tags: { has: 'VIP' } },
+        { totalSpent: { gte: 500 } },
+        { totalVisits: { gte: 10 } },
+      ],
+    })
+  }
+
+  if (andConditions.length > 0) {
+    where.AND = andConditions
   }
   if (filter.birthdayMonth) {
     const now = new Date()

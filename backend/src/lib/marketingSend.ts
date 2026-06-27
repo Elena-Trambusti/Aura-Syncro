@@ -54,7 +54,7 @@ export async function runMarketingAutomations(restaurantId: string): Promise<num
   for (const auto of automations) {
     if (auto.type === 'BIRTHDAY') {
       const customers = await prisma.customer.findMany({
-        where: { restaurantId, birthdate: { not: null }, email: { not: null } },
+        where: { restaurantId, birthdate: { not: null }, email: { contains: '@' } },
       })
       for (const c of customers) {
         if (!c.birthdate || !c.email) continue
@@ -74,16 +74,18 @@ export async function runMarketingAutomations(restaurantId: string): Promise<num
     }
 
     if (auto.type === 'WIN_BACK') {
-      const cutoff = new Date(today)
-      cutoff.setDate(cutoff.getDate() - 60)
+      const cutoffEnd = new Date(today)
+      cutoffEnd.setDate(cutoffEnd.getDate() - 60)
+      const cutoffStart = new Date(today)
+      cutoffStart.setDate(cutoffStart.getDate() - 61)
 
       const customers = await prisma.customer.findMany({
         where: {
           restaurantId,
-          email: { not: null },
+          email: { contains: '@' },
           OR: [
-            { lastVisit: { lte: cutoff } },
-            { lastVisit: null, createdAt: { lte: cutoff } },
+            { lastVisit: { gte: cutoffStart, lt: cutoffEnd } },
+            { lastVisit: null, createdAt: { gte: cutoffStart, lt: cutoffEnd } },
           ],
         },
       })
@@ -104,7 +106,7 @@ export async function runMarketingAutomations(restaurantId: string): Promise<num
       const customers = await prisma.customer.findMany({
         where: {
           restaurantId,
-          email: { not: null },
+          email: { contains: '@' },
           lastVisit: { gte: yesterdayStart, lt: yesterdayEnd },
           OR: [
             { tags: { has: 'VIP' } },
@@ -138,7 +140,7 @@ export async function runMarketingAutomations(restaurantId: string): Promise<num
       const customers = await prisma.customer.findMany({
         where: {
           restaurantId,
-          email: { not: null },
+          email: { contains: '@' },
           lastVisit: { gte: startWindow, lt: endWindow },
           totalSpent: { gte: 50 }, // Solo tavoli che hanno speso almeno 50€
         },

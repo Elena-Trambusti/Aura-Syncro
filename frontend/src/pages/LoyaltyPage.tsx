@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
@@ -64,7 +64,7 @@ export default function LoyaltyPage() {
     },
   })
 
-  const tiers = overview?.tiers || []
+  const tiers = [...(overview?.tiers || [])].sort((a, b) => b.minPoints - a.minPoints)
   const stats = overview?.stats
   const topCustomers = overview?.topCustomers || []
 
