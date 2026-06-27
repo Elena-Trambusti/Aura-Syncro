@@ -9,6 +9,8 @@ export default function LandingGallery() {
     { id: 4, title: 'Schermata Cucina', bg: 'bg-gradient-to-br from-slate-900 to-aura-gold/5', imageUrl: '/screenshots/cucina.png' },
     { id: 5, title: 'Analytics', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', imageUrl: '/screenshots/analytics.png' },
     { id: 6, title: 'Gestione Tavoli', bg: 'bg-gradient-to-br from-aura-gold/10 to-slate-900', imageUrl: '/screenshots/tavoli.png' },
+    { id: 7, title: 'Marketing', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', imageUrl: '/screenshots/marketing.png' },
+    { id: 8, title: 'Fatturazione', bg: 'bg-gradient-to-br from-aura-gold/10 to-slate-900', imageUrl: '/screenshots/fatturazione.png' },
   ]
 
   // Duplichiamo per l'effetto loop infinito
