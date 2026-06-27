@@ -4,7 +4,6 @@ import { BRAND } from '../../lib/brand'
 
 import { formatIssuerFooterLine } from '../../config/fiscal'
 
-const CONTACT_EMAIL = 'elenatrambusti2024@gmail.com'
 
 export default function LandingFooter() {
   const { t } = useTranslation()

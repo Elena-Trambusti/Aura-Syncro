@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
-import { formatCurrency, cn } from '../lib/utils'
+import { formatCurrency } from '../lib/utils'
 import PublicLanguageSwitcher from '../components/public/PublicLanguageSwitcher'
 import GuestCartBar from '../components/public/GuestCartBar'
 import GuestCartDrawer from '../components/public/GuestCartDrawer'
@@ -214,7 +214,7 @@ export default function PublicMenuPage() {
     : activeCategory?.name ?? t('publicMenu.title')
 
   const guestOrderingEnabled = data?.guestOrderingEnabled !== false
-  const hasCartItems = cart.itemCount > 0
+  // Unused variable removed
 
   if (isLoading) {
     return (

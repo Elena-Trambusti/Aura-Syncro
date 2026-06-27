@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+// Unused import removed
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, FileText, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -19,7 +19,7 @@ interface Invoice {
 }
 
 export default function InvoicesPage() {
-  const { t } = useTranslation()
+  // Unused t removed
   const queryClient = useQueryClient()
   const [showModal, setShowModal] = useState(false)
 

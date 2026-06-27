@@ -77,17 +77,6 @@ export default function FloorPlanEditor({ tables, onClose }: FloorPlanEditorProp
     }
   })
 
-  const getTableGlow = (status: string) => {
-    switch (status) {
-      case 'OCCUPIED':
-        return 'ring-2 ring-cyan-400/80 shadow-[0_0_20px_rgba(34,211,238,0.4)] bg-navy-mid'
-      case 'CLEANING':
-        return 'ring-2 ring-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.5)] animate-pulse bg-navy-mid'
-      case 'FREE':
-      default:
-        return 'ring-1 ring-aura-gold/40 shadow-inner bg-navy-elevated/80'
-    }
-  }
 
   const handleDragStop = (id: string, d: { x: number, y: number }) => {
     if (containerSize.width === 0) return
@@ -204,8 +193,7 @@ export default function FloorPlanEditor({ tables, onClose }: FloorPlanEditorProp
                   )
                 }
               } else {
-                const topSeats = Math.ceil(table.seats / 2)
-                const bottomSeats = Math.floor(table.seats / 2)
+                // Unused vars removed
                 let topCount = 0, bottomCount = 0, leftCount = 0, rightCount = 0;
                 if (table.seats === 2) { leftCount = 1; rightCount = 1; }
                 else if (table.seats === 4) { topCount = 2; bottomCount = 2; }

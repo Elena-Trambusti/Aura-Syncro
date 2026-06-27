@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Box } from 'lucide-react'
+// Unused Box import removed
 import { cn } from '../../lib/utils'
 
 export type TableStatus = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING'
@@ -201,8 +201,7 @@ function TableTile({
       }
     } else if (shape === 'RECTANGLE' || shape === 'SQUARE') {
       // Simplistic chair placement for rect/square: top/bottom and sides
-      const topSeats = Math.ceil(table.seats / 2)
-      const bottomSeats = Math.floor(table.seats / 2)
+      // Unused vars removed
       // If table seats is even e.g. 4 -> 2 top, 2 bottom.
       // If table seats is 6 -> 2 top, 2 bottom, 1 left, 1 right.
       

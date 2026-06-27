@@ -32,10 +32,7 @@ function combineDateAndTime(date: string, time: string): string {
   return new Date(`${date}T${time}:00`).toISOString()
 }
 
-function getInitials(name: string): string {
-  const parts = name.split(' ').map(p => p.trim()).filter(Boolean)
-  return parts.slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('') || 'R'
-}
+
 
 export default function PublicReservationPage() {
   const { slug } = useParams<{ slug: string }>()
