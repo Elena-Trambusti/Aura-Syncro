@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils'
 const PUBLIC_LANGUAGES = [
   { code: 'it', label: 'IT', name: 'Italiano' },
   { code: 'es', label: 'ES', name: 'Español' },
+  { code: 'es-cn', label: 'ES-CN', name: 'Español (Canarias)' },
   { code: 'en', label: 'EN', name: 'English' },
 ] as const
 
@@ -16,7 +17,10 @@ interface PublicLanguageSwitcherProps {
 /** Switcher lingua evidente per turisti — solo IT / ES / EN */
 export default function PublicLanguageSwitcher({ className }: PublicLanguageSwitcherProps) {
   const { i18n, t } = useTranslation()
-  const current = i18n.language?.split('-')[0] ?? 'it'
+  const currentLang = i18n.language || 'it'
+  const current = PUBLIC_LANGUAGES.find(l => l.code === currentLang) 
+    ? currentLang 
+    : (currentLang.split('-')[0] ?? 'it')
 
   const changeLanguage = (code: string) => {
     i18n.changeLanguage(code)

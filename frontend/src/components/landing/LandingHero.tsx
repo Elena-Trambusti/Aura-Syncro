@@ -7,7 +7,7 @@ import { BRAND } from '../../lib/brand'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function LandingHero() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
   const [isDemoLoading, setIsDemoLoading] = useState(false)
@@ -15,8 +15,10 @@ export default function LandingHero() {
   const handleDemoLogin = async () => {
     try {
       setIsDemoLoading(true)
+      const lang = i18n.language || 'it'
       // Usiamo le credenziali demo esistenti del seed di Aura Syncro
-      await login('admin@demo.it', 'admin123')
+      const email = `admin@demo.${lang}`
+      await login(email, 'admin123')
       navigate('/dashboard')
     } catch (error) {
       toast.error('Errore avvio demo: impossibile collegarsi.')

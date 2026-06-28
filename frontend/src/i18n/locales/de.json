@@ -1297,29 +1297,34 @@
       "cta": "Test starten",
       "starter": {
         "name": "Starter",
-        "tagline": "Täglicher Betrieb in Gastraum und Küche",
-        "price": "Individuelles Angebot",
-        "setup": "",
+        "tagline": "Für kleine Lokale oder Food Trucks.",
+        "price": "99 €/Monat + MwSt.",
+        "setup": "+ 250 € Setup (Einmalig) + MwSt.",
         "features": [
-          "Tisch- und Bestellverwaltung",
-          "Digitales Menü und Kategorien",
-          "Küchenmonitor (KDS)",
-          "Reservierungen und Basis-Lager"
+          "Verwaltung von bis zu 12 Tischen",
+          "1 einzelner Bereich (Saal)",
+          "Digitales QR-Menü",
+          "Integrierte Stripe-Zahlungen"
+        ],
+        "missingFeatures": [
+          "Prädiktive KI und Analysen",
+          "Schicht- & Bestandsverwaltung"
         ]
       },
       "pro": {
-        "name": "Pro",
+        "name": "Premium",
         "badge": "Empfohlen",
-        "tagline": "Komplette Suite für strukturierte Restaurants",
-        "price": "199 €/Monat",
-        "setup": "500 € einmaliges Setup",
+        "tagline": "Für Restaurants, die das Beste verlangen.",
+        "price": "199 €/Monat + MwSt.",
+        "setup": "+ 500 € Setup (Einmalig) + MwSt.",
         "features": [
-          "Alles aus Starter",
-          "CRM, Treueprogramm und Marketing",
-          "Predictive AI und Analytics",
-          "Steuerbericht und Stripe-Zahlungen",
-          "Schlüsselfertiges Onboarding"
-        ]
+          "Unbegrenzte Bereiche und Tische",
+          "Prädiktive KI und Analysen",
+          "Schlüsselfertiges Onboarding",
+          "Schicht- & Bestandsverwaltung",
+          "Marketing Automation"
+        ],
+        "missingFeatures": []
       }
     },
     "footer": {

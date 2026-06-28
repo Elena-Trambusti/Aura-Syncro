@@ -3,20 +3,38 @@ import { initReactI18next } from 'react-i18next'
 import it from './locales/it.json'
 import en from './locales/en.json'
 import es from './locales/es.json'
+import esCn from './locales/es-cn.json'
 import fr from './locales/fr.json'
 import de from './locales/de.json'
 
 const STORAGE_KEY = 'aura-lang'
 
 const saved = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-const supported = ['it', 'en', 'es', 'fr', 'de'] as const
-const initial = saved && supported.includes(saved as (typeof supported)[number]) ? saved : 'it'
+const supported = ['it', 'en', 'es', 'es-cn', 'fr', 'de'] as const
+
+// Auto-detect browser language if not saved
+const getBrowserLang = () => {
+  if (typeof window === 'undefined') return 'it'
+  const browserLang = navigator.language.toLowerCase() // es-ES, it-IT
+  
+  if (browserLang.includes('es')) {
+    // Check timezone to guess if Canary Islands (though tricky, we fallback to es)
+    // If they explicitly selected es-cn, it will be in localStorage.
+    return 'es' 
+  }
+  
+  const shortCode = browserLang.split('-')[0]
+  return supported.includes(shortCode as any) ? shortCode : 'it'
+}
+
+const initial = saved && supported.includes(saved as (typeof supported)[number]) ? saved : getBrowserLang()
 
 i18n.use(initReactI18next).init({
   resources: {
     it: { translation: it },
     en: { translation: en },
     es: { translation: es },
+    'es-cn': { translation: esCn },
     fr: { translation: fr },
     de: { translation: de },
   },
@@ -27,7 +45,7 @@ i18n.use(initReactI18next).init({
 
 i18n.on('languageChanged', (lng) => {
   document.documentElement.lang = lng.split('-')[0]
-  localStorage.setItem(STORAGE_KEY, lng.split('-')[0])
+  localStorage.setItem(STORAGE_KEY, lng) // <-- Keep full code like 'es-cn'
 })
 
 document.documentElement.lang = initial

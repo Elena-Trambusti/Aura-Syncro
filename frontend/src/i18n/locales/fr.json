@@ -1297,29 +1297,34 @@
       "cta": "Commencer l'essai",
       "starter": {
         "name": "Starter",
-        "tagline": "Exploitation quotidienne salle et cuisine",
-        "price": "Sur devis",
-        "setup": "",
+        "tagline": "Pour les petits établissements ou food trucks.",
+        "price": "99 €/mois + TVA",
+        "setup": "+ 250 € setup (unique) + TVA",
         "features": [
-          "Gestion tables et commandes",
-          "Menu digital et catégories",
-          "Écran cuisine (KDS)",
-          "Réservations et stock de base"
+          "Jusqu'à 12 tables",
+          "1 seule zone (Salle)",
+          "Menu QR numérique",
+          "Paiements Stripe intégrés"
+        ],
+        "missingFeatures": [
+          "IA Prédictive et Analytics",
+          "Gestion des Tournées et Stocks"
         ]
       },
       "pro": {
-        "name": "Pro",
+        "name": "Premium",
         "badge": "Recommandé",
-        "tagline": "Suite complète pour restaurants structurés",
-        "price": "199 €/mois",
-        "setup": "500 € setup initial (unique)",
+        "tagline": "Pour les restaurants qui exigent le meilleur.",
+        "price": "199 €/mois + TVA",
+        "setup": "+ 500 € setup (unique) + TVA",
         "features": [
-          "Tout le Starter inclus",
-          "CRM, fidélité et marketing",
-          "IA prédictive et analytics",
-          "Rapport fiscal et paiements Stripe",
-          "Onboarding clé en main"
-        ]
+          "Zones et tables illimitées",
+          "IA Prédictive et Analytics",
+          "Onboarding clé en main",
+          "Gestion des Tournées et Stocks",
+          "Marketing Automation"
+        ],
+        "missingFeatures": []
       }
     },
     "footer": {

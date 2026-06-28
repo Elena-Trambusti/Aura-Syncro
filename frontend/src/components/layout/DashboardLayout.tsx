@@ -78,12 +78,8 @@ export default function DashboardLayout() {
         {/* Overlay di Fusione Unificato */}
         <div className="fixed inset-0 z-[-4] bg-gradient-to-b from-neutral-950/80 via-black/95 to-neutral-950/90" />
         
-        {/* Luxury glowing orbs */}
-        <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-aura-gold/20 mix-blend-screen blur-[120px] pointer-events-none animate-[float_15s_ease-in-out_infinite]" />
-        <div className="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-amber-600/15 mix-blend-screen blur-[120px] pointer-events-none animate-[float_20s_ease-in-out_infinite_reverse]" />
-        
-        {/* Top gold spotlight */}
-        <div className="fixed inset-0 z-[-3] pointer-events-none bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(212,175,55,0.15),rgba(0,0,0,0))]" />
+        {/* Top gold spotlight attenuato */}
+        <div className="fixed inset-0 z-[-3] pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(197,160,89,0.15)_0%,rgba(0,0,0,0)_60%)]" />
         
 
 

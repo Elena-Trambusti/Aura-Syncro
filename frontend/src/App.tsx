@@ -104,6 +104,9 @@ function AppRoutes() {
         }
       />
       <Route path="/" element={<LandingRoute><LandingPage /></LandingRoute>} />
+      <Route path="/it" element={<LandingRoute forceLang="it"><LandingPage /></LandingRoute>} />
+      <Route path="/es" element={<LandingRoute forceLang="es"><LandingPage /></LandingRoute>} />
+      <Route path="/es-cn" element={<LandingRoute forceLang="es-cn"><LandingPage /></LandingRoute>} />
       <Route
         element={
           <ProtectedRoute>

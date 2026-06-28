@@ -3,43 +3,44 @@ import { useTranslation } from 'react-i18next'
 import { Check, X, Sparkles, ArrowRight } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
-const PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    tagline: 'Per piccoli locali o food truck.',
-    price: '€99/mese + IVA',
-    setup: '+ €250 setup (Una tantum) + IVA',
-    features: [
-      'Gestione fino a 12 tavoli',
-      '1 singola area (Sala)',
-      'Menu QR digitale',
-      'Pagamenti Stripe integrati',
-    ],
-    missingFeatures: [
-      'AI Predittiva e Analytics',
-      'Gestione Turni e Scorte',
-    ]
-  },
-  {
-    id: 'pro',
-    name: 'Premium',
-    tagline: 'Per ristoranti che esigono il massimo.',
-    price: '€199/mese + IVA',
-    setup: '+ €500 setup (Una tantum) + IVA',
-    features: [
-      'Aree e tavoli illimitati',
-      'AI Predittiva e Analytics',
-      'Onboarding chiavi in mano',
-      'Gestione Turni e Scorte',
-      'Marketing Automation'
-    ],
-    missingFeatures: []
-  }
-]
-
 export default function LandingPricing() {
   const { t } = useTranslation()
+
+  const PLANS = [
+    {
+      id: 'starter',
+      name: t('landing.pricing.starter.name', { defaultValue: 'Starter' }),
+      tagline: t('landing.pricing.starter.tagline', { defaultValue: 'Per piccoli locali o food truck.' }),
+      price: t('landing.pricing.starter.price', { defaultValue: '€99/mese + IVA' }),
+      setup: t('landing.pricing.starter.setup', { defaultValue: '+ €250 setup (Una tantum) + IVA' }),
+      features: t('landing.pricing.starter.features', { returnObjects: true, defaultValue: [
+        'Gestione fino a 12 tavoli',
+        '1 singola area (Sala)',
+        'Menu QR digitale',
+        'Pagamenti Stripe integrati',
+      ]}) as string[],
+      missingFeatures: t('landing.pricing.starter.missingFeatures', { returnObjects: true, defaultValue: [
+        'AI Predittiva e Analytics',
+        'Gestione Turni e Scorte',
+      ]}) as string[],
+    },
+    {
+      id: 'pro',
+      name: t('landing.pricing.pro.name', { defaultValue: 'Premium' }),
+      badge: t('landing.pricing.pro.badge', { defaultValue: 'Consigliato' }),
+      tagline: t('landing.pricing.pro.tagline', { defaultValue: 'Per ristoranti che esigono il massimo.' }),
+      price: t('landing.pricing.pro.price', { defaultValue: '€199/mese + IVA' }),
+      setup: t('landing.pricing.pro.setup', { defaultValue: '+ €500 setup (Una tantum) + IVA' }),
+      features: t('landing.pricing.pro.features', { returnObjects: true, defaultValue: [
+        'Aree e tavoli illimitati',
+        'AI Predittiva e Analytics',
+        'Onboarding chiavi in mano',
+        'Gestione Turni e Scorte',
+        'Marketing Automation'
+      ]}) as string[],
+      missingFeatures: t('landing.pricing.pro.missingFeatures', { returnObjects: true, defaultValue: []}) as string[],
+    }
+  ]
 
   return (
     <section id="pricing" className="relative bg-transparent px-4 py-24 sm:px-6 sm:py-32 overflow-hidden z-0">

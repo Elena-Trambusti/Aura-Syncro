@@ -1404,8 +1404,8 @@
   },
   "landing": {
     "meta": {
-      "title": "Aura Syncro — Software cloud ristorazione | Gestionale Italia, Spagna e Canarie",
-      "description": "Gestionale ristoranti SaaS per Italia, Spagna e Isole Canarie. Menu QR, gestione comande e tavoli, pagamenti Stripe, report fiscale IVA/IGIC. Prova Aura Syncro."
+      "title": "Software Gestionale Ristoranti | Aura Syncro Italia",
+      "description": "Automatizza la cassa del tuo ristorante. Gestione fiscale delle mance e integrazione diretta con Aruba Fatturazione Elettronica."
     },
     "nav": {
       "features": "Funzionalità",
@@ -1415,9 +1415,9 @@
       "tryNow": "Inizia ora"
     },
     "hero": {
-      "badge": "Italia · Spagna · Isole Canarie",
+      "badge": "Italia · Scontrini RT e Aruba",
       "title": "Il gestionale che mette in sincrono il tuo ristorante",
-      "subtitle": "{{brand}} è il software cloud per ristorazione strutturata: POS veloce, menu QR, comande in tempo reale e fiscalità multi-paese.",
+      "subtitle": "POS, menu QR, comande in tempo reale. Gestione fiscale ottimizzata per scontrini telematici (RT), Regime Forfettario e mance elettroniche esenti IVA tracciate.",
       "ctaPrimary": "Inizia ora",
       "ctaSecondary": "Guarda demo",
       "previewKpi1": "Ricavi vs mese scorso",
@@ -1443,8 +1443,8 @@
         "desc": "Incassa al tavolo o online con carte e wallet digitali, integrati nel flusso ordini."
       },
       "fiscal": {
-        "title": "Report fiscale",
-        "desc": "IVA in Italia, IVA peninsulare e IGIC nelle Canarie — export e numerazione pronti per SDI."
+        "title": "Gestione Fiscale Italiana",
+        "desc": "Scontrini telematici (RT) integrati e fatturazione automatica diretta con Aruba. Zero errori con il tuo commercialista a fine mese."
       },
       "crm": {
         "title": "CRM e fidelizzazione",
@@ -1456,34 +1456,39 @@
       }
     },
     "pricing": {
-      "title": "Un unico piano Premium, tutto incluso",
+      "title": "Piani chiari per ogni fase",
       "subtitle": "Setup chiavi in mano e canone mensile trasparente. Nessuna sorpresa.",
-      "cta": "Inizia ora",
+      "cta": "Inizia Ora",
       "starter": {
         "name": "Starter",
-        "tagline": "Operatività quotidiana in sala e cucina",
-        "price": "€199/mese",
-        "setup": "€500 setup iniziale (una tantum)",
+        "tagline": "Per piccoli locali o food truck.",
+        "price": "€99/mese + IVA",
+        "setup": "+ €250 setup (Una tantum) + IVA",
         "features": [
-          "Gestione tavoli e comande",
-          "Menu digitale e categorie",
-          "Schermo cucina (KDS)",
-          "Prenotazioni e magazzino base"
+          "Gestione fino a 12 tavoli",
+          "1 singola area (Sala)",
+          "Menu QR digitale",
+          "Pagamenti Stripe integrati"
+        ],
+        "missingFeatures": [
+          "AI Predittiva e Analytics",
+          "Gestione Turni e Scorte"
         ]
       },
       "pro": {
         "name": "Premium",
         "badge": "Consigliato",
-        "tagline": "Suite completa per ristoranti strutturati",
-        "price": "€199/mese",
-        "setup": "€500 setup iniziale (una tantum)",
+        "tagline": "Per ristoranti che esigono il massimo.",
+        "price": "€199/mese + IVA",
+        "setup": "+ €500 setup (Una tantum) + IVA",
         "features": [
-          "Tutto lo Starter incluso",
-          "CRM, fedeltà e marketing",
-          "AI predittiva e analytics",
-          "Report fiscale e pagamenti Stripe",
-          "Supporto onboarding chiavi in mano"
-        ]
+          "Aree e tavoli illimitati",
+          "AI Predittiva e Analytics",
+          "Onboarding chiavi in mano",
+          "Gestione Turni e Scorte",
+          "Marketing Automation"
+        ],
+        "missingFeatures": []
       }
     },
     "footer": {

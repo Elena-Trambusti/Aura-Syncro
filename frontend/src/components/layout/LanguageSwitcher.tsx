@@ -8,6 +8,7 @@ const LANGUAGES = [
   { code: 'it', name: 'Italiano' },
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Español' },
+  { code: 'es-cn', name: 'Español (Canarias)' },
   { code: 'fr', name: 'Français' },
   { code: 'de', name: 'Deutsch' },
 ] as const
@@ -29,7 +30,9 @@ export default function LanguageSwitcher({ prominent = false }: LanguageSwitcher
   const menuRef = useRef<HTMLUListElement>(null)
 
   const current =
-    LANGUAGES.find(lang => lang.code === i18n.language?.split('-')[0]) ?? LANGUAGES[0]
+    LANGUAGES.find(lang => lang.code === i18n.language) ??
+    LANGUAGES.find(lang => lang.code === i18n.language?.split('-')[0]) ?? 
+    LANGUAGES[0]
 
   const updateMenuPosition = useCallback(() => {
     const btn = buttonRef.current

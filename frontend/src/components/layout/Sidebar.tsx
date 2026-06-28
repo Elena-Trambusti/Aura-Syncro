@@ -162,14 +162,18 @@ export default function Sidebar() {
             </Link>
           </div>
 
-          <div className="flex items-center justify-center mx-auto w-full gap-2.5">
+          <div className="flex flex-col items-center justify-center mx-auto w-full gap-3 mt-4 pb-4 border-b border-[#D4AF37]/20">
             {restaurant?.logoUrl ? (
-              <img src={restaurant.logoUrl} alt={restaurant.name} className="h-5 w-5 shrink-0 rounded-sm object-cover ring-1 ring-white/10" />
+              <img src={restaurant.logoUrl} alt={restaurant.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[#D4AF37]/60 shadow-[0_0_15px_rgba(212,175,55,0.3)]" />
             ) : (
-              <UtensilsCrossed className="h-4 w-4 shrink-0 text-fumo" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#D4AF37]/60 bg-gradient-to-br from-[#D4AF37]/20 to-transparent shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                <UtensilsCrossed className="h-5 w-5 text-[#D4AF37]" />
+              </div>
             )}
-            <div className="flex items-center gap-1.5 min-w-0">
-              <p className="truncate text-sm font-medium text-pietra">{restaurant?.name || t('common.restaurant')}</p>
+            <div className="flex items-center justify-center w-full px-2">
+              <p className="truncate text-xl font-bold text-[#F7E7CE] tracking-wider" style={{ fontFamily: 'var(--font-display)', textShadow: '0 2px 10px rgba(0,0,0,0.9)' }}>
+                {restaurant?.name || t('common.restaurant')}
+              </p>
             </div>
           </div>
         </div>
@@ -217,7 +221,7 @@ export default function Sidebar() {
                     <NavLink to={item.to} className={itemClass}>
                       <span className={cn('aura-nav-icon', isActive && 'aura-nav-icon--active')}>
                         <FeatureIcon
-                          className={cn('h-[17px] w-[17px]', isActive ? 'text-aura-gold' : '')}
+                          className="h-[17px] w-[17px]"
                           strokeWidth={isActive ? 2.25 : 1.75}
                         />
                       </span>

@@ -1255,8 +1255,8 @@
   },
   "landing": {
     "meta": {
-      "title": "Software de Gestión para Restaurantes | Aura Syncro España",
-      "description": "Optimiza la caja de tu restaurante con Aura Syncro. Adaptado a Veri*factu, facturación simplificada e IVA del 10%."
+      "title": "Gestión para Restaurantes en Canarias | IGIC 7% Aura Syncro",
+      "description": "El único software para restaurantes en Canarias adaptado al IGIC del 7% y Veri*factu. Controla facturas simplificadas e ingresos sin errores."
     },
     "nav": {
       "features": "Funciones",
@@ -1265,9 +1265,9 @@
       "tryNow": "Probar ahora"
     },
     "hero": {
-      "badge": "España · Adaptado a Veri*factu",
+      "badge": "Islas Canarias · IGIC 7% Nativo",
       "title": "El sistema que sincroniza cada instante de tu restaurante",
-      "subtitle": "TPV, menú QR y comandas en tiempo real. Generación automática de Factura Simplificada, gestión de propinas y cumplimiento total con el sistema Veri*factu de Hacienda.",
+      "subtitle": "Gestión del régimen especial de las Canarias (REF), cálculo y desglose del IGIC al 7% nativo en los platos y conformidad con Veri*factu local.",
       "ctaPrimary": "Probar ahora",
       "ctaSecondary": "Acceder"
     },
@@ -1287,8 +1287,8 @@
         "desc": "Cobra en mesa u online con tarjetas y wallets digitales, integrados en el flujo de pedidos."
       },
       "fiscal": {
-        "title": "Cumplimiento Veri*factu",
-        "desc": "Evita multas de Hacienda. Generación automática de facturas simplificadas, gestión de propinas y control del IVA del 10% sin errores."
+        "title": "IGIC 7% y REF",
+        "desc": "Cálculo nativo del IGIC al 7% y adaptación al Régimen Económico y Fiscal (REF). Facturación simplificada sin complicaciones."
       }
     },
     "pricing": {
@@ -1298,8 +1298,8 @@
       "starter": {
         "name": "Starter",
         "tagline": "Para locales pequeños o food trucks.",
-        "price": "99 €/mes + IVA",
-        "setup": "+ 250 € setup (único) + IVA",
+        "price": "99 €/mes + IGIC",
+        "setup": "+ 250 € setup (único) + IGIC",
         "features": [
           "Gestión de hasta 12 mesas",
           "1 área única (Sala)",
@@ -1315,8 +1315,8 @@
         "name": "Premium",
         "badge": "Recomendado",
         "tagline": "Para restaurantes que exigen lo máximo.",
-        "price": "199 €/mes + IVA",
-        "setup": "+ 500 € setup (único) + IVA",
+        "price": "199 €/mes + IGIC",
+        "setup": "+ 500 € setup (único) + IGIC",
         "features": [
           "Áreas y mesas ilimitadas",
           "IA Predictiva y Analytics",

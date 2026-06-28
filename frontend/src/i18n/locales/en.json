@@ -778,7 +778,20 @@
     "filterRange": "Range",
     "from": "From",
     "to": "To",
-    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
     "transactionsMeta": "{{count}} transactions · {{period}}",
     "loading": "Loading fiscal data...",
     "loadError": "Error loading fiscal data",
@@ -798,19 +811,36 @@
         "tipExemptNote": "*Voluntary tip exempt from VAT",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to tax (VAT)" },
-          "tips": { "label": "Tracked Electronic Tips", "sub": "VAT exempt · Register for 5% substitute tax" },
-          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+          "netRevenue": {
+            "label": "Net Billed Total",
+            "sub": "Subject to tax (VAT)"
+          },
+          "tips": {
+            "label": "Tracked Electronic Tips",
+            "sub": "VAT exempt · Register for 5% substitute tax"
+          },
+          "reconciliation": {
+            "label": "POS Bank Reconciliation",
+            "sub": "Total collected at POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "VAT",
-          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected",
+          "date": "Date",
+          "orderId": "Order ID",
+          "taxableBase": "Taxable base",
+          "tax": "VAT",
+          "restaurantTotal": "Restaurant total",
+          "tip": "Tip",
+          "collectedTotal": "Total collected",
           "paymentMethod": "POS method"
         },
         "pdf": {
           "title": "Tips & Billing Register — {{restaurant}}",
-          "taxId": "VAT ID", "taxIdPending": "Pending configuration", "address": "Address",
-          "period": "Period", "generated": "Generated",
+          "taxId": "VAT ID",
+          "taxIdPending": "Pending configuration",
+          "address": "Address",
+          "period": "Period",
+          "generated": "Generated",
           "summaryNet": "Net Billed Total (Subject to VAT)",
           "summaryTips": "Total Voluntary Tips (VAT exempt)",
           "summaryElectronicTips": "Tracked Electronic Tips — 5% substitute tax register",
@@ -828,18 +858,35 @@
         "tipExemptNote": "*Voluntary tip exempt from IGIC",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to tax (IGIC)" },
-          "tips": { "label": "Total Staff Tips", "sub": "IGIC exempt · Canarias" },
-          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+          "netRevenue": {
+            "label": "Net Billed Total",
+            "sub": "Subject to tax (IGIC)"
+          },
+          "tips": {
+            "label": "Total Staff Tips",
+            "sub": "IGIC exempt · Canarias"
+          },
+          "reconciliation": {
+            "label": "POS Bank Reconciliation",
+            "sub": "Total collected at POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "IGIC",
-          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+          "date": "Date",
+          "orderId": "Order ID",
+          "taxableBase": "Taxable base",
+          "tax": "IGIC",
+          "restaurantTotal": "Restaurant total",
+          "tip": "Tip",
+          "collectedTotal": "Total collected"
         },
         "pdf": {
           "title": "Tips & Billing Register — {{restaurant}}",
-          "taxId": "Tax ID", "taxIdPending": "Pending configuration", "address": "Address",
-          "period": "Period", "generated": "Generated",
+          "taxId": "Tax ID",
+          "taxIdPending": "Pending configuration",
+          "address": "Address",
+          "period": "Period",
+          "generated": "Generated",
           "summaryNet": "Net Billed Total (Subject to IGIC)",
           "summaryTips": "Total Staff Tips (IGIC exempt)",
           "summaryReconciliation": "POS Bank Reconciliation Total",
@@ -856,18 +903,35 @@
         "tipExemptNote": "*Voluntary tip exempt from VAT",
         "taxLine": "{{taxName}} ({{rate}}%)",
         "cards": {
-          "netRevenue": { "label": "Net Billed Total", "sub": "Subject to VAT" },
-          "tips": { "label": "Total Staff Tips", "sub": "VAT exempt · Spain" },
-          "reconciliation": { "label": "POS Bank Reconciliation", "sub": "Total collected at POS" }
+          "netRevenue": {
+            "label": "Net Billed Total",
+            "sub": "Subject to VAT"
+          },
+          "tips": {
+            "label": "Total Staff Tips",
+            "sub": "VAT exempt · Spain"
+          },
+          "reconciliation": {
+            "label": "POS Bank Reconciliation",
+            "sub": "Total collected at POS"
+          }
         },
         "table": {
-          "date": "Date", "orderId": "Order ID", "taxableBase": "Taxable base", "tax": "VAT",
-          "restaurantTotal": "Restaurant total", "tip": "Tip", "collectedTotal": "Total collected"
+          "date": "Date",
+          "orderId": "Order ID",
+          "taxableBase": "Taxable base",
+          "tax": "VAT",
+          "restaurantTotal": "Restaurant total",
+          "tip": "Tip",
+          "collectedTotal": "Total collected"
         },
         "pdf": {
           "title": "Tips & Billing Register — {{restaurant}}",
-          "taxId": "Tax ID", "taxIdPending": "Pending configuration", "address": "Address",
-          "period": "Period", "generated": "Generated",
+          "taxId": "Tax ID",
+          "taxIdPending": "Pending configuration",
+          "address": "Address",
+          "period": "Period",
+          "generated": "Generated",
           "summaryNet": "Net Billed Total (Subject to VAT)",
           "summaryTips": "Total Staff Tips (VAT exempt)",
           "summaryReconciliation": "POS Bank Reconciliation Total",
@@ -1375,29 +1439,34 @@
       "cta": "Start your trial",
       "starter": {
         "name": "Starter",
-        "tagline": "Daily dining room and kitchen operations",
-        "price": "Custom quote",
-        "setup": "",
+        "tagline": "For small venues or food trucks.",
+        "price": "€99/month + VAT",
+        "setup": "+ €250 setup (One-time) + VAT",
         "features": [
-          "Table and order management",
-          "Digital menu and categories",
-          "Kitchen display (KDS)",
-          "Reservations and basic inventory"
+          "Manage up to 12 tables",
+          "1 single area (Dining room)",
+          "Digital QR menu",
+          "Integrated Stripe payments"
+        ],
+        "missingFeatures": [
+          "Predictive AI and Analytics",
+          "Shift & Inventory Management"
         ]
       },
       "pro": {
-        "name": "Pro",
+        "name": "Premium",
         "badge": "Recommended",
-        "tagline": "Full suite for structured restaurants",
-        "price": "€199/month",
-        "setup": "€500 one-time setup",
+        "tagline": "For restaurants that demand the best.",
+        "price": "€199/month + VAT",
+        "setup": "+ €500 setup (One-time) + VAT",
         "features": [
-          "Everything in Starter",
-          "CRM, loyalty and marketing",
-          "Predictive AI and analytics",
-          "Fiscal reports and Stripe payments",
-          "Turnkey onboarding support"
-        ]
+          "Unlimited areas and tables",
+          "Predictive AI and Analytics",
+          "Turnkey onboarding",
+          "Shift & Inventory Management",
+          "Marketing Automation"
+        ],
+        "missingFeatures": []
       }
     },
     "footer": {
