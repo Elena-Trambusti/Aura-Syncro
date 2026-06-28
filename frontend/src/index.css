@@ -181,7 +181,7 @@
   .saas-stat,
   .glass-stat,
   .aura-kpi {
-    @apply relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B0E14]/40 backdrop-blur-xl;
+    @apply relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B0E14]/85 backdrop-blur-xl;
     background-image:
       radial-gradient(ellipse 120% 80% at 100% -20%, rgba(212, 175, 55, 0.09) 0%, transparent 55%),
       linear-gradient(165deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 38%, transparent 100%);
@@ -552,7 +552,7 @@
   }
 
   .aura-module-frame {
-    @apply relative overflow-hidden rounded-2xl border border-white/[0.08] bg-navy-elevated;
+    @apply relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B0E14]/85 backdrop-blur-xl;
     background-image:
       radial-gradient(ellipse 90% 60% at 100% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 55%),
       linear-gradient(165deg, rgba(255,255,255,0.04) 0%, transparent 45%);
@@ -568,7 +568,7 @@
   }
 
   .aura-ops-pulse__item {
-    @apply flex items-start gap-3 rounded-xl border border-white/[0.07] bg-navy-surface/50 p-3 sm:p-4;
+    @apply flex items-start gap-3 rounded-xl border border-white/[0.07] bg-[#0B0E14]/85 backdrop-blur-md p-3 sm:p-4;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
@@ -834,7 +834,7 @@
   }
 
   .aura-command-module {
-    @apply flex flex-col rounded-xl border border-white/[0.07] bg-[#0B0E14]/40 backdrop-blur-md;
+    @apply flex flex-col rounded-xl border border-white/[0.07] bg-[#0B0E14]/85 backdrop-blur-md;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
