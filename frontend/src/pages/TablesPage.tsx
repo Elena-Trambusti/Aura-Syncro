@@ -21,6 +21,7 @@ import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import EmptyState from '../components/ui/EmptyState'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 import KpiStatCard from '../components/ui/KpiStatCard'
 import FilterPills from '../components/ui/FilterPills'
 import { numericFieldFrom, numericInputProps, numericToNumber, type NumericField } from '../lib/numericInput'
@@ -150,10 +151,12 @@ export default function TablesPage() {
   const [filterArea, setFilterArea] = useState(allAreasKey)
   const [reservedTable, setReservedTable] = useState<Table | null>(null)
 
-  const { data: tables = [], isLoading, isError, isFetching, refetch } = useQuery<Table[]>({
+  const { data: tablesData, isLoading, isError, isFetching, refetch } = useQuery<Table[]>({
     queryKey: tq(tk, 'tables'),
     queryFn: () => api.get('/tables').then(r => r.data),
   })
+  const showTablesSkeleton = useShowQuerySkeleton(isLoading, tablesData !== undefined)
+  const tables = tablesData ?? []
 
   const defaultArea = t('common.area')
 
@@ -463,7 +466,7 @@ export default function TablesPage() {
 
       {isError ? (
         <QueryErrorBanner />
-      ) : isLoading ? (
+      ) : showTablesSkeleton ? (
         <PageSkeleton variant="cards" count={8} />
       ) : filtered.length === 0 ? (
         <EmptyState

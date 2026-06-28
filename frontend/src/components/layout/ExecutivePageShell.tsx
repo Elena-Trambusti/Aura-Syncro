@@ -6,10 +6,10 @@ interface ExecutivePageShellProps {
   className?: string
 }
 
-/** Wrapper pagina dashboard — spacing, animazione entrata, mobile-first */
+/** Wrapper pagina dashboard — spacing, mobile-first (senza animazione entrata per evitare flash) */
 export default function ExecutivePageShell({ children, className }: ExecutivePageShellProps) {
   return (
-    <div className={cn('pwa-mobile-page aura-page-enter', className)}>
+    <div className={cn('pwa-mobile-page', className)}>
       {children}
     </div>
   )

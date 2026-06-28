@@ -23,6 +23,7 @@ import OperationalPulse from '../components/dashboard/OperationalPulse'
 import ServiceHeatmap from '../components/dashboard/ServiceHeatmap'
 import LiveCommandCenter from '../components/dashboard/LiveCommandCenter'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 
 interface DashboardData {
   today: { orders: number; revenue: number; reservations: number; activeOrders: number }
@@ -131,6 +132,7 @@ export default function DashboardPage() {
     queryFn: () => api.get('/analytics/summary').then(r => r.data),
     refetchInterval: 30_000,
   })
+  const showSummarySkeleton = useShowQuerySkeleton(summaryLoading, dashboard != null)
 
   const { data: revenueData, isError: revenueError } = useQuery({
     queryKey: tq(tk, 'analytics', 'revenue', '7d'),
@@ -216,7 +218,7 @@ export default function DashboardPage() {
         )}
       />
 
-      {summaryLoading ? (
+      {showSummarySkeleton ? (
         <PageSkeleton variant="cards" count={4} />
       ) : (
         <>

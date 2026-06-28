@@ -16,6 +16,7 @@ import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import EmptyState from '../components/ui/EmptyState'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 import KpiStatCard from '../components/ui/KpiStatCard'
 import ModuleFrame from '../components/ui/ModuleFrame'
 
@@ -44,17 +45,10 @@ export default function PaymentsPage() {
     queryKey: tq(tk, 'payments', 'overview'),
     queryFn: () => api.get('/payments/overview').then(r => r.data),
   })
+  const showPaymentsSkeleton = useShowQuerySkeleton(isLoading, data != null)
 
   const apiError = error as { response?: { status?: number; data?: { error?: string; code?: string } } } | null
   const errorMessage = apiError?.response?.data?.error
-
-  if (isLoading) return (
-    <ExecutivePageShell className="space-y-6">
-      <ExecutivePageHeader title={t('payments.title')} subtitle={t('payments.subtitle')} />
-      <PageSkeleton variant="kpi" count={3} />
-      <PageSkeleton variant="table" count={5} />
-    </ExecutivePageShell>
-  )
 
   if (isError) return (
     <ExecutivePageShell className="space-y-6">
@@ -70,9 +64,9 @@ export default function PaymentsPage() {
     </ExecutivePageShell>
   )
 
-  if (!data) return null
+  if (!data && !showPaymentsSkeleton) return null
 
-  const avgOrder = data.mese.count > 0 ? data.mese.amount / data.mese.count : 0
+  const avgOrder = data && data.mese.count > 0 ? data.mese.amount / data.mese.count : 0
 
   const handleConnectStripe = async () => {
     try {
@@ -94,7 +88,7 @@ export default function PaymentsPage() {
             <p className="text-fumo text-sm mt-1">{t('payments.heroHint')}</p>
           </>
         )}
-        actions={
+        actions={data ? (
           data.stripeConnectAccountId ? (
             <a
               href="https://dashboard.stripe.com"
@@ -114,9 +108,16 @@ export default function PaymentsPage() {
               Collega Conto Bancario
             </button>
           )
-        }
+        ) : undefined}
       />
 
+      {showPaymentsSkeleton ? (
+        <>
+          <PageSkeleton variant="kpi" count={3} />
+          <PageSkeleton variant="table" count={5} />
+        </>
+      ) : data ? (
+      <>
       {!data.stripeEnabled && (
         <div className="bg-aura-gold/10 border border-aura-gold/25 rounded-2xl p-4 flex gap-3">
           <AlertCircle className="w-5 h-5 text-aura-gold shrink-0 mt-0.5" />
@@ -220,6 +221,8 @@ export default function PaymentsPage() {
           <li className="flex gap-2"><span className="text-[#635BFF] font-bold">4.</span> {t('payments.setupStep4')}</li>
         </ol>
       </div>
+      </>
+      ) : null}
     </ExecutivePageShell>
   )
 }

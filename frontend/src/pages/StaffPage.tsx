@@ -17,6 +17,7 @@ import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import EmptyState from '../components/ui/EmptyState'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 
 type StaffTab = 'team' | 'shifts'
 
@@ -61,10 +62,12 @@ export default function StaffPage() {
     phone: '',
   })
 
-  const { data: staff = [], isLoading, isError } = useQuery<StaffMember[]>({
+  const { data: staffData, isLoading, isError } = useQuery<StaffMember[]>({
     queryKey: tq(tk, 'staff'),
     queryFn: () => api.get('/staff').then(r => r.data),
   })
+  const showStaffSkeleton = useShowQuerySkeleton(isLoading, staffData !== undefined)
+  const staff = staffData ?? []
 
   const assignableStaff = useMemo(
     () => staff.filter(m => m.role !== 'OWNER' && m.active !== false),
@@ -180,7 +183,7 @@ export default function StaffPage() {
           )}
 
           <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-navy-elevated shadow-sm">
-            {isLoading ? (
+            {showStaffSkeleton ? (
               <PageSkeleton variant="table" count={6} className="p-4" />
             ) : isError ? (
               <div className="p-6">

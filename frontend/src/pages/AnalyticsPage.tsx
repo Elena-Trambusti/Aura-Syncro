@@ -10,6 +10,7 @@ import KpiCard from '../components/ui/KpiCard'
 import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 import FilterPills from '../components/ui/FilterPills'
 import { Download, AlertCircle, TrendingUp, ShoppingBag, Receipt, Clock } from 'lucide-react'
 import { useTenantQueryKey } from '../contexts/AuthContext'
@@ -55,6 +56,8 @@ export default function AnalyticsPage() {
   })
 
   const isLoading = revenueLoading || topItemsLoading || hourlyLoading
+  const hasData = revenue !== undefined || topItems !== undefined || hourly !== undefined
+  const showAnalyticsSkeleton = useShowQuerySkeleton(isLoading, hasData)
   const hasError = revenueError || topItemsError || hourlyError
 
   const totalRevenue = (revenue || []).reduce((s: number, d: { revenue: number }) => s + d.revenue, 0)
@@ -119,7 +122,7 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {isLoading ? (
+      {showAnalyticsSkeleton ? (
         <PageSkeleton variant="kpi" count={3} />
       ) : (
         <>

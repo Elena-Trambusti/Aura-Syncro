@@ -15,6 +15,7 @@ import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
 import EmptyState from '../components/ui/EmptyState'
 import PageSkeleton from '../components/ui/PageSkeleton'
+import { useShowQuerySkeleton } from '../hooks/useShowQuerySkeleton'
 import FilterPills from '../components/ui/FilterPills'
 
 interface OrderItem {
@@ -59,7 +60,7 @@ export default function OrdersPage() {
 
   useRealtimeOrders()
 
-  const { data: orders = [], isLoading, isError } = useQuery<Order[]>({
+  const { data: ordersData, isLoading, isError } = useQuery<Order[]>({
     queryKey: tq(tk, 'orders', filter),
     queryFn: () => {
       if (filter === 'active') return api.get('/orders/active').then(r => r.data)
@@ -67,7 +68,10 @@ export default function OrdersPage() {
       return api.get(`/orders?status=${filter}`).then(r => r.data)
     },
     refetchInterval: filter === 'active' ? 10_000 : undefined,
+    placeholderData: (previous) => previous,
   })
+  const showOrdersSkeleton = useShowQuerySkeleton(isLoading, ordersData !== undefined)
+  const orders = ordersData ?? []
 
   const updateStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -144,7 +148,7 @@ export default function OrdersPage() {
 
       <FilterPills filters={filters} active={filter} onChange={setFilter} />
 
-      {isLoading ? (
+      {showOrdersSkeleton ? (
         <PageSkeleton variant="cards" count={6} />
       ) : isError ? (
         <QueryErrorBanner />
