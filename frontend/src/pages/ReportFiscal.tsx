@@ -23,6 +23,11 @@ type FilterMode = 'day' | 'month' | 'range'
 interface FiscalApiResponse extends FiscalReportData {
   period: { mode: string; start: string; end: string }
   fiscalRegime?: FiscalRegime
+  compliance?: {
+    integrityChainValid: boolean
+    brokenAtOrderId?: string | null
+    verifactuEnabled?: boolean
+  }
   reportLabels?: {
     netRevenueSub: string
     tipsLabel: string
@@ -75,6 +80,15 @@ function ReportFiscalContent() {
   const { data, isLoading, isFetching, isError } = useQuery<FiscalApiResponse>({
     queryKey: tq(tenantQueryKey, 'reports', 'fiscal', mode, dayDate, year, month, rangeFrom, rangeTo),
     queryFn: () => api.get(`/reports/fiscal?${queryParams(mode, dayDate, year, month, rangeFrom, rangeTo)}`).then(r => r.data),
+    enabled: !!restaurant?.id,
+  })
+
+  const { data: vatBreakdown } = useQuery<{
+    breakdown: Array<{ taxRate: number; taxableBase: number; tax: number; count: number }>
+    totals: { taxableBase: number; tax: number; orders: number }
+  }>({
+    queryKey: tq(tenantQueryKey, 'reports', 'fiscal-vat', mode, dayDate, year, month, rangeFrom, rangeTo),
+    queryFn: () => api.get(`/reports/fiscal/vat-breakdown?${queryParams(mode, dayDate, year, month, rangeFrom, rangeTo)}`).then(r => r.data),
     enabled: !!restaurant?.id,
   })
 
@@ -133,8 +147,8 @@ function ReportFiscalContent() {
     [t, taxRegion, countryCode, tenantQueryKey, data?.reportLabels],
   )
 
-  const tableHeaders = useMemo(
-    () => [
+  const tableHeaders = useMemo(() => {
+    const headers = [
       tRegime(t, taxRegion, 'table.date'),
       tRegime(t, taxRegion, 'table.orderId'),
       tRegime(t, taxRegion, 'table.taxableBase'),
@@ -142,9 +156,11 @@ function ReportFiscalContent() {
       tRegime(t, taxRegion, 'table.restaurantTotal'),
       tRegime(t, taxRegion, 'table.tip'),
       tRegime(t, taxRegion, 'table.collectedTotal'),
-    ],
-    [t, taxRegion, countryCode, tenantQueryKey],
-  )
+    ]
+    if (taxRegion === 'IT_MAIN') headers.push(t('reportFiscal.tablePaymentMethod'))
+    if (taxRegion !== 'IT_MAIN') headers.push(t('reportFiscal.tableIntegrityHash'))
+    return headers
+  }, [t, taxRegion, countryCode, tenantQueryKey])
 
   const fmtDate = (d: string | Date) =>
     new Intl.DateTimeFormat(fiscalLocale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(d))
@@ -308,8 +324,42 @@ function ReportFiscalContent() {
         </div>
 
         <div className="rounded-xl border border-aura-gold/25 bg-aura-gold/10 px-4 py-3 text-xs text-amber-900">
-          {data?.reportLabels?.legalDisclaimer ?? t('reportFiscal.legalDisclaimer')}
+          {data?.reportLabels?.legalDisclaimer ?? tRegime(t, taxRegion, 'pdf.legalDisclaimer')}
         </div>
+
+        {data?.compliance && (
+          <div className={cn(
+            'rounded-xl border px-4 py-3 text-xs',
+            data.compliance.integrityChainValid
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+              : 'border-red-200 bg-red-50 text-red-900',
+          )}>
+            {data.compliance.integrityChainValid
+              ? t('reportFiscal.complianceChainValid')
+              : t('reportFiscal.complianceChainInvalid', {
+                  orderId: data.compliance.brokenAtOrderId?.slice(-6).toUpperCase() ?? '—',
+                })}
+            {data.compliance.verifactuEnabled && (
+              <p className="mt-1 opacity-80">{t('reportFiscal.complianceVerifactu')}</p>
+            )}
+          </div>
+        )}
+
+        {vatBreakdown && vatBreakdown.breakdown.length > 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-900">{t('reportFiscal.vatBreakdownTitle')}</h3>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {vatBreakdown.breakdown.map(row => (
+                <div key={row.taxRate} className="rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs">
+                  <p className="font-semibold text-slate-900">{t('reportFiscal.vatBreakdownRate', { rate: row.taxRate })}</p>
+                  <p className="text-slate-600">{t('reportFiscal.vatBreakdownTaxable')}: {formatCurrency(row.taxableBase)}</p>
+                  <p className="text-slate-600">{t('reportFiscal.vatBreakdownTax')}: {formatCurrency(row.tax)}</p>
+                  <p className="text-slate-500">{t('reportFiscal.vatBreakdownOrders')}: {row.count}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {data?.summary.tipsDistribution && (
           <div className="rounded-xl border border-white/10 bg-navy-surface px-4 py-3 text-xs text-fumo shadow-sm">
@@ -506,6 +556,16 @@ function ReportFiscalContent() {
                           <td className="px-4 py-3.5 font-bold text-aura-gold bg-navy-surface border-y border-r border-white/10 rounded-r-xl group-hover:bg-aura-gold/5 group-hover:border-aura-gold/40 transition-colors">
                             {formatCurrency(row.total)}
                           </td>
+                          {taxRegion === 'IT_MAIN' && (
+                            <td className="px-4 py-3.5 text-fumo bg-navy-surface border-y border-r border-white/10 group-hover:bg-aura-gold/5 transition-colors">
+                              {(row as { paymentMethod?: string }).paymentMethod ?? '—'}
+                            </td>
+                          )}
+                          {taxRegion !== 'IT_MAIN' && (
+                            <td className="px-4 py-3.5 font-mono text-[10px] text-fumo bg-navy-surface border-y border-r border-white/10 rounded-r-xl group-hover:bg-aura-gold/5 transition-colors max-w-[120px] truncate">
+                              {(row as { fiscalIntegrityHash?: string | null }).fiscalIntegrityHash?.slice(0, 12) ?? '—'}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

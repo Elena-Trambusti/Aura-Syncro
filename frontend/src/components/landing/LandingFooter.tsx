@@ -16,16 +16,16 @@ export default function LandingFooter() {
       
       <div className="relative mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between z-10">
         <div>
-          <p className="font-display text-lg font-bold text-white tracking-wide">{BRAND.name}</p>
-          <p className="mt-1.5 max-w-sm text-sm text-slate-400">{t('landing.footer.tagline')}</p>
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="font-display text-lg font-bold lux-text-bright tracking-wide">{BRAND.name}</p>
+          <p className="mt-1.5 max-w-sm text-sm lux-text-muted">{t('landing.footer.tagline')}</p>
+          <p className="mt-4 text-xs lux-text-faint">
             {t('landing.footer.rights', { year, brand: BRAND.name })}
           </p>
-          <p className="mt-2 text-[10px] text-slate-600 font-medium uppercase tracking-wider">
+          <p className="mt-2 text-[10px] lux-text-faint font-medium uppercase tracking-wider">
             {formatIssuerFooterLine()}
           </p>
         </div>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-400">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium lux-text-muted">
           <Link to="/privacy" className="hover:text-amber-400 transition-colors">
             {t('landing.footer.privacy')}
           </Link>

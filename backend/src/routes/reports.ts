@@ -6,10 +6,13 @@ import { requirePermission } from '../middleware/permissions'
 import {
   buildDateRange,
   buildMonthRange,
+  calendarDateInTimezone,
+  dayRangeInTimezone,
   effectivePaidAt,
-  legacyPaidOrdersWhere,
-  paidOrdersWhere,
+  endOfLocalDay,
+  paidOrdersInPeriodWhere,
 } from '../lib/dates'
+import { FISCAL_REGION_GENESIS } from '../lib/fiscal/fiscalRegion'
 import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
 import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 import { buildFiscalSummary, buildFiscalTransactionRow } from '../lib/tipFiscal'
@@ -31,33 +34,41 @@ const fiscalOrderSelect = {
   fiscalIntegrityHash: true,
   fiscalPrevHash: true,
   fiscalClosedAt: true,
+  fiscalRegionSnapshot: true,
   invoice: { select: { documentNumber: true } },
 } as const
 
 async function fetchPaidOrdersInPeriod(restaurantId: string, start: Date, end: Date) {
-  const [primary, legacy] = await Promise.all([
-    prisma.order.findMany({
-      where: paidOrdersWhere(restaurantId, start, end),
-      select: fiscalOrderSelect,
-      orderBy: { paidAt: 'asc' },
-    }),
-    prisma.order.findMany({
-      where: legacyPaidOrdersWhere(restaurantId, start, end),
-      select: fiscalOrderSelect,
-      orderBy: { createdAt: 'asc' },
-    }),
-  ])
+  const orders = await prisma.order.findMany({
+    where: paidOrdersInPeriodWhere(restaurantId, start, end),
+    select: fiscalOrderSelect,
+  })
 
-  const byId = new Map<string, (typeof primary)[number]>()
-  for (const order of [...primary, ...legacy]) {
-    byId.set(order.id, order)
-  }
-
-  return [...byId.values()].sort((a, b) => {
+  return orders.sort((a, b) => {
     const da = effectivePaidAt(a.paidAt, a.createdAt).getTime()
     const db = effectivePaidAt(b.paidAt, b.createdAt).getTime()
     return da - db
   })
+}
+
+async function resolveChainInitialPrevHash(
+  restaurantId: string,
+  rangeStart: Date,
+): Promise<string> {
+  const prev = await prisma.order.findFirst({
+    where: {
+      restaurantId,
+      status: 'PAID',
+      fiscalIntegrityHash: { not: null },
+      OR: [
+        { paidAt: { lt: rangeStart } },
+        { paidAt: null, createdAt: { lt: rangeStart } },
+      ],
+    },
+    orderBy: [{ paidAt: 'desc' }, { createdAt: 'desc' }],
+    select: { fiscalIntegrityHash: true },
+  })
+  return prev?.fiscalIntegrityHash ?? FISCAL_REGION_GENESIS
 }
 
 // ── P&L Mensile ───────────────────────────────────────────────────────────────
@@ -69,7 +80,7 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
   const y = Number(year)
   const m = Number(month)
   const { start: startDate, end: endDate } = buildMonthRange(y, m)
-  const orderWhere = paidOrdersWhere(restaurantId, startDate, endDate)
+  const orderWhere = paidOrdersInPeriodWhere(restaurantId, startDate, endDate)
 
   // Ricavi da ordini pagati
   const revenueData = await prisma.order.aggregate({
@@ -126,14 +137,14 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
   // Breakdown giornaliero
   const dailyOrders = await prisma.order.findMany({
     where: orderWhere,
-    select: { revenueAmount: true, tipAmount: true, total: true, paidAt: true, discount: true, subtotal: true, tax: true },
+    select: { revenueAmount: true, tipAmount: true, total: true, paidAt: true, createdAt: true, discount: true, subtotal: true, tax: true },
     orderBy: { paidAt: 'asc' },
   })
 
   const dailyMap: Record<string, { revenue: number; tips: number; collected: number; orders: number; discount: number }> = {}
   for (const o of dailyOrders) {
-    if (!o.paidAt) continue
-    const key = o.paidAt.toISOString().split('T')[0]
+    const paid = effectivePaidAt(o.paidAt, o.createdAt)
+    const key = paid.toISOString().split('T')[0]
     if (!dailyMap[key]) dailyMap[key] = { revenue: 0, tips: 0, collected: 0, orders: 0, discount: 0 }
     const food = o.revenueAmount ?? (o.subtotal + o.tax)
     dailyMap[key].revenue += food
@@ -179,13 +190,16 @@ reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: A
     },
   })
 
-  // Vendite ultimi 30 giorni
+  // Vendite ultimi 30 giorni (per data incasso)
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const thirtyDaysEnd = endOfLocalDay(new Date())
 
   const salesData = await prisma.orderItem.groupBy({
     by: ['menuItemId'],
-    where: { order: { restaurantId, status: 'PAID', createdAt: { gte: thirtyDaysAgo } } },
+    where: {
+      order: paidOrdersInPeriodWhere(restaurantId, thirtyDaysAgo, thirtyDaysEnd),
+    },
     _sum: { quantity: true },
   })
 
@@ -231,10 +245,11 @@ reportsRouter.get('/categories', requirePermission('reports.read'), async (req: 
   const restaurantId = req.restaurantId!
   const since = new Date()
   since.setDate(since.getDate() - Number(days))
+  const until = endOfLocalDay(new Date())
 
   const data = await prisma.orderItem.groupBy({
     by: ['menuItemId'],
-    where: { order: { restaurantId, status: 'PAID', createdAt: { gte: since } } },
+    where: { order: paidOrdersInPeriodWhere(restaurantId, since, until) },
     _sum: { quantity: true },
     _count: { id: true },
   })
@@ -268,13 +283,23 @@ reportsRouter.get('/yearly', requirePermission('reports.read'), async (req: Auth
   const restaurantId = req.restaurantId!
   const y = Number(year)
 
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  const fiscal = buildFiscalConfig(restaurant?.settings)
+  const monthLocale = fiscal.defaultLocale === 'es' || fiscal.defaultLocale === 'es-cn'
+    ? 'es-ES'
+    : fiscal.defaultLocale === 'it'
+      ? 'it-IT'
+      : 'en-GB'
+
   const months = []
   for (let m = 1; m <= 12; m++) {
-    const start = new Date(y, m - 1, 1)
-    const end = new Date(y, m, 0, 23, 59, 59)
+    const { start, end } = buildMonthRange(y, m)
 
     const agg = await prisma.order.aggregate({
-      where: { restaurantId, status: 'PAID', paidAt: { gte: start, lte: end } },
+      where: paidOrdersInPeriodWhere(restaurantId, start, end),
       _sum: { revenueAmount: true, tipAmount: true, total: true, subtotal: true, tax: true },
       _count: true,
     })
@@ -283,7 +308,7 @@ reportsRouter.get('/yearly', requirePermission('reports.read'), async (req: Auth
 
     months.push({
       month: m,
-      monthName: new Date(y, m - 1).toLocaleString('it-IT', { month: 'short' }),
+      monthName: new Date(y, m - 1).toLocaleString(monthLocale, { month: 'short' }),
       revenue: Math.round(foodRevenue * 100) / 100,
       tips: Math.round((agg._sum.tipAmount || 0) * 100) / 100,
       collected: Math.round((agg._sum.total || 0) * 100) / 100,
@@ -340,9 +365,11 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
       documentNumber: o.invoice?.documentNumber ?? null,
       fiscalIntegrityHash: row.fiscalIntegrityHash ?? null,
       fiscalPrevHash: row.fiscalPrevHash ?? null,
+      fiscalRegionSnapshot: o.fiscalRegionSnapshot ?? fiscal.fiscalRegion,
     }
   })
 
+  const initialExpectedPrev = await resolveChainInitialPrevHash(restaurantId, range.start)
   const chainAudit = verifyFiscalChainSequence(
     orders.map(o => ({
       id: o.id,
@@ -352,6 +379,7 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
       fiscalIntegrityHash: o.fiscalIntegrityHash,
       paidAt: o.paidAt,
     })),
+    { initialExpectedPrev },
   )
 
   const summary = buildFiscalSummary(rows, fiscal.taxRegion)
@@ -393,19 +421,81 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
   })
 })
 
+// ── Liquidazione IVA/IGIC per aliquota ────────────────────────────────────────
+
+reportsRouter.get('/fiscal/vat-breakdown', requireRole('OWNER', 'MANAGER'), requireProPlan, async (req: AuthRequest, res: Response): Promise<void> => {
+  const restaurantId = req.restaurantId!
+  const range = buildDateRange(req.query as Record<string, string | undefined>)
+  if (!range) {
+    res.status(400).json({ error: 'Filtro date non valido' })
+    return
+  }
+
+  const orders = await fetchPaidOrdersInPeriod(restaurantId, range.start, range.end)
+  const byRate = new Map<number, { taxRate: number; taxableBase: number; tax: number; count: number }>()
+
+  for (const o of orders) {
+    const rate = o.taxRateApplied ?? 0
+    const base = o.subtotal ?? 0
+    const tax = o.tax ?? 0
+    const bucket = byRate.get(rate) ?? { taxRate: rate, taxableBase: 0, tax: 0, count: 0 }
+    bucket.taxableBase = Math.round((bucket.taxableBase + base) * 100) / 100
+    bucket.tax = Math.round((bucket.tax + tax) * 100) / 100
+    bucket.count += 1
+    byRate.set(rate, bucket)
+  }
+
+  const breakdown = [...byRate.values()].sort((a, b) => a.taxRate - b.taxRate)
+  res.json({
+    period: { start: range.start.toISOString(), end: range.end.toISOString() },
+    breakdown,
+    totals: {
+      taxableBase: Math.round(breakdown.reduce((s, r) => s + r.taxableBase, 0) * 100) / 100,
+      tax: Math.round(breakdown.reduce((s, r) => s + r.tax, 0) * 100) / 100,
+      orders: orders.length,
+    },
+  })
+})
+
 // ── Chiusura Fiscale Zeta (Aruba FE) ──────────────────────────────────────────
+
+reportsRouter.get('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, async (req: AuthRequest, res: Response): Promise<void> => {
+  const restaurantId = req.restaurantId!
+  const closures = await prisma.fiscalClosure.findMany({
+    where: { restaurantId },
+    orderBy: { date: 'desc' },
+    take: 90,
+  })
+  res.json(closures)
+})
 
 reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
 
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-  const endOfDay = new Date()
-  endOfDay.setHours(23, 59, 59, 999)
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  if (!restaurant?.settings) {
+    res.status(400).json({ error: 'Impostazioni ristorante non trovate' })
+    return
+  }
 
-  // 1. Controlla se c'è già una chiusura oggi
+  const fiscal = buildFiscalConfig(restaurant.settings)
+  if (fiscal.countryCode !== 'IT') {
+    res.status(400).json({ error: 'Chiusura Zeta disponibile solo per tenant Italia' })
+    return
+  }
+
+  const { start: startOfDay, end: endOfDay } = dayRangeInTimezone(fiscal.timezone)
+
+  // 1. Controlla se c'è già una chiusura oggi (calendario tenant)
+  const dayKey = calendarDateInTimezone(fiscal.timezone)
   const existing = await prisma.fiscalClosure.findFirst({
-    where: { restaurantId, date: { gte: startOfDay, lte: endOfDay } }
+    where: {
+      restaurantId,
+      date: { gte: startOfDay, lte: endOfDay },
+    },
   })
 
   if (existing) {
@@ -425,14 +515,32 @@ reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, asy
   let totalTax = 0
   let totalCash = 0
   let totalCard = 0
+  let totalStripe = 0
+  let totalDigital = 0
+  let totalVoucher = 0
   let totalTip = 0
 
   for (const o of orders) {
     totalRevenue += o.revenueAmount ?? (o.subtotal + o.tax)
     totalTax += o.tax
     totalTip += o.tipAmount ?? 0
-    if (o.paymentMethod === 'CASH') totalCash += o.total
-    else if (o.paymentMethod) totalCard += o.total
+    switch (o.paymentMethod) {
+      case 'CASH':
+        totalCash += o.total
+        break
+      case 'STRIPE':
+        totalStripe += o.total
+        break
+      case 'DIGITAL':
+        totalDigital += o.total
+        break
+      case 'VOUCHER':
+        totalVoucher += o.total
+        break
+      default:
+        if (o.paymentMethod) totalCard += o.total
+        break
+    }
   }
 
   // 3. Genera il record di Chiusura
@@ -443,15 +551,12 @@ reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, asy
       totalRevenue,
       totalTax,
       totalCash,
-      totalCard,
+      totalCard: totalCard + totalStripe + totalDigital + totalVoucher,
       totalTip,
       orderCount: orders.length,
       status: 'GENERATED',
-    }
+    },
   })
 
-  // TODO: Integrati qui con Aruba FE per inviare il tracciato XML dei corrispettivi giornalieri
-  // se ARUBA_FE_ENABLED=true nel file .env
-
-  res.json(closure)
+  res.json({ ...closure, calendarDay: dayKey, paymentSplit: { totalCash, totalCard, totalStripe, totalDigital, totalVoucher } })
 })

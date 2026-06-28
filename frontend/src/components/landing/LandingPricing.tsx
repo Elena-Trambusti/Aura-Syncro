@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import RegisterLink from './RegisterLink'
 import { useTranslation } from 'react-i18next'
 import { Check, X, Sparkles, ArrowRight } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -50,8 +50,8 @@ export default function LandingPricing() {
       </div>
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-neutral-400">{t('landing.pricing.title', { defaultValue: 'Prezzi Semplici, Nessuna Sorpresa' })}</h2>
-          <p className="mt-3 text-slate-300">{t('landing.pricing.subtitle', { defaultValue: 'Scegli il piano giusto per la tua attività.' })}</p>
+          <h2 className="lux-heading text-3xl font-bold tracking-tighter sm:text-4xl">{t('landing.pricing.title', { defaultValue: 'Prezzi Semplici, Nessuna Sorpresa' })}</h2>
+          <p className="mt-3 lux-text-soft">{t('landing.pricing.subtitle', { defaultValue: 'Scegli il piano giusto per la tua attività.' })}</p>
         </div>
 
         <div className="mt-14 mx-auto grid max-w-md grid-cols-1 gap-8 md:max-w-4xl md:grid-cols-2">
@@ -63,8 +63,8 @@ export default function LandingPricing() {
                 className={cn(
                   'relative flex flex-col rounded-2xl border p-8',
                   isPro
-                    ? 'scale-[1.01] border-white/[0.08] bg-white/[0.02] backdrop-blur-xl text-slate-100 shadow-[0_8_32px_0_rgba(0,0,0,0.37)] transition-all duration-500 md:hover:scale-[1.03] hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]'
-                    : 'border-white/5 bg-slate-900/50 backdrop-blur-sm text-slate-100 shadow-sm transition-all md:hover:scale-[1.01]',
+                    ? 'scale-[1.01] border-[#D4AF37]/15 bg-[#1a1408]/40 backdrop-blur-xl lux-text-soft shadow-[0_8_32px_0_rgba(0,0,0,0.37)] transition-all duration-500 md:hover:scale-[1.03] hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]'
+                    : 'border-[#D4AF37]/10 bg-[#0f0c08]/60 backdrop-blur-sm lux-text-muted shadow-sm transition-all md:hover:scale-[1.01]',
                 )}
               >
                 {isPro && (
@@ -73,41 +73,40 @@ export default function LandingPricing() {
                     Consigliato
                   </span>
                 )}
-                <h3 className={cn('text-lg font-bold', isPro ? 'text-white' : 'text-slate-200')}>
+                <h3 className={cn('text-lg font-bold', isPro ? 'lux-text-bright' : 'lux-text')}>
                   {plan.name}
                 </h3>
-                <p className={cn('mt-1 text-sm', isPro ? 'text-slate-300' : 'text-slate-400')}>
+                <p className={cn('mt-1 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
                   {plan.tagline}
                 </p>
                 <div className="mt-6">
-                  <p className={cn('text-3xl font-extrabold', isPro ? 'text-white' : 'text-slate-200')}>
+                  <p className={cn('text-3xl font-extrabold', isPro ? 'lux-text-bright' : 'lux-text')}>
                     {plan.price}
                   </p>
-                  <p className={cn('mt-1 text-sm', isPro ? 'text-slate-300' : 'text-slate-400')}>
+                  <p className={cn('mt-1 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
                     {plan.setup}
                   </p>
                 </div>
                 <ul className="mt-8 flex-1 space-y-3">
                   {plan.features.map(line => (
-                    <li key={line} className={cn('flex items-start gap-2 text-sm', isPro ? 'text-slate-200' : 'text-slate-300')}>
+                    <li key={line} className={cn('flex items-start gap-2 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
                       <Check className={cn('mt-0.5 h-4 w-4 shrink-0', isPro ? 'text-amber-300' : 'text-emerald-500')} />
                       <span>{line}</span>
                     </li>
                   ))}
                   {plan.missingFeatures.map(line => (
-                    <li key={line} className="flex items-start gap-2 text-sm text-slate-500/60 line-through">
-                      <X className="mt-0.5 h-4 w-4 shrink-0 text-slate-600/50" />
+                    <li key={line} className="flex items-start gap-2 text-sm lux-text-faint line-through">
+                      <X className="mt-0.5 h-4 w-4 shrink-0 text-[#8C7A52]/50" />
                       <span>{line}</span>
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/register"
+                <RegisterLink
                   className={cn(
                     'mt-8 relative overflow-hidden flex items-center justify-center rounded-full py-3.5 px-6 text-[10px] uppercase tracking-[0.2em] font-bold transition-all duration-500 group',
                     isPro
                       ? 'bg-gradient-to-r from-[#d4af37] to-[#aa8c2c] text-black shadow-[0_0_30px_rgba(212,175,55,0.3)] hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(212,175,55,0.5)] ring-1 ring-white/40'
-                      : 'border border-white/10 bg-black/40 backdrop-blur-xl text-white hover:-translate-y-1 hover:bg-white/10 hover:border-aura-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]'
+                      : 'border border-[#D4AF37]/20 bg-black/40 backdrop-blur-xl lux-text-bright hover:-translate-y-1 hover:bg-[#D4AF37]/5 hover:border-aura-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]'
                   )}
                 >
                   {isPro && (
@@ -115,7 +114,7 @@ export default function LandingPricing() {
                   )}
                   <span className="relative">{t('landing.pricing.cta', { defaultValue: 'Inizia Ora' })}</span>
                   {isPro && <ArrowRight className="relative h-4 w-4 ml-2" />}
-                </Link>
+                </RegisterLink>
               </div>
             )
           })}

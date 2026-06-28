@@ -7,7 +7,7 @@ import { LayoutDashboard, UtensilsCrossed, ClipboardList, BookOpen,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '../../lib/utils'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth, useFiscalRegime } from '../../contexts/AuthContext'
 import { useAccessTier } from '../../hooks/useAccessTier'
 import { usePlanTier } from '../../hooks/usePlanTier'
 import { useRole } from '../../hooks/useRole'
@@ -27,6 +27,7 @@ const navItems: Array<{
   billingOnly?: boolean
   onboardingOnly?: boolean
   proOnly?: boolean
+  italyOnly?: boolean
   permission?: Permission
 }> = [
   { to: BILLING_PATH, icon: Crown, labelKey: 'nav.billing', billingOnly: true },
@@ -34,7 +35,7 @@ const navItems: Array<{
   { to: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard', exact: true },
   { to: '/tavoli', icon: UtensilsCrossed, labelKey: 'nav.tables', permission: 'tables.read' },
   { to: '/ordini', icon: ClipboardList, labelKey: 'nav.orders', permission: 'orders.read' },
-  { to: '/cassa', icon: Wallet, labelKey: 'Cassa', permission: 'orders.pay' },
+  { to: '/cassa', icon: Wallet, labelKey: 'nav.cashDrawer', permission: 'orders.pay' },
   { to: '/prenotazioni', icon: CalendarDays, labelKey: 'nav.reservations', permission: 'reservations.read' },
   { to: '/menu', icon: BookOpen, labelKey: 'nav.menu', permission: 'menu.read' },
   { to: '/dashboard/qr-builder', icon: QrCode, labelKey: 'nav.qrMenu', permission: 'menu.manage' },
@@ -43,7 +44,7 @@ const navItems: Array<{
   { to: '/fedelta', icon: Star, labelKey: 'nav.loyalty', proOnly: true },
   { to: '/marketing', icon: Megaphone, labelKey: 'nav.marketing', proOnly: true },
   { to: '/pagamenti', icon: CreditCard, labelKey: 'nav.payments', adminOnly: true, proOnly: true },
-  { to: '/fatture', icon: Receipt, labelKey: 'Fatturazione B2B', adminOnly: true, proOnly: true },
+  { to: '/fatture', icon: Receipt, labelKey: 'nav.invoicesB2b', adminOnly: true, proOnly: true, italyOnly: true },
   { to: '/report', icon: FileText, labelKey: 'nav.reports', exact: true, permission: 'reports.read' },
   { to: '/report/fiscal', icon: Scale, labelKey: 'nav.reportFiscal', exact: true, adminOnly: true, proOnly: true },
   { to: '/dashboard/staff', icon: UserCog, labelKey: 'nav.staff', staffManagersOnly: true },
@@ -65,6 +66,7 @@ export default function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
   const { restaurant, user } = useAuth()
+  const fiscal = useFiscalRegime()
   const { tier } = useAccessTier()
   const { hasProPlan } = usePlanTier()
   const { canAccessAdminNav, canManageStaff, can } = useRole()
@@ -91,12 +93,13 @@ export default function Sidebar() {
 
     return navItems.filter(item => {
       if (item.billingOnly || item.onboardingOnly) return false
+      if (item.italyOnly && fiscal.countryCode !== 'IT') return false
       if (item.adminOnly && !canAccessAdminNav()) return false
       if (item.staffManagersOnly && !canManageStaff()) return false
       if (item.permission && !can(item.permission)) return false
       return true
     })
-  }, [tier, canAccessAdminNav, canManageStaff, can])
+  }, [tier, canAccessAdminNav, canManageStaff, can, fiscal.countryCode])
 
   function isItemLocked(item: (typeof navItems)[number]): boolean {
     if (item.proOnly && !hasProPlan) return true

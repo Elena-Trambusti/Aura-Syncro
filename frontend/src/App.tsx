@@ -6,7 +6,9 @@
  * CONFIDENZIALE  NON DISTRIBUIRE
  */
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { useLayoutEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { isDemoUserEmail } from './lib/demoAccounts'
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
@@ -65,9 +67,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, logout } = useAuth()
+
+  useLayoutEffect(() => {
+    if (user && isDemoUserEmail(user.email)) {
+      logout()
+    }
+  }, [user, logout])
+
   if (isLoading) return <AuthLoadingScreen />
-  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>
+  if (user && !isDemoUserEmail(user.email)) return <Navigate to="/dashboard" replace />
+  return <>{children}</>
 }
 
 function AppRoutes() {

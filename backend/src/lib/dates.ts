@@ -13,6 +13,21 @@ export function endOfLocalDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
 }
 
+/** Data calendario YYYY-MM-DD nel fuso del tenant (es. Europe/Rome). */
+export function calendarDateInTimezone(timeZone: string, ref = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(ref)
+}
+
+/** Inizio/fine giornata locale per il calendario nel fuso tenant (approssimazione server-local). */
+export function dayRangeInTimezone(timeZone: string, ref = new Date()): { start: Date; end: Date } {
+  const dateStr = calendarDateInTimezone(timeZone, ref)
+  const day = parseLocalDate(dateStr)
+  if (!day) {
+    return { start: startOfLocalDay(ref), end: endOfLocalDay(ref) }
+  }
+  return { start: day, end: endOfLocalDay(day) }
+}
+
 export function startOfLocalMonth(year: number, month: number): Date {
   return new Date(year, month - 1, 1, 0, 0, 0, 0)
 }
@@ -29,12 +44,27 @@ export function buildMonthRange(year: number, month: number): { start: Date; end
   return { start: startOfLocalMonth(year, month), end: endOfLocalMonth(year, month) }
 }
 
-/** Same filter used by /reports/pl and /reports/fiscal — paidAt within [start, end]. */
+/** Ordini pagati con paidAt nel periodo [start, end]. */
 export function paidOrdersWhere(restaurantId: string, start: Date, end: Date) {
   return {
     restaurantId,
     status: 'PAID' as const,
     paidAt: { gte: start, lte: end },
+  }
+}
+
+/**
+ * Filtro unificato: paidAt nel periodo oppure legacy (paidAt null + createdAt nel periodo).
+ * Usato da P&L, fiscal, yearly, food-cost e analytics.
+ */
+export function paidOrdersInPeriodWhere(restaurantId: string, start: Date, end: Date) {
+  return {
+    restaurantId,
+    status: 'PAID' as const,
+    OR: [
+      { paidAt: { gte: start, lte: end } },
+      { paidAt: null, createdAt: { gte: start, lte: end } },
+    ],
   }
 }
 

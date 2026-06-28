@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client'
 import { buildFiscalConfig } from './taxEngine'
 import { getFiscalStrategyFromConfig } from './fiscal/strategies'
+import type { FiscalRegion } from '@prisma/client'
 
 /** Formato: FATT-2026-001 */
 export function formatInvoiceDocumentNumber(
@@ -19,18 +20,27 @@ export type AllocatedInvoiceNumber = {
   documentNumber: string
 }
 
+/** Prefisso documenti di vendita POS (distinto da FatturaPA B2B). */
+export function resolveSaleDocumentPrefix(fiscalRegion: FiscalRegion): string {
+  if (fiscalRegion === 'ITALIA') return 'CORR'
+  return 'T-'
+}
+
 /**
  * Alloca il prossimo numero progressivo per ristorante/anno (atomico in transazione).
+ * @param prefixOverride Se impostato, usa questo prefisso (es. CORR vendita, FATT B2B).
  */
 export async function allocateInvoiceNumber(
   tx: Prisma.TransactionClient,
   restaurantId: string,
   issuedAt: Date,
+  prefixOverride?: string,
 ): Promise<AllocatedInvoiceNumber> {
   const settings = await tx.restaurantSettings.findUnique({ where: { restaurantId } })
   const fiscal = buildFiscalConfig(settings)
   const strategy = getFiscalStrategyFromConfig(fiscal)
-  const prefix = strategy.resolveInvoicePrefix(settings?.invoicePrefix)
+  const prefix = prefixOverride?.trim().toUpperCase()
+    || strategy.resolveInvoicePrefix(settings?.invoicePrefix)
   const fiscalYear = issuedAt.getFullYear()
 
   const row = await tx.fiscalSequence.upsert({
@@ -48,7 +58,7 @@ export async function allocateInvoiceNumber(
   }
 }
 
-/** Crea fattura collegata all'ordine pagato (idempotente se già esiste). */
+/** Crea documento di vendita collegato all'ordine pagato (idempotente se già esiste). */
 export async function issueInvoiceForOrder(
   tx: Prisma.TransactionClient,
   orderId: string,
@@ -58,7 +68,19 @@ export async function issueInvoiceForOrder(
   const existing = await tx.invoice.findUnique({ where: { orderId } })
   if (existing) return existing
 
-  const allocated = await allocateInvoiceNumber(tx, restaurantId, issuedAt)
+  const order = await tx.order.findUnique({
+    where: { id: orderId },
+    select: { revenueAmount: true, total: true, subtotal: true, tax: true, fiscalRegionSnapshot: true },
+  })
+
+  const settings = await tx.restaurantSettings.findUnique({ where: { restaurantId } })
+  const fiscal = buildFiscalConfig(settings)
+  const salePrefix = resolveSaleDocumentPrefix(
+    order?.fiscalRegionSnapshot ?? fiscal.fiscalRegion,
+  )
+  const allocated = await allocateInvoiceNumber(tx, restaurantId, issuedAt, salePrefix)
+  const importoTotale = order?.revenueAmount ?? order?.total ?? ((order?.subtotal ?? 0) + (order?.tax ?? 0))
+
   return tx.invoice.create({
     data: {
       restaurantId,
@@ -68,6 +90,7 @@ export async function issueInvoiceForOrder(
       fiscalYear: allocated.fiscalYear,
       sequence: allocated.sequence,
       issuedAt,
+      importoTotale,
     },
   })
 }

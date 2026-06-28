@@ -2,6 +2,9 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { resolveApiBaseUrl } from './backendUrl'
 import { isPublicAppRoute } from './publicRoutes'
+import { readAuthCache } from './authCache'
+import { isDemoUserEmail } from './demoAccounts'
+import { isDemoMutationAllowed } from './demoRestrictions'
 
 const RESTAURANT_ID_KEY = 'restaurantId'
 
@@ -31,6 +34,26 @@ api.interceptors.request.use(config => {
 
   const restaurantId = localStorage.getItem(RESTAURANT_ID_KEY)
   if (restaurantId) config.headers['X-Restaurant-Id'] = restaurantId
+
+  const cachedUser = readAuthCache()?.user.email
+  const method = (config.method || 'get').toUpperCase()
+  const url = config.url || ''
+  if (
+    cachedUser &&
+    isDemoUserEmail(cachedUser) &&
+    !isDemoMutationAllowed(url, method)
+  ) {
+    toast.error('In modalità Demo puoi interagire solo con la sezione Tavoli.', {
+      icon: '⚠️',
+      style: {
+        borderRadius: '10px',
+        background: '#1e293b',
+        color: '#fcd34d',
+        border: '1px solid rgba(245, 158, 11, 0.2)',
+      },
+    })
+    return Promise.reject(new axios.CanceledError('DEMO_READ_ONLY'))
+  }
 
   return config
 })

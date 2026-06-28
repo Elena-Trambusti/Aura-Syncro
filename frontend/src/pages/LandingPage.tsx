@@ -14,7 +14,7 @@ export default function LandingPage() {
   usePageMeta(t('landing.meta.title'), t('landing.meta.description'))
 
   return (
-    <div lang={i18n.language} className="min-h-[100dvh] flex flex-col relative text-white selection:bg-aura-gold/30 bg-[#020202] overflow-x-hidden">
+    <div lang={i18n.language} className="min-h-[100dvh] flex flex-col relative lux-text selection:bg-aura-gold/30 bg-[#020202] overflow-x-hidden">
       {/* Pure black base */}
       <div className="fixed inset-0 z-[-4] bg-black" />
       

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { formatCurrency, cn } from '../lib/utils'
 import { useAuth, useFiscalRegime, useTenantQueryKey } from '../contexts/AuthContext'
@@ -62,6 +62,12 @@ export default function CheckoutPage() {
   const [discountCode, setDiscountCode] = useState('')
   const [finalizeResult, setFinalizeResult] = useState<CheckoutFinalizeResult | null>(null)
 
+  const { data: cashSession } = useQuery<{ id: string; status: string } | null>({
+    queryKey: tq(tk, 'cash', 'current'),
+    queryFn: () => api.get('/cash/session/current').then(r => r.data),
+    enabled: paymentMethod === 'CASH' || (paymentMethod === 'SPLIT' && splitSettlement === 'CASH'),
+  })
+
   const { data, isLoading, isError, refetch } = useQuery<{
     order: CheckoutOrder
     restaurant: { name: string; taxId?: string | null }
@@ -87,6 +93,8 @@ export default function CheckoutPage() {
   })
 
   const order = data?.order
+  const needsCashSession = (paymentMethod === 'CASH' || (paymentMethod === 'SPLIT' && splitSettlement === 'CASH'))
+    && cashSession === null
   const parsedTip = wantsTip ? Math.max(0, parseFloat(tipAmount) || 0) : 0
   const grandTotal = (order?.total ?? 0) + parsedTip
   const loyaltyDiscount = data?.loyaltyDiscount
@@ -416,6 +424,15 @@ export default function CheckoutPage() {
               )
             })}
           </div>
+
+          {needsCashSession && (
+            <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+              <p>{t('checkout.cashSessionRequired')}</p>
+              <Link to="/cassa" className="mt-2 inline-block font-semibold text-amber-800 underline">
+                {t('checkout.cashSessionLink')}
+              </Link>
+            </div>
+          )}
 
           {paymentMethod === 'SPLIT' && (
             <div className="mt-5 space-y-4 border-t border-white/[0.06] pt-4">

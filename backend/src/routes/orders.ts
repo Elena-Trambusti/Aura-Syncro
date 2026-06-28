@@ -9,7 +9,7 @@ import { io } from '../index'
 import { parseLocalDate } from '../lib/dates'
 import { completeOrderPayment } from '../lib/completePayment'
 import { releaseTableIfEmpty } from '../lib/orderPayment'
-import { computeTaxForExistingOrder, computeTaxForRestaurant } from '../lib/orderTax'
+import { computeTaxForExistingOrder, computeTaxFromGrossLines, computeTaxForOrderItems } from '../lib/orderTax'
 import { broadcastNewOrderNotification, formatOrderCurrency } from '../lib/orderNotifications'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
 import { deductInventoryForOrder, restoreInventoryForOrderItem } from '../lib/inventoryDeduction'
@@ -219,7 +219,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
            selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
          }
       }
-      return { ...item, unitPrice, selectedOptions }
+      return { ...item, unitPrice, selectedOptions, menuTaxRate: menuItem.taxRate }
     })
   } catch (e) {
     const code = (e as { code?: string }).code
@@ -239,7 +239,14 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   }
 
   const grossTotal = itemsWithPrice.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const { subtotal, tax, total, taxRateApplied } = await computeTaxForRestaurant(req.restaurantId!, grossTotal)
+  const { subtotal, tax, total, taxRateApplied } = await computeTaxFromGrossLines(
+    req.restaurantId!,
+    itemsWithPrice.map(item => ({
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      taxRate: item.menuTaxRate,
+    })),
+  )
 
   let order;
   try {
@@ -425,7 +432,10 @@ ordersRouter.patch('/:orderId/items/:itemId/status', async (req: AuthRequest, re
       })
       if (fetchedOrder) {
         const grossTotal = active.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-        const { subtotal, tax, total, taxRateApplied } = await computeTaxForExistingOrder(fetchedOrder, grossTotal)
+        const { subtotal, tax, total, taxRateApplied } = await computeTaxForOrderItems(
+          req.restaurantId!,
+          active.map(i => ({ quantity: i.quantity, unitPrice: i.unitPrice, menuItemId: i.menuItemId, status: i.status })),
+        )
         await tx.order.updateMany({
           where: { id: req.params.orderId },
           data: { subtotal, tax, total, taxRateApplied, revenueAmount: total },
@@ -690,11 +700,15 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     })
 
     if (fetchedOrder) {
-      const grossTotal = fetchedOrder.items
-        .filter(i => i.status !== 'CANCELLED')
-        .reduce((s, i) => s + i.unitPrice * i.quantity, 0)
-      
-      const { subtotal, tax, total, taxRateApplied } = await computeTaxForExistingOrder(fetchedOrder, grossTotal)
+      const { subtotal, tax, total, taxRateApplied } = await computeTaxForOrderItems(
+        tenantId(req),
+        fetchedOrder.items.map(i => ({
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          menuItemId: i.menuItemId,
+          status: i.status,
+        })),
+      )
       
       await tx.order.updateMany({
         where: scopedWhere(req, req.params.id),

@@ -70,6 +70,8 @@
     "loyalty": "Fedeltà",
     "marketing": "Marketing",
     "payments": "Pagamenti",
+    "cashDrawer": "Cassa",
+    "invoicesB2b": "Fatturazione B2B",
     "billing": "Attiva piano",
     "onboarding": "Onboarding",
     "reports": "Report",
@@ -86,6 +88,11 @@
     "lockedAria": "bloccato",
     "previewUnsubscribed": "Anteprima gratuita — attiva Premium per sbloccare tutto",
     "previewOnboarding": "Onboarding in corso — le funzioni si sbloccano a setup completato"
+  },
+  "demo": {
+    "bannerTitle": "Demo interattiva Aura Syncro",
+    "bannerSubtitle": "Prova il flusso completo dalla sezione Tavoli: apri un tavolo, inserisci una comanda e segui la sincronizzazione in tempo reale.",
+    "bannerReadOnly": "Stai esplorando in sola lettura. Puoi modificare dati solo dalla sezione Tavoli (comande e incasso)."
   },
   "commandPalette": {
     "title": "Navigazione rapida",
@@ -840,7 +847,13 @@
     "csvMarginPct": "Margine %",
     "csvSold30d": "Venduto (30g)",
     "csvTurnover": "Fatturato",
-    "pieces": "pz"
+    "pieces": "pz",
+    "zetaButton": "Chiusura Cassa",
+    "zetaConfirm": "Vuoi generare la chiusura di cassa di fine giornata? Questa operazione non è annullabile.",
+    "zetaSuccess": "Chiusura di cassa generata con successo",
+    "zetaError": "Errore durante la chiusura fiscale",
+    "zetaItalyOnly": "Disponibile solo per ristoranti in Italia",
+    "taxRowLabel": "{{taxName}} ({{rate}}%)"
   },
   "reportFiscal": {
     "exportPdf": "Esporta PDF per ispezione",
@@ -848,6 +861,16 @@
     "exporting": "Generazione documento...",
     "csvGenerated": "CSV esportato correttamente",
     "legalDisclaimer": "Documento operativo per gestione interna e contabilità. Non sostituisce registri fiscali ufficiali, fatturazione elettronica (SDI/Verifactu) né obblighi di conservazione sostitutiva previsti dalla legge.",
+    "complianceChainInvalid": "Attenzione: la catena di integrità fiscale presenta un'interruzione. Ordine: {{orderId}}",
+    "complianceChainValid": "Catena di integrità fiscale verificata per il periodo selezionato.",
+    "complianceVerifactu": "Predisposizione VeriFactu attiva per questo regime.",
+    "vatBreakdownTitle": "Riepilogo per aliquota",
+    "vatBreakdownRate": "Aliquota {{rate}}%",
+    "vatBreakdownTaxable": "Imponibile",
+    "vatBreakdownTax": "Imposta",
+    "vatBreakdownOrders": "Transazioni",
+    "tablePaymentMethod": "Pagamento",
+    "tableIntegrityHash": "Hash integrità",
     "totalTipsNote": "Totale mance (tutte): {{total}}",
     "filterPeriod": "Filtro periodo",
     "filterDay": "Per giorno",
@@ -1195,6 +1218,39 @@
     "transferNoActiveOrder": "Nessun ordine attivo da spostare",
     "transferError": "Errore durante lo spostamento tavolo"
   },
+  "invoices": {
+    "title": "Fatturazione Elettronica",
+    "subtitle": "Gestione fatture B2B e invio allo SDI (Aruba)",
+    "italyOnly": "La fatturazione elettronica B2B è disponibile solo per ristoranti in Italia.",
+    "emit": "Emetti Fattura",
+    "loading": "Caricamento...",
+    "empty": "Nessuna fattura emessa",
+    "colNumber": "Numero",
+    "colDate": "Data",
+    "colClient": "Cliente",
+    "colVat": "P.IVA / CF",
+    "colAmount": "Importo",
+    "colSdi": "Stato SDI",
+    "statusDelivered": "Consegnata",
+    "statusSent": "Inviata a SDI",
+    "statusRejected": "Scartata",
+    "statusPending": "In attesa",
+    "modalTitle": "Emetti Fattura Elettronica",
+    "companyName": "Ragione Sociale",
+    "vatId": "Partita IVA",
+    "sdiCode": "Codice SDI (7 car.)",
+    "address": "Indirizzo completo",
+    "lines": "Righe",
+    "addLine": "Aggiungi riga",
+    "description": "Descrizione",
+    "qty": "Qta",
+    "priceGross": "Prezzo lordo",
+    "cancel": "Annulla",
+    "submit": "Invia ad Aruba SDI",
+    "submitting": "Invio in corso...",
+    "success": "Fattura inviata allo SDI",
+    "error": "Errore invio fattura"
+  },
   "checkout": {
     "title": "Chiusura conto",
     "orderRef": "Ordine #{{ref}}",
@@ -1223,6 +1279,8 @@
     "paymentSuccess": "Pagamento finalizzato!",
     "paymentError": "Errore durante la finalizzazione",
     "notAvailable": "Ordine non disponibile o già pagato",
+    "cashSessionRequired": "Apri la cassa prima di incassare in contanti.",
+    "cashSessionLink": "Vai alla cassa",
     "back": "Indietro",
     "receiptTitle": "Ricevuta fiscale",
     "transactionId": "Transazione {{id}}",
@@ -1484,8 +1542,8 @@
     },
     "hero": {
       "badge": "Italia · Scontrini RT e Aruba",
-      "title": "Il gestionale che mette in sincrono il tuo ristorante",
-      "subtitle": "POS, menu QR, comande in tempo reale. Gestione fiscale ottimizzata per scontrini telematici (RT), Regime Forfettario e mance elettroniche esenti IVA tracciate.",
+      "title": "Sala, cucina, cassa — un solo ritmo.",
+      "subtitle": "Aura Syncro unisce tavoli, comande e incassi in tempo reale. Fiscale a norma, servizio fluido, controllo totale ogni sera.",
       "ctaPrimary": "Inizia ora",
       "ctaSecondary": "Guarda demo",
       "previewKpi1": "Ricavi vs mese scorso",
@@ -1523,6 +1581,23 @@
       "ai": {
         "title": "AI predittiva",
         "desc": "Previsioni coperti e consumi per pianificare personale, acquisti e produzione con più precisione."
+      }
+    },
+    "gallery": {
+      "eyebrow": "Il costo nascosto",
+      "title": "I veri problemi di ogni servizio",
+      "subtitle": "Quando sala, cucina e amministrazione non dialogano, perdi margine ogni sera — prima ancora di chiudere la cassa.",
+      "p1": {
+        "title": "Troppi strumenti, zero sincronia",
+        "desc": "POS, prenotazioni, delivery e magazzino vivono in mondi separati. Doppie digitazioni, errori in sala e dati che non tornano."
+      },
+      "p2": {
+        "title": "Le piattaforme erodono il margine",
+        "desc": "Fino al 30% su ogni ordine delivery. I clienti sono tuoi, il profitto finisce altrove."
+      },
+      "p3": {
+        "title": "La burocrazia fiscale ti rallenta",
+        "desc": "Scontrini telematici, corrispettivi e fatturazione elettronica impongono precisione assoluta. Ogni errore può tradursi in sanzioni e stress con il commercialista."
       }
     },
     "pricing": {

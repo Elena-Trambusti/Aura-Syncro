@@ -4,6 +4,9 @@ import { authenticate } from '../middleware/auth'
 import { z } from 'zod'
 import { generateB2BXml } from '../lib/b2bFatturaPaXml'
 import { ArubaInvoiceService } from '../lib/arubaInvoiceService'
+import { buildFiscalConfig, scorporoTaxFromGross, roundMoney } from '../lib/taxEngine'
+import { allocateInvoiceNumber } from '../lib/fiscalInvoice'
+import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 
 const router = Router()
 
@@ -23,8 +26,8 @@ const invoiceSchema = z.object({
     description: z.string(),
     quantity: z.number(),
     unitPrice: z.number(),
-    taxRate: z.number()
-  }))
+    taxRate: z.number(),
+  })),
 })
 
 router.post('/', (req: any, res: any, next: any) => authenticate(req, res, next), async (req: any, res: any) => {
@@ -33,86 +36,94 @@ router.post('/', (req: any, res: any, next: any) => authenticate(req, res, next)
   try {
     const data = invoiceSchema.parse(req.body)
 
-    // Recupera settings
     const settings = await prisma.restaurantSettings.findUnique({
-      where: { restaurantId }
+      where: { restaurantId },
     })
 
     if (!settings || !settings.legalName || !settings.taxId || !settings.legalAddress) {
       return res.status(400).json({ error: 'Dati fiscali ristorante incompleti' })
     }
 
-    // Calcola sequence (thread-unsafe semplice per ora, si usa transazione in prod)
-    const fiscalYear = new Date().getFullYear()
-    const seqRecord = await prisma.fiscalSequence.upsert({
-      where: { restaurantId_fiscalYear: { restaurantId, fiscalYear } },
-      create: { restaurantId, fiscalYear, lastSequence: 1 },
-      update: { lastSequence: { increment: 1 } }
-    })
+    const fiscal = buildFiscalConfig(settings)
+    if (fiscal.countryCode !== 'IT') {
+      return res.status(400).json({ error: 'Fatturazione elettronica B2B disponibile solo per tenant Italia' })
+    }
 
-    const seq = seqRecord.lastSequence
-    const docNumber = `${settings.invoicePrefix}-${fiscalYear}-${seq}`
+    const strategy = getFiscalStrategyFromConfig(fiscal)
+    const b2bPrefix = strategy.resolveInvoicePrefix(settings.invoicePrefix)
+    const issuedAt = new Date()
 
-    let total = 0
+    let totalGross = 0
     const mappedItems = data.items.map(item => {
-      const tp = item.quantity * item.unitPrice
-      total += tp + (tp * item.taxRate / 100)
-      return { ...item, totalPrice: tp }
-    })
-
-    const xml = generateB2BXml({
-      documentNumber: docNumber,
-      issuedAt: new Date(),
-      issuerVat: settings.taxId,
-      issuerLegalName: settings.legalName,
-      issuerFiscalCode: settings.fiscalCode || undefined,
-      issuerAddress: settings.legalAddress,
-      issuerCity: 'Città', // Idealmente da settings
-      issuerZip: '00000',
-      issuerProvince: 'PR',
-      issuerCountry: settings.countryCode,
-
-      clientVat: data.clientePiva,
-      clientFiscalCode: data.clienteCodiceFiscale,
-      clientLegalName: data.clienteRagioneSociale,
-      clientAddress: data.clienteIndirizzo,
-      clientCity: data.clienteCity,
-      clientZip: data.clienteZip,
-      clientProvince: data.clienteProvince,
-      clientCountry: data.clienteCountry,
-      clientSdiCode: data.clienteSdiCode,
-      clientPec: data.clientePec,
-
-      items: mappedItems
-    })
-
-    // Invio ad Aruba
-    const arubaRes = await ArubaInvoiceService.submit(xml)
-    const statoSdi = arubaRes.success ? 'sent' : 'failed'
-
-    // Salva su DB
-    const invoice = await prisma.invoice.create({
-      data: {
-        restaurantId,
-        orderId: data.orderId,
-        documentNumber: docNumber,
-        prefix: settings.invoicePrefix,
-        fiscalYear,
-        sequence: seq,
-        clientePiva: data.clientePiva,
-        clienteCodiceFiscale: data.clienteCodiceFiscale,
-        clienteSdiCode: data.clienteSdiCode,
-        clientePec: data.clientePec,
-        clienteRagioneSociale: data.clienteRagioneSociale,
-        clienteIndirizzo: data.clienteIndirizzo,
-        importoTotale: total,
-        statoSdi,
-        xmlBlob: xml,
-        arubaUploadId: arubaRes.uploadFileName
+      const gross = roundMoney(item.quantity * item.unitPrice)
+      const part = scorporoTaxFromGross(gross, item.taxRate)
+      totalGross = roundMoney(totalGross + gross)
+      const netUnit = item.quantity > 0 ? roundMoney(part.subtotal / item.quantity) : 0
+      return {
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: netUnit,
+        taxRate: item.taxRate,
+        totalPrice: part.subtotal,
+        grossTotal: gross,
       }
     })
 
-    res.json({ invoice, arubaResponse: arubaRes })
+    const invoice = await prisma.$transaction(async tx => {
+      const allocated = await allocateInvoiceNumber(tx, restaurantId, issuedAt, b2bPrefix)
+
+      const xml = generateB2BXml({
+        documentNumber: allocated.documentNumber,
+        issuedAt,
+        issuerVat: settings.taxId!,
+        issuerLegalName: settings.legalName!,
+        issuerFiscalCode: settings.fiscalCode || undefined,
+        issuerAddress: settings.legalAddress!,
+        issuerCity: 'N/D',
+        issuerZip: '00000',
+        issuerProvince: 'ND',
+        issuerCountry: settings.countryCode,
+        clientVat: data.clientePiva,
+        clientFiscalCode: data.clienteCodiceFiscale,
+        clientLegalName: data.clienteRagioneSociale,
+        clientAddress: data.clienteIndirizzo,
+        clientCity: data.clienteCity,
+        clientZip: data.clienteZip,
+        clientProvince: data.clienteProvince,
+        clientCountry: data.clienteCountry,
+        clientSdiCode: data.clienteSdiCode,
+        clientPec: data.clientePec,
+        items: mappedItems,
+      })
+
+      const arubaRes = await ArubaInvoiceService.submit(xml)
+      const statoSdi = arubaRes.success ? 'sent' : 'failed'
+
+      const created = await tx.invoice.create({
+        data: {
+          restaurantId,
+          orderId: data.orderId,
+          documentNumber: allocated.documentNumber,
+          prefix: allocated.prefix,
+          fiscalYear: allocated.fiscalYear,
+          sequence: allocated.sequence,
+          clientePiva: data.clientePiva,
+          clienteCodiceFiscale: data.clienteCodiceFiscale,
+          clienteSdiCode: data.clienteSdiCode,
+          clientePec: data.clientePec,
+          clienteRagioneSociale: data.clienteRagioneSociale,
+          clienteIndirizzo: data.clienteIndirizzo,
+          importoTotale: totalGross,
+          statoSdi,
+          xmlBlob: xml,
+          arubaUploadId: arubaRes.uploadFileName,
+        },
+      })
+
+      return { invoice: created, arubaResponse: arubaRes }
+    })
+
+    res.json(invoice)
   } catch (error: any) {
     console.error('Invoice error:', error)
     res.status(400).json({ error: error.message || 'Errore generazione fattura' })
@@ -122,8 +133,11 @@ router.post('/', (req: any, res: any, next: any) => authenticate(req, res, next)
 router.get('/', (req: any, res: any, next: any) => authenticate(req, res, next), async (req: any, res: any) => {
   const { restaurantId } = req
   const invoices = await prisma.invoice.findMany({
-    where: { restaurantId },
-    orderBy: { issuedAt: 'desc' }
+    where: {
+      restaurantId,
+      clienteRagioneSociale: { not: null },
+    },
+    orderBy: { issuedAt: 'desc' },
   })
   res.json(invoices)
 })

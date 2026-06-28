@@ -4,6 +4,8 @@ import BrandLogo from '../brand/BrandLogo'
 import { BRAND } from '../../lib/brand'
 import LanguageSwitcher from '../layout/LanguageSwitcher'
 import { useAuth } from '../../contexts/AuthContext'
+import { isDemoUserEmail } from '../../lib/demoAccounts'
+import RegisterLink from './RegisterLink'
 
 export default function LandingNav() {
   const { t } = useTranslation()
@@ -16,9 +18,9 @@ export default function LandingNav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <BrandLogo size="sm" className="mx-0 shadow-sm" />
-          <span className="text-sm font-bold text-white sm:text-base">{BRAND.name}</span>
+          <span className="text-sm font-bold lux-text-bright sm:text-base">{BRAND.name}</span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium text-white/80 md:flex">
+        <nav className="hidden items-center gap-6 text-sm font-medium lux-text-soft md:flex">
           <a href="#features" className="hover:text-amber-500 transition-colors">
             {t('landing.nav.features')}
           </a>
@@ -30,27 +32,26 @@ export default function LandingNav() {
           <LanguageSwitcher />
           {isLoading ? (
             <div className="hidden sm:block h-9 w-32 animate-pulse rounded-lg bg-white/5" />
-          ) : user ? (
+          ) : user && !isDemoUserEmail(user.email) ? (
             <Link
               to="/dashboard"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-amber-500 hover:text-amber-400 hover:bg-white/5 sm:inline-block transition-colors"
             >
-              Vai alla Dashboard
+              {t('landing.nav.dashboard', { defaultValue: 'Vai alla Dashboard' })}
             </Link>
           ) : (
             <>
               <Link
                 to="/login"
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:text-amber-500 hover:bg-white/5 sm:inline-block transition-colors"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium lux-text-soft hover:text-amber-500 hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
               >
                 {t('landing.nav.login')}
               </Link>
-              <Link
-                to="/register"
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:text-amber-500 hover:bg-white/5 sm:inline-block transition-colors"
+              <RegisterLink
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium lux-text-soft hover:text-amber-500 hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
               >
                 {t('landing.nav.register', { defaultValue: 'Registrati' })}
-              </Link>
+              </RegisterLink>
             </>
           )}
         </div>

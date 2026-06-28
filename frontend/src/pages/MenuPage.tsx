@@ -5,6 +5,7 @@ import { api } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
 import { ui } from '../lib/ui'
 import { useRole } from '../hooks/useRole'
+import { useDemoMode } from '../hooks/useDemoMode'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import { Plus, Edit2, Trash2, BookOpen, Package } from 'lucide-react'
@@ -137,8 +138,9 @@ export default function MenuPage() {
   const queryClient = useQueryClient()
   const tk = useTenantQueryKey()
   const { can } = useRole()
-  const canManageMenu = can('menu.manage')
-  const canToggleAvailability = can('menu.availability')
+  const { canWrite: demoCanWrite } = useDemoMode()
+  const canManageMenu = can('menu.manage') && demoCanWrite
+  const canToggleAvailability = can('menu.availability') && demoCanWrite
   const [editingItem, setEditingItem] = useState<(Partial<MenuItem> & { categoryId?: string }) | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [selectedCat, setSelectedCat] = useState<string | null>(null)

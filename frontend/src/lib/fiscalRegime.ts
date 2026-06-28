@@ -65,6 +65,12 @@ export function resolveFiscalRegime(
   }
 }
 
+export const ALLOWED_TAX_RATES: Record<TaxRegion, readonly number[]> = {
+  IT_MAIN: [4, 10, 22, 0],
+  ES_CANARIAS: [7, 13.5, 20],
+  ES_PENINSULA: [10, 21],
+}
+
 export function computeCartTax(grossAmount: number, taxRate: number) {
   const rate = taxRate / 100
   const taxableBase = Math.round((grossAmount / (1 + rate)) * 100) / 100

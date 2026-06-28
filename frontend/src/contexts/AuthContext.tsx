@@ -5,6 +5,8 @@ import { connectSocket, disconnectSocket } from '../lib/socket'
 import { applyTenantCssVars } from '../lib/tenantTheme'
 import { invalidateTenantQueries, queryClient } from '../lib/queryClient'
 import { clearAuthCache, readAuthCache, writeAuthCache } from '../lib/authCache'
+import { isDemoUserEmail } from '../lib/demoAccounts'
+import { clearDemoSession, isDemoSession, isLandingPath } from '../lib/demoSession'
 import { tenantIdentity, tenantIdentityKey } from '../lib/tenantSync'
 import type { CountryCode, FiscalRegime, TaxRegion } from '../lib/fiscalRegime'
 import { DEFAULT_FISCAL_REGIME, resolveFiscalRegime } from '../lib/fiscalRegime'
@@ -99,21 +101,35 @@ function applyActiveRestaurant(
   }
 }
 
+function shouldDiscardStaleDemoSession(pathname: string, cachedEmail?: string | null): boolean {
+  if (!cachedEmail || !isDemoUserEmail(cachedEmail)) return false
+  return isLandingPath(pathname) || !isDemoSession()
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const hasStoredToken = !!localStorage.getItem('token')
-  const cachedBoot = hasStoredToken ? readAuthCache() : null
-  if (hasStoredToken && cachedBoot) {
-    setTenantHeader(cachedBoot.restaurant.id)
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/'
+  const storedToken = localStorage.getItem('token')
+  const cachedBoot = storedToken ? readAuthCache() : null
+  const discardDemoSession = shouldDiscardStaleDemoSession(pathname, cachedBoot?.user.email)
+
+  if (discardDemoSession) {
+    localStorage.removeItem('token')
+    clearAuthCache()
+    clearDemoSession()
   }
-  const [user, setUser] = useState<User | null>(cachedBoot?.user ?? null)
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(cachedBoot?.restaurant ?? null)
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
-  const [isLoading, setIsLoading] = useState(() => {
-    const storedToken = localStorage.getItem('token')
-    return !!storedToken && !cachedBoot
-  })
+
+  const bootToken = discardDemoSession ? null : storedToken
+  const bootCache = discardDemoSession ? null : cachedBoot
+
+  if (bootToken && bootCache) {
+    setTenantHeader(bootCache.restaurant.id)
+  }
+  const [user, setUser] = useState<User | null>(bootCache?.user ?? null)
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(bootCache?.restaurant ?? null)
+  const [token, setToken] = useState<string | null>(bootToken)
+  const [isLoading, setIsLoading] = useState(() => !!bootToken && !bootCache)
   const tenantKeyRef = useRef<string | null>(
-    cachedBoot ? tenantIdentityKey(tenantIdentity(cachedBoot.restaurant)) : null,
+    bootCache ? tenantIdentityKey(tenantIdentity(bootCache.restaurant)) : null,
   )
 
   const commitRestaurant = useCallback((normalized: Restaurant, invalidateCache = true) => {
@@ -138,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem('token')
     clearAuthCache()
+    clearDemoSession()
     setTenantHeader(null)
     setToken(null)
     setUser(null)

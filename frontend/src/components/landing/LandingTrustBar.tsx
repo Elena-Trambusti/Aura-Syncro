@@ -9,14 +9,14 @@ export default function LandingTrustBar() {
     <section className="relative border-t border-white/5 bg-transparent px-4 py-12 sm:px-6">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="mx-auto max-w-6xl">
-        <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <p className="text-center lux-eyebrow">
           {t('landing.trust.title')}
         </p>
-        <div className="mt-4 grid grid-cols-2 gap-3 text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-3 lux-text-muted sm:grid-cols-3 lg:grid-cols-5">
           {TRUST_ITEMS.map(item => (
             <div
               key={item}
-              className="rounded-xl border border-white/[0.08] px-4 py-3 text-center text-sm font-semibold grayscale transition hover:grayscale-0"
+              className="rounded-xl border border-[#D4AF37]/12 px-4 py-3 text-center text-sm font-semibold lux-text-soft grayscale transition hover:grayscale-0 hover:border-[#D4AF37]/25 hover:text-[#F0D78C]"
             >
               {item}
             </div>

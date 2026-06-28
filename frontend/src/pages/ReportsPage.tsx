@@ -9,7 +9,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { downloadCSV } from '../lib/export'
 import { useFiscalRegime, useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
-import { tRegime } from '../lib/fiscalRegime'
+import { useRole } from '../hooks/useRole'
+import { usePlanTier } from '../hooks/usePlanTier'
 import QueryErrorBanner from '../components/QueryErrorBanner'
 import ExecutivePageShell from '../components/layout/ExecutivePageShell'
 import ExecutivePageHeader from '../components/layout/ExecutivePageHeader'
@@ -34,6 +35,9 @@ const PIE_COLORS = ['#c9a227', '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ef4
 export default function ReportsPage() {
   const { t } = useTranslation()
   const fiscal = useFiscalRegime()
+  const { canAccessAdminNav } = useRole()
+  const { hasProPlan } = usePlanTier()
+  const showZeta = fiscal.countryCode === 'IT' && canAccessAdminNav() && hasProPlan
   const tk = useTenantQueryKey()
   const now = new Date()
   const [selectedYear, setSelectedYear] = useState(now.getFullYear())
@@ -75,8 +79,8 @@ export default function ReportsPage() {
 
   const { mutate: generateZeta, isPending: isGeneratingZeta } = useMutation({
     mutationFn: () => api.post('/reports/zeta').then(r => r.data),
-    onSuccess: () => toast.success(t('reports.zetaSuccess', { defaultValue: 'Chiusura di cassa generata con successo!' })),
-    onError: (err: any) => toast.error(err.response?.data?.error || t('reports.zetaError', { defaultValue: 'Errore durante la chiusura fiscale' }))
+    onSuccess: () => toast.success(t('reports.zetaSuccess')),
+    onError: (err: any) => toast.error(err.response?.data?.error || t('reports.zetaError'))
   })
 
   const exportFoodCost = () => {
@@ -100,18 +104,20 @@ export default function ReportsPage() {
         )}
         actions={(
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                if (window.confirm('Vuoi generare la chiusura di cassa di fine giornata? Questa operazione non è annullabile.')) {
-                  generateZeta()
-                }
-              }}
-              disabled={isGeneratingZeta}
-              className="flex items-center gap-1.5 rounded-xl border border-aura-gold/30 bg-aura-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 shadow-sm transition-colors hover:border-amber-400 hover:bg-amber-100 disabled:opacity-50"
-            >
-              <Save className="h-4 w-4 shrink-0 text-aura-gold" aria-hidden />
-              {isGeneratingZeta ? '...' : 'Chiusura Cassa'}
-            </button>
+            {showZeta && (
+              <button
+                onClick={() => {
+                  if (window.confirm(t('reports.zetaConfirm'))) {
+                    generateZeta()
+                  }
+                }}
+                disabled={isGeneratingZeta}
+                className="flex items-center gap-1.5 rounded-xl border border-aura-gold/30 bg-aura-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 shadow-sm transition-colors hover:border-amber-400 hover:bg-amber-100 disabled:opacity-50"
+              >
+                <Save className="h-4 w-4 shrink-0 text-aura-gold" aria-hidden />
+                {isGeneratingZeta ? '...' : t('reports.zetaButton')}
+              </button>
+            )}
             <Link
               to="/report/fiscal"
               className="flex items-center gap-1.5 rounded-xl border border-aura-gold/30 bg-aura-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 shadow-sm transition-colors hover:border-amber-400 hover:bg-amber-100"
@@ -171,7 +177,7 @@ export default function ReportsPage() {
               <div className="space-y-3">
                 {[
                   { label: t('reports.rowGrossRevenue'), value: s?.revenue || 0, positive: true },
-                  { label: tRegime(t, fiscal.taxRegion, 'table.tax'), value: s?.tax || 0, positive: false, sub: true },
+                  { label: t('reports.taxRowLabel', { taxName: fiscal.taxName, rate: fiscal.taxRate }), value: s?.tax || 0, positive: false, sub: true },
                   { label: t('reports.rowDiscounts'), value: -(s?.totalDiscount || 0), positive: false, sub: true },
                   { label: t('reports.rowFoodCost'), value: -(s?.estimatedFoodCost || 0), positive: false },
                   { label: t('reports.rowLaborCost'), value: -(s?.laborCost || 0), positive: false },

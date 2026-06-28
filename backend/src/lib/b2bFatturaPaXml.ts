@@ -1,3 +1,5 @@
+import { scorporoTaxFromGross, roundMoney } from './taxEngine'
+
 export interface B2BInvoiceData {
   documentNumber: string
   issuedAt: Date
@@ -31,6 +33,8 @@ export interface B2BInvoiceData {
     unitPrice: number
     taxRate: number
     totalPrice: number
+    /** Lordo riga (menu IVA inclusa) — se assente, ricavato da totalPrice netto */
+    grossTotal?: number
   }>
 }
 
@@ -49,11 +53,15 @@ export function generateB2BXml(data: B2BInvoiceData): string {
     if (!summaryByTaxRate[rateStr]) {
       summaryByTaxRate[rateStr] = { net: 0, tax: 0 }
     }
-    summaryByTaxRate[rateStr].net += item.totalPrice
-    summaryByTaxRate[rateStr].tax += item.totalPrice * (item.taxRate / 100)
-    
-    totalNet += item.totalPrice
-    totalTax += item.totalPrice * (item.taxRate / 100)
+    const gross = item.grossTotal != null
+      ? item.grossTotal
+      : roundMoney(item.quantity * (item.unitPrice * (1 + item.taxRate / 100)))
+    const part = scorporoTaxFromGross(gross, item.taxRate)
+    summaryByTaxRate[rateStr].net = roundMoney(summaryByTaxRate[rateStr].net + part.subtotal)
+    summaryByTaxRate[rateStr].tax = roundMoney(summaryByTaxRate[rateStr].tax + part.tax)
+
+    totalNet = roundMoney(totalNet + part.subtotal)
+    totalTax = roundMoney(totalTax + part.tax)
   }
 
   // Costruzione delle righe DettaglioLinee

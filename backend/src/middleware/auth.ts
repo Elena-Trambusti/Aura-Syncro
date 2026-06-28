@@ -2,10 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { prisma } from '../lib/prisma'
 import { verifyAuthToken } from '../lib/jwtAuth'
 import { tenantForbidden } from '../lib/tenant'
-
-function isDemoSandboxEmail(email: string): boolean {
-  return email === 'admin@demo.it' || /^admin@demo-[\w-]+\.com$/.test(email)
-}
+import { isDemoUserEmail, isDemoWritePathAllowed } from '../lib/demoSandbox'
 
 export interface AuthRequest extends Request {
   userId?: string
@@ -64,15 +61,13 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     req.restaurantId = payload.restaurantId
     req.userRole = normalizeRole(user.role)
 
-    // Modalità Sandbox Interattiva: blocchiamo solo le impostazioni (Settings/Tenant) e le cancellazioni distruttive.
-    // Questo permette ai prospect di giocare con tavoli, ordini e prenotazioni.
-    if (isDemoSandboxEmail(user.email) && !['GET', 'OPTIONS'].includes(req.method)) {
-      const isDestructive = req.method === 'DELETE'
-      const isSettings = req.path.includes('/settings') || req.path.includes('/users')
-      if (isDestructive || isSettings) {
-        res.status(403).json({ error: 'Nelle Demo Live non puoi cancellare o modificare le impostazioni del locale.', code: 'DEMO_READ_ONLY' })
-        return
-      }
+    // Demo live: sola lettura ovunque tranne flusso tavoli/comande/incasso.
+    if (isDemoUserEmail(user.email) && !isDemoWritePathAllowed(req.originalUrl, req.method)) {
+      res.status(403).json({
+        error: 'In modalità Demo puoi interagire solo con la sezione Tavoli. Il resto è in sola lettura.',
+        code: 'DEMO_READ_ONLY',
+      })
+      return
     }
 
     next()

@@ -99,6 +99,7 @@ export function verifyFiscalChainSequence(
     fiscalIntegrityHash: string | null
     paidAt: Date | null
   }>,
+  options?: { initialExpectedPrev?: string | null },
 ): { valid: boolean; brokenAtOrderId?: string } {
   const sorted = [...orders]
     .filter(o => o.fiscalIntegrityHash && (o.fiscalClosedAt ?? o.paidAt))
@@ -108,7 +109,7 @@ export function verifyFiscalChainSequence(
       return ta - tb
     })
 
-  let expectedPrev = FISCAL_REGION_GENESIS
+  let expectedPrev = options?.initialExpectedPrev ?? FISCAL_REGION_GENESIS
   for (const order of sorted) {
     if (order.fiscalPrevHash !== expectedPrev) {
       return { valid: false, brokenAtOrderId: order.id }
