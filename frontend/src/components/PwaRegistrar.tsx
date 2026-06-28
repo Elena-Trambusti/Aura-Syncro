@@ -16,7 +16,6 @@ export default function PwaRegistrar() {
       immediate: true,
       onRegistered(registration) {
         console.info('[Aura Syncro PWA] Service Worker registrato:', registration?.scope)
-        void registration?.update()
       },
       onRegisterError(error) {
         console.error('[Aura Syncro PWA] Errore registrazione Service Worker:', error)
