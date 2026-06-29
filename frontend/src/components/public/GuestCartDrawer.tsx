@@ -53,6 +53,11 @@ export default function GuestCartDrawer({
   const [customerEmail, setCustomerEmail] = useState('')
   const [loading, setLoading] = useState<'card' | 'table' | null>(null)
   const [orderSuccess, setOrderSuccess] = useState(false)
+  const [clientRequestId] = useState(() => (
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `guest_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`
+  ))
 
   const { subtotal: taxableBase, tax, total } = computeGuestOrderTax(subtotal, fiscal.taxRate)
 
@@ -75,6 +80,7 @@ export default function GuestCartDrawer({
     tableNumber: effectiveTable,
     notes: notes.trim() || undefined,
     items: payloadItems,
+    clientRequestId,
   }
 
   async function handlePayWithCard() {

@@ -27,7 +27,9 @@ if (dsn) {
             data.password = '[FILTERED]';
             event.request.data = JSON.stringify(data);
           }
-        } catch (e) {}
+        } catch {
+          // Ignore malformed request payloads in beforeSend filter.
+        }
       }
       return event;
     }

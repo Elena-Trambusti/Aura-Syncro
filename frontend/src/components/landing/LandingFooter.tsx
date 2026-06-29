@@ -16,23 +16,23 @@ export default function LandingFooter() {
       
       <div className="relative mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between z-10">
         <div>
-          <p className="font-display text-lg font-bold lux-text-bright tracking-wide">{BRAND.name}</p>
-          <p className="mt-1.5 max-w-sm text-sm lux-text-muted">{t('landing.footer.tagline')}</p>
-          <p className="mt-4 text-xs lux-text-faint">
+          <p className="font-display text-lg font-bold text-slate-100 tracking-wide">{BRAND.name}</p>
+          <p className="mt-1.5 max-w-sm text-sm text-slate-300">{t('landing.footer.tagline')}</p>
+          <p className="mt-4 text-xs text-slate-500">
             {t('landing.footer.rights', { year, brand: BRAND.name })}
           </p>
-          <p className="mt-2 text-[10px] lux-text-faint font-medium uppercase tracking-wider">
+          <p className="mt-2 text-[10px] text-slate-500 font-medium uppercase tracking-wider">
             {formatIssuerFooterLine()}
           </p>
         </div>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium lux-text-muted">
-          <Link to="/privacy" className="hover:text-amber-400 transition-colors">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-slate-300">
+          <Link to="/privacy" className="hover:text-white transition-colors">
             {t('landing.footer.privacy')}
           </Link>
-          <Link to="/termini" className="hover:text-amber-400 transition-colors">
+          <Link to="/termini" className="hover:text-white transition-colors">
             {t('landing.footer.terms')}
           </Link>
-          <Link to="/contatti" className="hover:text-amber-400 transition-colors">
+          <Link to="/contatti" className="hover:text-white transition-colors">
             {t('landing.footer.contact')}
           </Link>
         </nav>

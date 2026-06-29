@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [restaurantSlug, setRestaurantSlug] = useState('')
   const [tenantOptions, setTenantOptions] = useState<Array<{ name: string; slug: string }>>([])
+  const [requireRestaurantCode, setRequireRestaurantCode] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -25,11 +26,13 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await login(email, password, restaurantSlug || undefined)
+      setRequireRestaurantCode(false)
       toast.success(t('auth.welcomeBack'))
     } catch (err: unknown) {
       const data = (err as { response?: { data?: { code?: string; restaurants?: Array<{ name: string; slug: string }> } } })?.response?.data
-      if (data?.code === 'MULTIPLE_TENANTS' && data.restaurants?.length) {
-        setTenantOptions(data.restaurants)
+      if (data?.code === 'MULTIPLE_TENANTS') {
+        setRequireRestaurantCode(true)
+        setTenantOptions(data.restaurants ?? [])
         toast.error(t('auth.multipleTenantsHint'))
       } else {
         toast.error(formatApiError(err))
@@ -94,7 +97,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              {(tenantOptions.length > 0 || restaurantSlug) && (
+              {(tenantOptions.length > 0 || restaurantSlug || requireRestaurantCode) && (
                 <div>
                   <label htmlFor="login-restaurant" className={ui.label}>
                     {t('auth.restaurantCode')}

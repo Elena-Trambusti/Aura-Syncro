@@ -141,6 +141,7 @@ export default function TablesPage() {
   const { can } = useRole()
   const canManageTables = can('tables.manage')
   const canTransferOrder = can('orders.items')
+  const canCreateOrder = can('orders.create')
   useRealtimeTables()
   const socketConnected = useSocketStatus()
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
@@ -172,6 +173,9 @@ export default function TablesPage() {
       setEditingTable(null)
       toast.success(t('tables.saved'))
     },
+    onError: () => {
+      toast.error(t('common.saveError', { defaultValue: 'Operazione non riuscita' }))
+    },
   })
 
   const updateTable = useMutation({
@@ -181,6 +185,9 @@ export default function TablesPage() {
       setEditingTable(null)
       toast.success(t('tables.saved'))
     },
+    onError: () => {
+      toast.error(t('common.saveError', { defaultValue: 'Operazione non riuscita' }))
+    },
   })
 
   const deleteTable = useMutation({
@@ -188,6 +195,9 @@ export default function TablesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tq(tk, 'tables') })
       toast.success(t('tables.deleted'))
+    },
+    onError: () => {
+      toast.error(t('common.deleteError', { defaultValue: 'Impossibile eliminare il tavolo' }))
     },
   })
 
@@ -200,11 +210,14 @@ export default function TablesPage() {
       const table = reservedTable ?? tables.find(tbl => tbl.reservations?.some(r => r.id === reservationId))
       setReservedTable(null)
       setSeatedCustomerId(reservation?.customer?.id ?? reservation?.customerId ?? null)
-      if (table) {
+      if (table && canCreateOrder) {
         setSelectedTableId(table.id)
         setShowOrderModal(true)
       }
       toast.success(t('tables.reservationSeated'))
+    },
+    onError: () => {
+      toast.error(t('common.saveError', { defaultValue: 'Operazione non riuscita' }))
     },
   })
 
@@ -307,6 +320,11 @@ export default function TablesPage() {
     const fullTable = tables.find(tbl => tbl.id === table.id)
     if (table.status === 'RESERVED' && fullTable?.reservations?.[0]) {
       setReservedTable(fullTable)
+      return
+    }
+    const activeOrder = fullTable ? findActiveTableOrder(fullTable.orders) : undefined
+    if (!activeOrder && !canCreateOrder) {
+      toast.error(t('tables.noOrderPermission', { defaultValue: 'Non hai permesso di aprire nuove comande su questo tavolo' }))
       return
     }
     setSelectedTableId(table.id)

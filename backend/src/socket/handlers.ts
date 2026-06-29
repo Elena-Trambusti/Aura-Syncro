@@ -2,6 +2,24 @@ import { Server, Socket } from 'socket.io'
 import { prisma } from '../lib/prisma'
 import { requireSocketRole, verifySocketToken } from '../middleware/auth'
 import { isDemoUserEmail } from '../lib/demoSandbox'
+import { SESSION_COOKIE_NAME } from '../lib/sessionCookie'
+
+function extractSocketTokenFromCookieHeader(cookieHeader: string | undefined): string | null {
+  if (!cookieHeader) return null
+  const parts = cookieHeader.split(';')
+  for (const part of parts) {
+    const trimmed = part.trim()
+    if (!trimmed.startsWith(`${SESSION_COOKIE_NAME}=`)) continue
+    const raw = trimmed.slice(`${SESSION_COOKIE_NAME}=`.length)
+    if (!raw) return null
+    try {
+      return decodeURIComponent(raw)
+    } catch {
+      return raw
+    }
+  }
+  return null
+}
 
 async function verifyLiveSocketSession(socket: Socket): Promise<boolean> {
   const userId = socket.data.userId as string | undefined
@@ -33,7 +51,12 @@ function blockDemoSocketWrite(socket: Socket): boolean {
 
 export function setupSocketHandlers(io: Server): void {
   io.use(async (socket, next) => {
-    const token = socket.handshake.auth.token
+    const authToken = socket.handshake.auth.token
+    const cookieHeader = typeof socket.handshake.headers.cookie === 'string'
+      ? socket.handshake.headers.cookie
+      : undefined
+    const cookieToken = extractSocketTokenFromCookieHeader(cookieHeader)
+    const token = typeof authToken === 'string' && authToken.length > 0 ? authToken : cookieToken
     if (!token || typeof token !== 'string') {
       next(new Error('Token mancante'))
       return
@@ -72,12 +95,12 @@ export function setupSocketHandlers(io: Server): void {
       if (blockDemoSocketWrite(socket)) return
       if (!requireSocketRole(socket.data.role, 'OWNER', 'MANAGER')) return
 
-      const table = await prisma.table.findFirst({
+      const updated = await prisma.table.updateMany({
         where: { id: data.id, restaurantId },
+        data: { posX: data.posX, posY: data.posY },
       })
-      if (!table) return
-
-      socket.to(restaurantId).emit('table:position_changed', data)
+      if (updated.count === 0) return
+      io.to(restaurantId).emit('table:position_changed', data)
     })
   })
 }

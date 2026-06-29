@@ -27,19 +27,21 @@ export default function InvoicesPage() {
   const tk = useTenantQueryKey()
   const queryClient = useQueryClient()
   const [showModal, setShowModal] = useState(false)
+  const isItaly = fiscal.countryCode === 'IT'
 
-  if (fiscal.countryCode !== 'IT') {
+  const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
+    queryKey: tq(tk, 'invoices'),
+    queryFn: () => api.get('/invoices').then(r => r.data),
+    enabled: isItaly,
+  })
+
+  if (!isItaly) {
     return (
       <ExecutivePageShell>
         <p className="text-fumo">{t('invoices.italyOnly')}</p>
       </ExecutivePageShell>
     )
   }
-
-  const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
-    queryKey: tq(tk, 'invoices'),
-    queryFn: () => api.get('/invoices').then(r => r.data),
-  })
 
   const defaultTax = fiscal.taxRate
 

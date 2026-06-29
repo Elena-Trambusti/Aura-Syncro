@@ -27,6 +27,8 @@ export interface AddOrderItemsPayload {
 export interface OfflineMutation {
   id: string
   kind: OfflineMutationKind
+  /** Tenant owner della mutation per evitare replay cross-tenant */
+  tenantId?: string
   payload: CreateOrderPayload | AddOrderItemsPayload
   createdAt: number
   retryCount: number

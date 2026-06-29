@@ -41,6 +41,11 @@ export function toLocalDateInput(date = new Date()): string {
   return `${y}-${m}-${d}`
 }
 
+/** YYYY-MM-DD resolved in a specific IANA timezone. */
+export function toDateInputInTimezone(timeZone: string, date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(date)
+}
+
 export function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }

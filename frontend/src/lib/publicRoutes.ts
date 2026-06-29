@@ -3,6 +3,9 @@ export function isPublicAppRoute(pathname: string): boolean {
   const path = pathname.replace(/\/$/, '') || '/'
   if (
     path === '/'
+    || path === '/it'
+    || path === '/es'
+    || path === '/es-cn'
     || path === '/login'
     || path === '/register'
     || path === '/forgot-password'
@@ -10,6 +13,9 @@ export function isPublicAppRoute(pathname: string): boolean {
     || path === '/prezzi'
     || path === '/privacy'
     || path === '/termini'
+    || path === '/cookie'
+    || path === '/dpa'
+    || path === '/contatti'
   ) {
     return true
   }

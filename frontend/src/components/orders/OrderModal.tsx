@@ -67,6 +67,9 @@ export default function OrderModal({
   const tk = useTenantQueryKey()
   const canPayOrder = can('orders.pay')
   const canTransferOrder = can('orders.items')
+  const canCreateOrder = can('orders.create')
+  const canAddItems = can('orders.items')
+  const canModifyOrder = canCreateOrder || canAddItems
   const isDesktop = useIsDesktop()
   const [cart, setCart] = useState<CartItem[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -110,6 +113,14 @@ export default function OrderModal({
 
   const handleSendOrder = async () => {
     if (cart.length === 0 || !table || isSubmitting) return
+    if (!activeOrder && !canCreateOrder) {
+      toast.error(t('orderModal.noCreatePermission', { defaultValue: 'Non hai permesso di aprire nuove comande' }))
+      return
+    }
+    if (activeOrder && !canAddItems) {
+      toast.error(t('orderModal.noAddPermission', { defaultValue: 'Non hai permesso di aggiungere piatti' }))
+      return
+    }
 
     const lineItems = cart.map(i => ({
       menuItemId: i.menuItemId,
@@ -169,6 +180,7 @@ export default function OrderModal({
   }
 
   const handleItemClick = (item: MenuItem) => {
+    if (!canModifyOrder) return
     if (item.soldOut || item.orderable === false) {
       toast.error(t('orderModal.soldOutToast'))
       return
@@ -243,7 +255,7 @@ export default function OrderModal({
 
   const tabButtons = (fullWidth = false) => (
     <div className={cn('flex gap-1', fullWidth && 'flex-1')}>
-      {(['menu', 'order'] as const).map(tabKey => {
+      {(['menu', 'order'] as const).filter(tabKey => tabKey === 'order' || canModifyOrder).map(tabKey => {
         const isActive = tab === tabKey
         const showBadge = tabKey === 'order' && orderBadgeCount > 0
         return (

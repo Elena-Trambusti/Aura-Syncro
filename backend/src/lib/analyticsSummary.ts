@@ -1,5 +1,10 @@
 import { prisma } from './prisma'
-import { startOfLocalDay } from './dates'
+import {
+  buildMonthRangeInTimezone,
+  calendarDateInTimezone,
+  dayBoundsInTimezone,
+} from './dates'
+import { buildFiscalConfig } from './taxEngine'
 import { kitchenActiveOrdersWhere } from './orderSession'
 
 function sumFoodFromAggregate(agg: {
@@ -25,14 +30,43 @@ function paidInRange(start: Date, end: Date) {
   }
 }
 
+async function loadTenantTimeRanges(restaurantId: string) {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  const fiscal = buildFiscalConfig(restaurant?.settings)
+  const timeZone = restaurant?.timezone ?? fiscal.timezone
+  const todayStr = calendarDateInTimezone(timeZone)
+  const { gte: todayStart, lt: todayEnd } = dayBoundsInTimezone(todayStr, timeZone)
+
+  const year = Number(todayStr.slice(0, 4))
+  const month = Number(todayStr.slice(5, 7))
+  const { start: monthStart } = buildMonthRangeInTimezone(year, month, timeZone)
+  const prevMonth = month === 1 ? 12 : month - 1
+  const prevYear = month === 1 ? year - 1 : year
+  const { start: lastMonthStart } = buildMonthRangeInTimezone(prevYear, prevMonth, timeZone)
+  const nextMonth = month === 12 ? 1 : month + 1
+  const nextYear = month === 12 ? year + 1 : year
+  const nextMonthStart = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`
+  const { gte: monthEndExclusive } = dayBoundsInTimezone(nextMonthStart, timeZone)
+  const prevMonthEndStart = `${year}-${String(month).padStart(2, '0')}-01`
+  const { gte: lastMonthEndExclusive } = dayBoundsInTimezone(prevMonthEndStart, timeZone)
+
+  return {
+    timeZone,
+    todayStart,
+    todayEnd,
+    monthStart,
+    monthEndExclusive,
+    lastMonthStart,
+    lastMonthEndExclusive,
+  }
+}
+
 /** KPI dashboard — disponibile anche piano Base (senza Pro). */
 export async function buildDashboardSummary(restaurantId: string) {
-  const today = startOfLocalDay()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-  const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999)
+  const ranges = await loadTenantTimeRanges(restaurantId)
 
   const [
     todayOrders,
@@ -45,23 +79,31 @@ export async function buildDashboardSummary(restaurantId: string) {
     lowStockItems,
   ] = await Promise.all([
     prisma.order.count({
-      where: { restaurantId, createdAt: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } },
+      where: {
+        restaurantId,
+        createdAt: { gte: ranges.todayStart, lt: ranges.todayEnd },
+        status: { notIn: ['CANCELLED'] },
+      },
     }),
     prisma.order.aggregate({
-      where: { restaurantId, ...paidInRange(today, tomorrow) },
+      where: { restaurantId, ...paidInRange(ranges.todayStart, ranges.todayEnd) },
       _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true },
     }),
     prisma.order.aggregate({
-      where: { restaurantId, ...paidInRange(thisMonthStart, tomorrow) },
+      where: { restaurantId, ...paidInRange(ranges.monthStart, ranges.monthEndExclusive) },
       _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true },
     }),
     prisma.order.aggregate({
-      where: { restaurantId, ...paidInRange(lastMonthStart, new Date(lastMonthEnd.getTime() + 1)) },
+      where: { restaurantId, ...paidInRange(ranges.lastMonthStart, ranges.lastMonthEndExclusive) },
       _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true },
     }),
     prisma.customer.count({ where: { restaurantId } }),
     prisma.reservation.count({
-      where: { restaurantId, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED', 'NO_SHOW'] } },
+      where: {
+        restaurantId,
+        date: { gte: ranges.todayStart, lt: ranges.todayEnd },
+        status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+      },
     }),
     prisma.order.count({ where: kitchenActiveOrdersWhere(restaurantId) }),
     prisma.inventoryItem.count({
@@ -91,3 +133,5 @@ export async function buildDashboardSummary(restaurantId: string) {
     totals: { customers: totalCustomers, lowStockAlerts: lowStockItems },
   }
 }
+
+export { loadTenantTimeRanges }

@@ -155,10 +155,12 @@ export default function MenuPage() {
   const createItem = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.post('/menu/items', data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: tq(tk, 'menu') }); setShowForm(false); toast.success(t('menu.added')) },
+    onError: () => toast.error(t('menu.saveError', { defaultValue: 'Impossibile salvare il piatto' })),
   })
   const updateItem = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => api.put(`/menu/items/${id}`, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: tq(tk, 'menu') }); setEditingItem(null); toast.success(t('menu.updated')) },
+    onError: () => toast.error(t('menu.saveError', { defaultValue: 'Impossibile salvare il piatto' })),
   })
   const deleteItem = useMutation({
     mutationFn: (id: string) => api.delete(`/menu/items/${id}`),
@@ -173,6 +175,7 @@ export default function MenuPage() {
   const toggleAvail = useMutation({
     mutationFn: ({ id, available }: { id: string; available: boolean }) => api.patch(`/menu/items/${id}/availability`, { available }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: tq(tk, 'menu') }),
+    onError: () => toast.error(t('menu.saveError', { defaultValue: 'Impossibile aggiornare la disponibilità' })),
   })
 
   const createCategory = useMutation({

@@ -174,13 +174,20 @@ export function calculateExpectedDemand(
   options: { windowWeeks?: number } = {},
 ): ExpectedDemandResult {
   const windowWeeks = options.windowWeeks ?? 4
-  const cutoff = new Date()
+  const anchor = pastSales.length > 0
+    ? new Date(
+      Math.max(
+        ...pastSales.map(s => parseDate(s.date).getTime()),
+      ),
+    )
+    : new Date()
+  const cutoff = new Date(anchor)
   cutoff.setHours(0, 0, 0, 0)
   cutoff.setDate(cutoff.getDate() - windowWeeks * 7)
 
   const yoyCutoffStart = new Date(cutoff)
   yoyCutoffStart.setFullYear(yoyCutoffStart.getFullYear() - 1)
-  const yoyCutoffEnd = new Date()
+  const yoyCutoffEnd = new Date(anchor)
   yoyCutoffEnd.setHours(0, 0, 0, 0)
   yoyCutoffEnd.setFullYear(yoyCutoffEnd.getFullYear() - 1)
 

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
-import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, formatCurrency, formatDateTime, toLocalDateInput } from '../lib/utils'
+import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, formatCurrency, formatDateTime, toDateInputInTimezone } from '../lib/utils'
 import { printReceipt, downloadOrdersPdf } from '../lib/export'
 import { Clock, ChefHat, CheckCircle2, XCircle, Printer, Download } from 'lucide-react'
 import { useAuth, useTenantQueryKey } from '../contexts/AuthContext'
@@ -59,7 +59,10 @@ export default function OrdersPage() {
     queryKey: tq(tk, 'orders', filter),
     queryFn: () => {
       if (filter === 'active') return api.get('/orders/active').then(r => r.data)
-      if (filter === 'today') return api.get(`/orders?date=${toLocalDateInput()}`).then(r => r.data)
+      if (filter === 'today') {
+        const tenantDate = toDateInputInTimezone(restaurant?.timezone ?? 'Europe/Rome')
+        return api.get(`/orders?date=${tenantDate}`).then(r => r.data)
+      }
       return api.get(`/orders?status=${filter}`).then(r => r.data)
     },
     refetchInterval: filter === 'active' ? 10_000 : undefined,
@@ -193,7 +196,7 @@ export default function OrdersPage() {
               <div className="flex gap-2">
                 {can('orders.pay') && CANCELLABLE_STATUSES.includes(order.status as typeof CANCELLABLE_STATUSES[number]) && (
                   <Link
-                    to={`/dashboard/checkout/${order.id}`}
+                    to={`/checkout/${order.id}`}
                     className="flex-1 flex items-center justify-center gap-1.5 bg-aura-gold hover:bg-aura-gold-light text-navy font-semibold text-xs py-2 rounded-lg transition-colors"
                   >
                     {t('orders.checkout', { defaultValue: 'Incassa' })}

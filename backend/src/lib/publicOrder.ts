@@ -91,7 +91,7 @@ export async function createPublicOrder(restaurantId: string, input: PublicOrder
 
   if (clientRequestId) {
     const idemKey = `guest-order:${clientRequestId}`
-    const cached = await getIdempotentResponse(restaurantId, idemKey)
+    const cached = await getIdempotentResponse(restaurantId, idemKey, 'PUBLIC_GUEST_ORDER')
     if (cached && cached.statusCode === 201) {
       const body = cached.responseBody as {
         order: Awaited<ReturnType<typeof prisma.order.findFirst>>
@@ -105,7 +105,7 @@ export async function createPublicOrder(restaurantId: string, input: PublicOrder
     }
     const locked = await acquireIdempotencyLock(restaurantId, idemKey, 'PUBLIC_GUEST_ORDER')
     if (!locked) {
-      const retry = await getIdempotentResponse(restaurantId, idemKey)
+      const retry = await getIdempotentResponse(restaurantId, idemKey, 'PUBLIC_GUEST_ORDER')
       if (retry?.statusCode === 201) {
         const body = retry.responseBody as {
           order: Awaited<ReturnType<typeof prisma.order.findFirst>>

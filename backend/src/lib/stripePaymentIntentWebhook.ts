@@ -12,7 +12,7 @@ export async function handlePaymentIntentSucceeded(
     if (completed?.updatedOrder) {
       console.info('[stripe-webhook] Ordine guest pagato tramite PaymentIntent', orderId)
       io.to(completed.updatedOrder.restaurantId).emit('order:updated', completed.updatedOrder)
-      io.to(completed.updatedOrder.restaurantId).emit('order:new', completed.updatedOrder)
+      io.to(completed.updatedOrder.restaurantId).emit('order:created', completed.updatedOrder)
     }
   } else {
     console.info(

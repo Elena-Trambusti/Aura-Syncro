@@ -21,8 +21,8 @@ export default function LandingFeatures() {
       </div>
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="lux-heading text-3xl font-bold tracking-tighter sm:text-4xl">{t('landing.features.title')}</h2>
-          <p className="mt-3 lux-text-soft">{t('landing.features.subtitle')}</p>
+          <h2 className="lux-heading text-[#C5A059] text-3xl font-bold tracking-tighter sm:text-4xl">{t('landing.features.title')}</h2>
+          <p className="mt-3 text-slate-300">{t('landing.features.subtitle')}</p>
         </div>
         <div className="mt-12 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ key, icon: Icon, className }) => (
@@ -33,10 +33,10 @@ export default function LandingFeatures() {
               <div className="mb-4 inline-flex rounded-xl p-3 bg-white/5 border border-white/10">
                 <Icon className="h-6 w-6 text-amber-500" strokeWidth={1.5} />
               </div>
-              <h3 className="text-base font-semibold lux-text-bright">
+              <h3 className="text-base font-semibold text-slate-100">
                 {t(`landing.features.${key}.title`)}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed lux-text-muted">
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">
                 {t(`landing.features.${key}.desc`)}
               </p>
             </div>

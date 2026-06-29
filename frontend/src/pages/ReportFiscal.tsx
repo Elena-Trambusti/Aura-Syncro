@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
-import { formatCurrency, cn, toLocalDateInput } from '../lib/utils'
+import { formatCurrency, cn, toDateInputInTimezone } from '../lib/utils'
 import { generateFiscalPdf, type FiscalReportData } from '../lib/fiscalPdf'
 import { buildFiscalPdfLabels } from '../lib/fiscalLabels'
 import { downloadCSV } from '../lib/export'
@@ -68,13 +68,14 @@ function ReportFiscalContent() {
   const { restaurant } = useAuth()
   const fiscalRegime = useFiscalRegime()
   const tenantQueryKey = useTenantQueryKey()
+  const tenantTz = restaurant?.timezone ?? 'Europe/Rome'
   const now = new Date()
   const [mode, setMode] = useState<FilterMode>('month')
-  const [dayDate, setDayDate] = useState(() => toLocalDateInput())
+  const [dayDate, setDayDate] = useState(() => toDateInputInTimezone(tenantTz))
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
-  const [rangeFrom, setRangeFrom] = useState(() => toLocalDateInput())
-  const [rangeTo, setRangeTo] = useState(() => toLocalDateInput())
+  const [rangeFrom, setRangeFrom] = useState(() => toDateInputInTimezone(tenantTz))
+  const [rangeTo, setRangeTo] = useState(() => toDateInputInTimezone(tenantTz))
   const [isExporting, setIsExporting] = useState(false)
 
   const { data, isLoading, isFetching, isError } = useQuery<FiscalApiResponse>({

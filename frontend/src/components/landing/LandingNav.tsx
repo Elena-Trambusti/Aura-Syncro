@@ -18,13 +18,13 @@ export default function LandingNav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <BrandLogo size="sm" className="mx-0 shadow-sm" />
-          <span className="text-sm font-bold lux-text-bright sm:text-base">{BRAND.name}</span>
+          <span className="text-sm font-bold text-slate-100 sm:text-base">{BRAND.name}</span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium lux-text-soft md:flex">
-          <a href="#features" className="hover:text-amber-500 transition-colors">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
+          <a href="#features" className="hover:text-[#D4AF37] transition-colors">
             {t('landing.nav.features')}
           </a>
-          <a href="#pricing" className="hover:text-amber-500 transition-colors">
+          <a href="#pricing" className="hover:text-[#D4AF37] transition-colors">
             {t('landing.nav.pricing')}
           </a>
         </nav>
@@ -43,12 +43,12 @@ export default function LandingNav() {
             <>
               <Link
                 to="/login"
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium lux-text-soft hover:text-amber-500 hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
               >
                 {t('landing.nav.login')}
               </Link>
               <RegisterLink
-                className="hidden rounded-lg px-3 py-2 text-sm font-medium lux-text-soft hover:text-amber-500 hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 sm:inline-block transition-colors"
               >
                 {t('landing.nav.register', { defaultValue: 'Registrati' })}
               </RegisterLink>

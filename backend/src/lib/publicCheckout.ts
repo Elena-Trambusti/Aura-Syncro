@@ -8,6 +8,12 @@ import { resolvePrimaryFrontendUrl } from './frontendUrl'
 import { resolveOrCreateCustomer } from './customerResolver'
 import { signOrderReceiptToken } from './paymentReceiptToken'
 import { deductInventoryForOrder } from './inventoryDeduction'
+import {
+  acquireIdempotencyLock,
+  getIdempotentResponse,
+  releaseIdempotencyLock,
+  saveIdempotentResponse,
+} from './apiIdempotency'
 
 export const guestCheckoutSchema = z.object({
   slug: z.string().min(1),
@@ -21,6 +27,7 @@ export const guestCheckoutSchema = z.object({
     quantity: z.number().int().positive().max(99),
     notes: z.string().optional(),
   })).min(1).max(50),
+  clientRequestId: z.string().min(8).max(128).optional(),
 })
 
 export type GuestCheckoutInput = z.infer<typeof guestCheckoutSchema>
@@ -52,7 +59,7 @@ export async function createGuestStripeCheckout(
     throw new PublicOrderError('Pagamenti online non configurati', 503)
   }
 
-  const { items, tableNumber, slug, customerName, customerEmail, ...orderData } = input
+  const { items, tableNumber, slug, customerName, customerEmail, clientRequestId, ...orderData } = input
 
   const restaurant = await prisma.restaurant.findUnique({ 
     where: { slug },
@@ -64,6 +71,21 @@ export async function createGuestStripeCheckout(
 
   const restaurantId = restaurant.id
   const connectAccountId = restaurant.settings.stripeConnectAccountId
+  const idemKey = clientRequestId ? `guest-checkout:${clientRequestId}` : null
+  let idempotencyLocked = false
+
+  try {
+  if (idemKey) {
+    const cached = await getIdempotentResponse(restaurantId, idemKey, 'PUBLIC_GUEST_CHECKOUT')
+    if (cached && cached.statusCode === 201) {
+      return cached.responseBody as GuestCheckoutResult
+    }
+    const lock = await acquireIdempotencyLock(restaurantId, idemKey, 'PUBLIC_GUEST_CHECKOUT')
+    if (!lock) {
+      throw new PublicOrderError('Checkout già in elaborazione', 409, 'CHECKOUT_IN_PROGRESS')
+    }
+    idempotencyLocked = true
+  }
 
   let tableId: string | undefined
   if (tableNumber) {
@@ -95,12 +117,14 @@ export async function createGuestStripeCheckout(
   })
 
   if (tableId) {
+    const staleCutoff = new Date(Date.now() - 15 * 60_000)
     const staleCheckouts = await prisma.order.findMany({
       where: {
         restaurantId,
         tableId,
         status: 'PENDING',
         stripeSessionId: { not: null },
+        createdAt: { lt: staleCutoff },
       },
       select: { id: true },
     })
@@ -138,6 +162,9 @@ export async function createGuestStripeCheckout(
         items: { include: { menuItem: true } },
       },
     })
+    // RC-01: Inventory deducted immediately (pay-at-table path).
+    // For Stripe guest checkout the inventory is deducted here too,
+    // so if Stripe session creation fails below we must cancel the order.
     await deductInventoryForOrder(tx, created.id, restaurantId)
     return created
   })
@@ -156,30 +183,38 @@ export async function createGuestStripeCheckout(
 
   const receiptToken = signOrderReceiptToken(order.id)
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    customer_email: customerEmail,
-    metadata: {
-      orderId: order.id,
-      restaurantId,
-      tableNumber: tableNumber?.toString() || '',
-      customerName: customerName || '',
-      customerEmail: customerEmail || '',
-    },
-    line_items: lineItems,
-    success_url: `${frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}&receipt_token=${encodeURIComponent(receiptToken)}`,
-    cancel_url: `${frontendUrl}/menu/${slug}?payment=cancelled`,
-    ...(connectAccountId ? {
-      payment_intent_data: {
-        application_fee_amount: Math.round(total * STRIPE_APPLICATION_FEE_PCT * 100),
-        transfer_data: {
-          destination: connectAccountId,
-        },
-      }
-    } : {})
-  })
+  let session
+  try {
+    session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: customerEmail,
+      metadata: {
+        orderId: order.id,
+        restaurantId,
+        tableNumber: tableNumber?.toString() || '',
+        customerName: customerName || '',
+        customerEmail: customerEmail || '',
+      },
+      line_items: lineItems,
+      success_url: `${frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}&receipt_token=${encodeURIComponent(receiptToken)}`,
+      cancel_url: `${frontendUrl}/menu/${slug}?payment=cancelled`,
+      ...(connectAccountId ? {
+        payment_intent_data: {
+          application_fee_amount: Math.round(total * STRIPE_APPLICATION_FEE_PCT * 100),
+          transfer_data: {
+            destination: connectAccountId,
+          },
+        }
+      } : {})
+    })
+  } catch {
+    // Stripe failure after inventory deduction: cancel order to restore stock/table.
+    await cancelAbandonedGuestOrder(order.id)
+    throw new PublicOrderError('Impossibile creare la sessione di pagamento', 502)
+  }
 
   if (!session.url) {
+    await cancelAbandonedGuestOrder(order.id)
     throw new PublicOrderError('Impossibile creare la sessione di pagamento', 500)
   }
 
@@ -188,10 +223,23 @@ export async function createGuestStripeCheckout(
     data: { stripeSessionId: session.id },
   })
 
-  return {
+  const result: GuestCheckoutResult = {
     checkoutUrl: session.url,
     sessionId: session.id,
     orderId: order.id,
     order,
+  }
+
+  if (idemKey) {
+    await saveIdempotentResponse(restaurantId, idemKey, 'PUBLIC_GUEST_CHECKOUT', 201, result)
+    idempotencyLocked = false
+  }
+
+    return result
+  } catch (err) {
+    if (idemKey && idempotencyLocked) {
+      await releaseIdempotencyLock(restaurantId, idemKey)
+    }
+    throw err
   }
 }

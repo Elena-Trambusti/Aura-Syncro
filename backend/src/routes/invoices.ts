@@ -119,7 +119,8 @@ router.post('/', requireRole('OWNER', 'MANAGER'), async (req: AuthRequest, res: 
       }
       invoiceItems = data.items.map(item => ({
         ...item,
-        taxRate: item.taxRate === defaultTaxRate ? item.taxRate : defaultTaxRate,
+        // RC-07: keep user-supplied taxRate; fallback to restaurant default only when absent/zero
+        taxRate: item.taxRate > 0 ? item.taxRate : defaultTaxRate,
       }))
     }
 
@@ -196,8 +197,46 @@ router.post('/', requireRole('OWNER', 'MANAGER'), async (req: AuthRequest, res: 
     res.json(invoice)
   } catch (error: unknown) {
     console.error('Invoice error:', error)
+
+    // RC-08: distinguish Prisma unique constraint (409), upstream Aruba (502), validation (400)
+    if (
+      error != null &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
+      res.status(409).json({ error: 'Numero documento già esistente. Riprova.', code: 'DUPLICATE_DOCUMENT' })
+      return
+    }
+
+    if (error instanceof Error) {
+      // Aruba network / HTTP errors surfaced as Error messages
+      const msg = error.message
+      if (
+        msg.includes('ECONNREFUSED') ||
+        msg.includes('ECONNRESET') ||
+        msg.includes('ETIMEDOUT') ||
+        msg.includes('fetch failed') ||
+        msg.includes('ARUBA_')
+      ) {
+        res.status(502).json({ error: 'Servizio Aruba non raggiungibile. Riprova tra qualche minuto.', code: 'ARUBA_UNAVAILABLE' })
+        return
+      }
+
+      // Known validation / business errors
+      if (
+        msg.includes('ORDER_NOT_FOUND') ||
+        msg.includes('ORDER_CLOSED') ||
+        msg.includes('nessuna riga') ||
+        msg.includes('non fatturabile')
+      ) {
+        res.status(400).json({ error: msg })
+        return
+      }
+    }
+
     const message = error instanceof Error ? error.message : 'Errore generazione fattura'
-    res.status(400).json({ error: message })
+    res.status(500).json({ error: message })
   }
 })
 

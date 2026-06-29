@@ -165,10 +165,6 @@ authRouter.post('/login', authLoginLimiter, asyncHandler(async (req: Request, re
     res.status(409).json({
       error: 'Email associata a più ristoranti. Inserisci il codice ristorante.',
       code: 'MULTIPLE_TENANTS',
-      restaurants: candidates.map(u => ({
-        name: u.restaurant.name,
-        slug: u.restaurant.slug,
-      })),
     })
     return
   }

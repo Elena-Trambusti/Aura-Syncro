@@ -265,6 +265,13 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
       res.status(402).json({ error: 'Pagamento carta non riuscito', code })
       return
     }
+    if (code === 'POS_SIMULATION_NOT_ALLOWED') {
+      res.status(402).json({
+        error: 'POS carta non configurato. Imposta POS_ALLOW_SIMULATION o collega Stripe Terminal.',
+        code,
+      })
+      return
+    }
     if (
       code === 'STRIPE_AMOUNT_MISMATCH'
       || code === 'STRIPE_AMOUNT_OVERPAY'
@@ -365,6 +372,13 @@ paymentsRouter.post('/pos-checkout', authenticate, requireDashboardAccess, requi
     }
     if (code === 'STRIPE_PAYMENT_FAILED' || code === 'STRIPE_PAYMENT_INTENT_REQUIRED') {
       res.status(402).json({ error: 'Pagamento carta non riuscito', code })
+      return
+    }
+    if (code === 'POS_SIMULATION_NOT_ALLOWED') {
+      res.status(402).json({
+        error: 'POS carta non configurato. Imposta POS_ALLOW_SIMULATION o collega Stripe Terminal.',
+        code,
+      })
       return
     }
     if (

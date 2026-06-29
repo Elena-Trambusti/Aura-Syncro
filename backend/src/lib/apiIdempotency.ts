@@ -16,12 +16,14 @@ export function readIdempotencyKey(req: AuthRequest): string | null {
 export async function getIdempotentResponse(
   restaurantId: string,
   key: string,
+  route?: string,
 ): Promise<{ statusCode: number; responseBody: unknown } | null> {
   const row = await prisma.apiIdempotencyRecord.findUnique({
     where: { restaurantId_key: { restaurantId, key } },
-    select: { statusCode: true, responseBody: true },
+    select: { statusCode: true, responseBody: true, route: true },
   })
   if (!row) return null
+  if (route && row.route !== route) return null
   return { statusCode: row.statusCode, responseBody: row.responseBody }
 }
 
@@ -121,7 +123,7 @@ export async function withIdempotency(
   const restaurantId = req.restaurantId
 
   if (key && restaurantId) {
-    const cached = await getIdempotentResponse(restaurantId, key)
+    const cached = await getIdempotentResponse(restaurantId, key, route)
     if (cached) {
       if (cached.statusCode === 202) {
         res.status(409).json({ error: 'Richiesta già in elaborazione' })

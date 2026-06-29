@@ -13,6 +13,7 @@ export function getSocket(): Socket {
     socket = io(getSocketUrl() ?? '/', {
       auth: { token: getSessionToken() },
       autoConnect: false,
+      withCredentials: true,
     })
   }
   return socket

@@ -1,6 +1,8 @@
 /** Parse YYYY-MM-DD as local calendar date (avoids UTC shift from `new Date('YYYY-MM-DD')`). */
 import { dayBoundsInTimezone } from './romeDate'
 
+export { dayBoundsInTimezone }
+
 export function parseLocalDate(dateStr: string): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr.trim())
   if (!match) return null
@@ -20,14 +22,44 @@ export function calendarDateInTimezone(timeZone: string, ref = new Date()): stri
   return new Intl.DateTimeFormat('en-CA', { timeZone }).format(ref)
 }
 
+/** Ora locale (0–23) nel fuso IANA indicato. */
+export function hourInTimezone(timeZone: string, ref = new Date()): number {
+  return Number(
+    new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', hour12: false }).format(ref),
+  )
+}
+
+/** Sposta una data calendario YYYY-MM-DD di N giorni. */
+export function shiftCalendarDate(dateStr: string, deltaDays: number): string {
+  const [y, mo, d] = dateStr.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, mo - 1, d))
+  dt.setUTCDate(dt.getUTCDate() + deltaDays)
+  return dt.toISOString().slice(0, 10)
+}
+
 /** Inizio/fine giornata locale per il calendario nel fuso tenant (approssimazione server-local). */
 export function dayRangeInTimezone(timeZone: string, ref = new Date()): { start: Date; end: Date } {
   const dateStr = calendarDateInTimezone(timeZone, ref)
-  const day = parseLocalDate(dateStr)
-  if (!day) {
+  try {
+    const { gte, lt } = dayBoundsInTimezone(dateStr, timeZone)
+    return { start: gte, end: new Date(lt.getTime() - 1) }
+  } catch {
     return { start: startOfLocalDay(ref), end: endOfLocalDay(ref) }
   }
-  return { start: day, end: endOfLocalDay(day) }
+}
+
+export function buildMonthRangeInTimezone(
+  year: number,
+  month: number,
+  timeZone: string,
+): { start: Date; end: Date } {
+  const monthStart = `${year}-${String(month).padStart(2, '0')}-01`
+  const { gte: start } = dayBoundsInTimezone(monthStart, timeZone)
+  const nextMonth = month === 12 ? 1 : month + 1
+  const nextYear = month === 12 ? year + 1 : year
+  const nextMonthStart = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`
+  const { gte: nextStart } = dayBoundsInTimezone(nextMonthStart, timeZone)
+  return { start, end: new Date(nextStart.getTime() - 1) }
 }
 
 export function startOfLocalMonth(year: number, month: number): Date {

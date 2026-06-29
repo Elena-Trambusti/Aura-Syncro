@@ -50,8 +50,8 @@ export default function LandingPricing() {
       </div>
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="lux-heading text-3xl font-bold tracking-tighter sm:text-4xl">{t('landing.pricing.title', { defaultValue: 'Prezzi Semplici, Nessuna Sorpresa' })}</h2>
-          <p className="mt-3 lux-text-soft">{t('landing.pricing.subtitle', { defaultValue: 'Scegli il piano giusto per la tua attività.' })}</p>
+          <h2 className="lux-heading text-[#C5A059] text-3xl font-bold tracking-tighter sm:text-4xl">{t('landing.pricing.title', { defaultValue: 'Prezzi Semplici, Nessuna Sorpresa' })}</h2>
+          <p className="mt-3 text-slate-300">{t('landing.pricing.subtitle', { defaultValue: 'Scegli il piano giusto per la tua attività.' })}</p>
         </div>
 
         <div className="mt-14 mx-auto grid max-w-md grid-cols-1 gap-8 md:max-w-4xl md:grid-cols-2">
@@ -73,29 +73,29 @@ export default function LandingPricing() {
                     Consigliato
                   </span>
                 )}
-                <h3 className={cn('text-lg font-bold', isPro ? 'lux-text-bright' : 'lux-text')}>
+                <h3 className="text-lg font-bold text-slate-100">
                   {plan.name}
                 </h3>
-                <p className={cn('mt-1 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
+                <p className="mt-1 text-sm text-slate-300">
                   {plan.tagline}
                 </p>
                 <div className="mt-6">
-                  <p className={cn('text-3xl font-extrabold', isPro ? 'lux-text-bright' : 'lux-text')}>
+                  <p className={cn('text-3xl font-extrabold', isPro ? 'text-[#E8C872]' : 'text-[#D4AF37]')}>
                     {plan.price}
                   </p>
-                  <p className={cn('mt-1 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
+                  <p className="mt-1 text-sm text-slate-300">
                     {plan.setup}
                   </p>
                 </div>
                 <ul className="mt-8 flex-1 space-y-3">
                   {plan.features.map(line => (
-                    <li key={line} className={cn('flex items-start gap-2 text-sm', isPro ? 'lux-text-soft' : 'lux-text-muted')}>
-                      <Check className={cn('mt-0.5 h-4 w-4 shrink-0', isPro ? 'text-amber-300' : 'text-emerald-500')} />
+                    <li key={line} className="flex items-start gap-2 text-sm text-slate-200">
+                      <Check className={cn('mt-0.5 h-4 w-4 shrink-0', isPro ? 'text-[#E8C872]' : 'text-[#D4AF37]')} />
                       <span>{line}</span>
                     </li>
                   ))}
                   {plan.missingFeatures.map(line => (
-                    <li key={line} className="flex items-start gap-2 text-sm lux-text-faint line-through">
+                    <li key={line} className="flex items-start gap-2 text-sm text-slate-500 line-through">
                       <X className="mt-0.5 h-4 w-4 shrink-0 text-[#8C7A52]/50" />
                       <span>{line}</span>
                     </li>

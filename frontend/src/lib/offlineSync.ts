@@ -22,6 +22,8 @@ let flushing = false
 let flushTimer: ReturnType<typeof setInterval> | null = null
 let onSyncedCallback: (() => void) | null = null
 let initCount = 0
+const TENANT_STORAGE_KEY = 'restaurantId'
+const MAX_PARTIAL_RETRIES = 8
 
 function handleOnlineEvent(): void {
   void flushOfflineQueue()
@@ -43,20 +45,47 @@ export function isFlushingQueue(): boolean {
 export function isRetryableNetworkError(err: unknown): boolean {
   const ax = err as AxiosError
   if (!ax || typeof ax !== 'object') return false
+  if (ax.code === 'ERR_CANCELED') return false
+  if (err instanceof Error && err.message === 'DEMO_READ_ONLY') return false
   if (!ax.response) return true
   if (ax.code === 'ECONNABORTED' || ax.code === 'ERR_NETWORK') return true
   const status = ax.response.status
+  const message = ((ax.response.data as { error?: string } | undefined)?.error ?? '').toLowerCase()
+  if (status === 409 && (message.includes('elaborazione') || message.includes('idempotency') || message.includes('processing'))) {
+    return true
+  }
   return status >= 502 && status <= 504
 }
 
 export function isPermanentClientError(err: unknown): boolean {
-  const ax = err as AxiosError<{ code?: string }>
+  const ax = err as AxiosError<{ code?: string; error?: string }>
   if (!ax.response) return false
   const status = ax.response.status
   const code = ax.response.data?.code
-  if (status === 400 || status === 401 || status === 403 || status === 404 || status === 409) return true
+  const message = (ax.response.data?.error ?? '').toLowerCase()
+  if (status === 409) {
+    if (message.includes('elaborazione') || message.includes('idempotency') || message.includes('processing')) {
+      return false
+    }
+    return true
+  }
+  if (status === 400 || status === 401 || status === 403 || status === 404) return true
   if (code === 'MENU_ITEM_SOLD_OUT' || code === 'MENU_ITEM_UNAVAILABLE' || code === 'TABLE_OCCUPIED') return true
   return false
+}
+
+function isLikelyIdempotencyDuplicate(err: unknown): boolean {
+  const ax = err as AxiosError<{ code?: string; error?: string }>
+  if (!ax.response || ax.response.status !== 409) return false
+  const code = ax.response.data?.code
+  const message = (ax.response.data?.error ?? '').toLowerCase()
+  if (code === 'ORDER_DUPLICATE') return true
+  return (
+    message.includes('idempotency')
+    || message.includes('duplicata')
+    || message.includes('duplicato')
+    || message.includes('già in elaborazione')
+  )
 }
 
 async function postOrderItem(orderId: string, item: OrderLinePayload, itemKey: string): Promise<void> {
@@ -71,6 +100,12 @@ async function postOrderItem(orderId: string, item: OrderLinePayload, itemKey: s
     },
     { headers: { 'X-Idempotency-Key': itemKey } },
   )
+}
+
+function itemIdempotencyKey(baseMutationId: string, item: OrderLinePayload, index: number): string {
+  const modifiers = (item.modifiers ?? []).join(',')
+  const notes = item.notes ?? ''
+  return `${baseMutationId}:${item.menuItemId}:${index}:${item.quantity}:${item.course ?? 1}:${modifiers}:${notes}`
 }
 
 async function executeMutation(mutation: OfflineMutation): Promise<void> {
@@ -98,26 +133,36 @@ async function executeMutation(mutation: OfflineMutation): Promise<void> {
   }
 
   const payload = mutation.payload as AddOrderItemsPayload
-  for (const item of payload.items) {
-    const itemKey = `${mutation.id}:${item.menuItemId}`
+  for (const [index, item] of payload.items.entries()) {
+    const itemKey = itemIdempotencyKey(mutation.id, item, index)
     await postOrderItem(payload.orderId, item, itemKey)
   }
 }
 
 async function executeMutationPartial(mutation: OfflineMutation): Promise<'done' | 'partial' | 'failed'> {
   if (mutation.kind === 'CREATE_ORDER') {
-    await executeMutation(mutation)
+    try {
+      await executeMutation(mutation)
+    } catch (err) {
+      if (isLikelyIdempotencyDuplicate(err)) {
+        return 'done'
+      }
+      throw err
+    }
     return 'done'
   }
 
   const payload = mutation.payload as AddOrderItemsPayload
   const remaining: OrderLinePayload[] = []
 
-  for (const item of payload.items) {
-    const itemKey = `${mutation.id}:${item.menuItemId}`
+  for (const [index, item] of payload.items.entries()) {
+    const itemKey = itemIdempotencyKey(mutation.id, item, index)
     try {
       await postOrderItem(payload.orderId, item, itemKey)
     } catch (err) {
+      if (isLikelyIdempotencyDuplicate(err)) {
+        continue
+      }
       if (isPermanentClientError(err)) {
         remaining.push(item)
       } else {
@@ -146,17 +191,36 @@ export async function flushOfflineQueue(): Promise<{ synced: number; failed: num
   try {
     const pending = await listPendingMutations()
 
-    for (const mutation of pending) {
+    const activeTenantId = typeof localStorage !== 'undefined'
+      ? localStorage.getItem(TENANT_STORAGE_KEY)
+      : null
+
+    for (let mutation of pending) {
+      if (!mutation.tenantId && activeTenantId) {
+        mutation = { ...mutation, tenantId: activeTenantId }
+        await enqueueMutation(mutation)
+      }
+      if (mutation.tenantId && activeTenantId && mutation.tenantId !== activeTenantId) {
+        // Keep in queue until user returns to the owning tenant.
+        continue
+      }
       try {
         const result = await executeMutationPartial(mutation)
         if (result === 'done') {
           await removeMutation(mutation.id)
           synced++
         } else if (result === 'partial') {
-          failed++
-          toast.error(i18n.t('offline.partialSync'), { duration: 5000 })
+          if (mutation.retryCount >= MAX_PARTIAL_RETRIES) {
+            failed++
+            await removeMutation(mutation.id)
+            toast.error(i18n.t('offline.dropFailed', { message: 'PARTIAL_SYNC_EXHAUSTED' }), { duration: 6000 })
+          } else {
+            await updateMutationFailure(mutation.id, 'PARTIAL_SYNC')
+          }
         } else {
           failed++
+          await removeMutation(mutation.id)
+          toast.error(i18n.t('offline.dropFailed', { message: 'SYNC_FAILED' }), { duration: 6000 })
         }
       } catch (err) {
         if (isRetryableNetworkError(err)) {
@@ -221,9 +285,13 @@ export function initOfflineSync(onSynced?: () => void): () => void {
 async function tryOrQueue(
   mutation: Omit<OfflineMutation, 'createdAt' | 'retryCount'>,
 ): Promise<SubmitResult> {
+  const tenantId = typeof localStorage !== 'undefined'
+    ? localStorage.getItem(TENANT_STORAGE_KEY) ?? undefined
+    : undefined
   try {
     await executeMutation({
       ...mutation,
+      tenantId,
       createdAt: Date.now(),
       retryCount: 0,
     })
@@ -233,6 +301,7 @@ async function tryOrQueue(
 
     await enqueueMutation({
       ...mutation,
+      tenantId,
       createdAt: Date.now(),
       retryCount: 0,
     })

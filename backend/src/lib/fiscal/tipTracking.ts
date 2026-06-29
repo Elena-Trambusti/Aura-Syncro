@@ -1,6 +1,6 @@
 import { roundMoney } from '../taxEngine'
 
-const TRACKED_TIP_METHODS = new Set(['CASH', 'CARD', 'DIGITAL', 'STRIPE'])
+const TRACKED_TIP_METHODS = new Set(['CARD', 'DIGITAL', 'STRIPE'])
 
 /** IT/ES: mance tracciate via POS/app (metodi elettronici). */
 export function sumElectronicTips(

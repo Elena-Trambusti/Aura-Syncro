@@ -15,7 +15,13 @@ import { deductInventoryForOrder, restoreInventoryForOrderItem } from '../lib/in
 import { resolveOrCreateCustomer, assertCustomerInTenant } from '../lib/customerResolver'
 import { assertMenuItemOrderable } from '../lib/menuStock'
 import { applyDiscountToOrder } from '../lib/orderDiscount'
-import { acquireIdempotencyLock, getIdempotentResponse, readIdempotencyKey, saveIdempotentResponse } from '../lib/apiIdempotency'
+import {
+  acquireIdempotencyLock,
+  getIdempotentResponse,
+  readIdempotencyKey,
+  releaseIdempotencyLock,
+  saveIdempotentResponse,
+} from '../lib/apiIdempotency'
 import {
   occupyTableIfAvailable,
   restaurantActiveOrdersWhere,
@@ -133,8 +139,15 @@ ordersRouter.get('/:id', requirePermission('orders.read'), async (req: AuthReque
 
 ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthRequest, res: Response): Promise<void> => {
   const idempotencyKey = readIdempotencyKey(req)
+  let idempotencyLocked = false
+  const releaseOrderLock = async () => {
+    if (idempotencyKey && req.restaurantId && idempotencyLocked) {
+      await releaseIdempotencyLock(req.restaurantId, idempotencyKey)
+      idempotencyLocked = false
+    }
+  }
   if (idempotencyKey && req.restaurantId) {
-    const cached = await getIdempotentResponse(req.restaurantId, idempotencyKey)
+    const cached = await getIdempotentResponse(req.restaurantId, idempotencyKey, 'POST /orders')
     if (cached) {
       if (cached.statusCode === 202) {
         res.status(409).json({ error: 'Richiesta già in elaborazione (Idempotency Lock)' })
@@ -148,6 +161,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
       res.status(409).json({ error: 'Richiesta duplicata bloccata dal sistema' })
       return
     }
+    idempotencyLocked = true
   }
 
   const schema = z.object({
@@ -169,6 +183,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
 
   const result = schema.safeParse(req.body)
   if (!result.success) {
+    await releaseOrderLock()
     res.status(400).json({ error: 'Dati non validi', details: result.error.flatten() })
     return
   }
@@ -180,6 +195,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
     try {
       await assertCustomerInTenant(resolvedCustomerId, req.restaurantId!)
     } catch {
+      await releaseOrderLock()
       res.status(404).json({ error: 'Cliente non trovato', code: 'CUSTOMER_NOT_FOUND' })
       return
     }
@@ -222,14 +238,17 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   } catch (e) {
     const code = (e as { code?: string }).code
     if (code === 'MENU_ITEM_NOT_FOUND') {
+      await releaseOrderLock()
       res.status(400).json({ error: 'Piatto non trovato nel menu' })
       return
     }
     if (code === 'MENU_ITEM_UNAVAILABLE') {
+      await releaseOrderLock()
       res.status(400).json({ error: 'Piatto non disponibile', code })
       return
     }
     if (code === 'MENU_ITEM_SOLD_OUT') {
+      await releaseOrderLock()
       res.status(400).json({ error: 'Piatto esaurito — ingredienti insufficienti', code })
       return
     }
@@ -294,13 +313,16 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
     })
   } catch (e) {
     if ((e as { code?: string }).code === 'TABLE_OCCUPIED') {
+      await releaseOrderLock()
       res.status(409).json({ error: 'Il tavolo è stato appena occupato da un altro collega. Aggiorna la pagina.' })
       return
     }
     if ((e as { code?: string }).code === 'INSUFFICIENT_STOCK') {
+      await releaseOrderLock()
       res.status(409).json({ error: 'Piatto esaurito — ingredienti insufficienti', code: 'MENU_ITEM_SOLD_OUT' })
       return
     }
+    await releaseOrderLock()
     throw e
   }
 
@@ -330,6 +352,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
 
   if (idempotencyKey && req.restaurantId) {
     await saveIdempotentResponse(req.restaurantId, idempotencyKey, 'POST /orders', 201, finalOrder)
+    idempotencyLocked = false
   }
 
   res.status(201).json(finalOrder)
@@ -631,8 +654,15 @@ ordersRouter.patch('/:id/status', async (req: AuthRequest, res: Response): Promi
 
 ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: AuthRequest, res: Response): Promise<void> => {
   const idempotencyKey = readIdempotencyKey(req)
+  let idempotencyLocked = false
+  const releaseItemsLock = async () => {
+    if (idempotencyKey && req.restaurantId && idempotencyLocked) {
+      await releaseIdempotencyLock(req.restaurantId, idempotencyKey)
+      idempotencyLocked = false
+    }
+  }
   if (idempotencyKey && req.restaurantId) {
-    const cached = await getIdempotentResponse(req.restaurantId, idempotencyKey)
+    const cached = await getIdempotentResponse(req.restaurantId, idempotencyKey, 'POST /orders/:id/items')
     if (cached) {
       if (cached.statusCode === 202) {
         res.status(409).json({ error: 'Richiesta già in elaborazione' })
@@ -641,11 +671,12 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
       res.status(cached.statusCode).json(cached.responseBody)
       return
     }
-    const locked = await acquireIdempotencyLock(req.restaurantId, idempotencyKey, `POST /orders/${req.params.id}/items`)
+    const locked = await acquireIdempotencyLock(req.restaurantId, idempotencyKey, 'POST /orders/:id/items')
     if (!locked) {
       res.status(409).json({ error: 'Richiesta duplicata bloccata' })
       return
     }
+    idempotencyLocked = true
   }
 
   const schema = z.object({
@@ -657,6 +688,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
   })
   const result = schema.safeParse(req.body)
   if (!result.success) {
+    await releaseItemsLock()
     res.status(400).json({ error: 'Dati non validi' })
     return
   }
@@ -665,10 +697,12 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     where: scopedWhere(req, req.params.id),
   })
   if (!order) {
+    await releaseItemsLock()
     tenantNotFound(res, 'Ordine non trovato')
     return
   }
   if (['PAID', 'CANCELLED'].includes(order.status)) {
+    await releaseItemsLock()
     res.status(400).json({ error: 'Ordine chiuso, non modificabile' })
     return
   }
@@ -681,6 +715,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     },
   })
   if (!menuItem) {
+    await releaseItemsLock()
     tenantNotFound(res, 'Piatto non trovato')
     return
   }
@@ -689,10 +724,12 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
   } catch (e) {
     const code = (e as { code?: string }).code
     if (code === 'MENU_ITEM_UNAVAILABLE') {
+      await releaseItemsLock()
       res.status(400).json({ error: 'Piatto non disponibile', code })
       return
     }
     if (code === 'MENU_ITEM_SOLD_OUT') {
+      await releaseItemsLock()
       res.status(400).json({ error: 'Piatto esaurito — ingredienti insufficienti', code })
       return
     }
@@ -707,6 +744,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
      for (const optId of result.data.modifiers) {
        const opt = allOptions.find(o => o.id === optId)
        if (!opt) {
+         await releaseItemsLock()
          res.status(400).json({ error: 'Modificatore non valido' })
          return
        }
@@ -768,9 +806,11 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     orderWithItems = txResult.orderWithItems
   } catch (e) {
     if ((e as { code?: string }).code === 'INSUFFICIENT_STOCK') {
+      await releaseItemsLock()
       res.status(409).json({ error: 'Piatto esaurito — ingredienti insufficienti', code: 'MENU_ITEM_SOLD_OUT' })
       return
     }
+    await releaseItemsLock()
     throw e
   }
 
@@ -787,6 +827,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
 
   if (idempotencyKey && req.restaurantId) {
     await saveIdempotentResponse(req.restaurantId, idempotencyKey, 'POST /orders/:id/items', 201, createdItem)
+    idempotencyLocked = false
   }
 
   res.status(201).json(createdItem)

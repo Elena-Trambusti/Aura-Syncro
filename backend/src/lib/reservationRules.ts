@@ -37,8 +37,10 @@ export async function validateReservationSlot(
   const requestStart = input.date.getTime()
   const requestEnd = requestStart + input.duration * 60_000
 
-  const windowStart = new Date(requestStart - 24 * 60 * 60_000)
-  const windowEnd = new Date(requestEnd + 24 * 60 * 60_000)
+  // Use a conservative window to avoid missing overlaps with long reservations.
+  const windowMs = 24 * 60 * 60 * 1000
+  const windowStart = new Date(requestStart - windowMs)
+  const windowEnd = new Date(requestEnd + windowMs)
 
   const allReservations = await prisma.reservation.findMany({
     where: {

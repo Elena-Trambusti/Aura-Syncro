@@ -164,7 +164,7 @@ describe('tipFiscal', () => {
       ),
     ]
     const summary = buildFiscalSummary(rows, 'IT_MAIN')
-    assert.equal(summary.electronicTipsTotal, 17)
+    assert.equal(summary.electronicTipsTotal, 12)
     assert.equal(summary.tipTaxStatus, 'EXEMPT_IT')
   })
 
@@ -172,6 +172,7 @@ describe('tipFiscal', () => {
     const total = sumElectronicTips([
       { tipAmount: 10, paymentMethod: 'CARD' },
       { tipAmount: 5, paymentMethod: 'VOUCHER' },
+      { tipAmount: 8, paymentMethod: 'CASH' },
     ])
     assert.equal(total, 10)
   })

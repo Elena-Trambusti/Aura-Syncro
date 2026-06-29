@@ -2,8 +2,9 @@ import { Router, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import { startOfLocalDay } from '../lib/dates'
+import { calendarDateInTimezone, dayBoundsInTimezone, hourInTimezone, shiftCalendarDate } from '../lib/dates'
 import { resolveRevenueAmount } from '../lib/fiscalAmounts'
+import { loadTenantTimeRanges } from '../lib/analyticsSummary'
 
 function sumFoodFromAggregate(agg: { _sum: { revenueAmount?: number | null; subtotal?: number | null; tax?: number | null; tipAmount?: number | null; total?: number | null } }) {
   if (agg._sum.revenueAmount && agg._sum.revenueAmount > 0) return agg._sum.revenueAmount
@@ -25,13 +26,7 @@ function paidInRange(start: Date, end: Date) {
 
 analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
-  const today = startOfLocalDay()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1)
-  const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999)
+  const ranges = await loadTenantTimeRanges(restaurantId)
 
   const [
     todayOrders,
@@ -43,12 +38,12 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
     activeOrders,
     lowStockItems,
   ] = await Promise.all([
-    prisma.order.count({ where: { restaurantId, createdAt: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } } }),
-    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(today, tomorrow) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
-    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(thisMonthStart, tomorrow) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
-    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(lastMonthStart, new Date(lastMonthEnd.getTime() + 1)) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
+    prisma.order.count({ where: { restaurantId, createdAt: { gte: ranges.todayStart, lt: ranges.todayEnd }, status: { notIn: ['CANCELLED'] } } }),
+    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(ranges.todayStart, ranges.todayEnd) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
+    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(ranges.monthStart, ranges.monthEndExclusive) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
+    prisma.order.aggregate({ where: { restaurantId, ...paidInRange(ranges.lastMonthStart, ranges.lastMonthEndExclusive) }, _sum: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true } }),
     prisma.customer.count({ where: { restaurantId } }),
-    prisma.reservation.count({ where: { restaurantId, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED', 'NO_SHOW'] } } }),
+    prisma.reservation.count({ where: { restaurantId, date: { gte: ranges.todayStart, lt: ranges.todayEnd }, status: { notIn: ['CANCELLED', 'NO_SHOW'] } } }),
     prisma.order.count({ where: { restaurantId, status: { notIn: ['PAID', 'CANCELLED'] } } }),
     prisma.inventoryItem.count({ where: { restaurantId, quantity: { lte: prisma.inventoryItem.fields.minQuantity } } }),
   ])
@@ -59,10 +54,9 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
     ? ((monthFood - lastMonthFood) / lastMonthFood) * 100
     : 0
 
-  // Rotazione tavoli (Table Turnover): tempo medio in minuti tra apertura e pagamento (oggi)
   const turnoverOrders = await prisma.order.findMany({
-    where: { restaurantId, ...paidInRange(today, tomorrow), tableId: { not: null } },
-    select: { createdAt: true, paidAt: true }
+    where: { restaurantId, ...paidInRange(ranges.todayStart, ranges.todayEnd), tableId: { not: null } },
+    select: { createdAt: true, paidAt: true },
   })
   let totalMinutes = 0
   let turnoverCount = 0
@@ -96,32 +90,36 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
 analyticsRouter.get('/revenue', requirePermission('analytics.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const { period = '7d' } = req.query
   const restaurantId = req.restaurantId!
-
+  const ranges = await loadTenantTimeRanges(restaurantId)
   const days = period === '30d' ? 30 : period === '90d' ? 90 : 7
-  const startDate = new Date()
-  startDate.setDate(startDate.getDate() - days)
-  startDate.setHours(0, 0, 0, 0)
+
+  const todayStr = calendarDateInTimezone(ranges.timeZone)
+  const startDateStr = shiftCalendarDate(todayStr, -(days - 1))
+  const { gte: startDate } = dayBoundsInTimezone(startDateStr, ranges.timeZone)
+  const { lt: endDate } = dayBoundsInTimezone(shiftCalendarDate(todayStr, 1), ranges.timeZone)
 
   const orders = await prisma.order.findMany({
     where: {
       restaurantId,
       status: 'PAID',
-      createdAt: { gte: startDate },
+      OR: [
+        { paidAt: { gte: startDate, lt: endDate } },
+        { paidAt: null, createdAt: { gte: startDate, lt: endDate } },
+      ],
     },
-    select: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true, createdAt: true },
+    select: { revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true, paidAt: true, createdAt: true },
     orderBy: { createdAt: 'asc' },
   })
 
   const groupedByDay: Record<string, { revenue: number; orders: number }> = {}
   for (let i = 0; i < days; i++) {
-    const d = new Date(startDate)
-    d.setDate(d.getDate() + i)
-    const key = d.toISOString().split('T')[0]
+    const key = shiftCalendarDate(startDateStr, i)
     groupedByDay[key] = { revenue: 0, orders: 0 }
   }
 
   orders.forEach(order => {
-    const key = order.createdAt.toISOString().split('T')[0]
+    const paidAt = order.paidAt ?? order.createdAt
+    const key = calendarDateInTimezone(ranges.timeZone, paidAt)
     if (groupedByDay[key]) {
       groupedByDay[key].revenue += resolveRevenueAmount(order)
       groupedByDay[key].orders += 1
@@ -139,8 +137,9 @@ analyticsRouter.get('/revenue', requirePermission('analytics.read'), async (req:
 
 analyticsRouter.get('/top-items', requirePermission('analytics.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const ranges = await loadTenantTimeRanges(restaurantId)
+  const thirtyDaysAgoStr = shiftCalendarDate(calendarDateInTimezone(ranges.timeZone), -30)
+  const { gte: thirtyDaysAgo } = dayBoundsInTimezone(thirtyDaysAgoStr, ranges.timeZone)
 
   const items = await prisma.orderItem.groupBy({
     by: ['menuItemId'],
@@ -176,19 +175,21 @@ analyticsRouter.get('/top-items', requirePermission('analytics.read'), async (re
 
 analyticsRouter.get('/hourly', requirePermission('analytics.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const ranges = await loadTenantTimeRanges(restaurantId)
+  const sevenDaysAgoStr = shiftCalendarDate(calendarDateInTimezone(ranges.timeZone), -7)
+  const { gte: sevenDaysAgo } = dayBoundsInTimezone(sevenDaysAgoStr, ranges.timeZone)
 
   const orders = await prisma.order.findMany({
     where: { restaurantId, status: 'PAID', createdAt: { gte: sevenDaysAgo } },
-    select: { createdAt: true, revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true },
+    select: { createdAt: true, paidAt: true, revenueAmount: true, subtotal: true, tax: true, tipAmount: true, total: true },
   })
 
   const byHour: Record<number, { revenue: number; orders: number }> = {}
   for (let h = 0; h < 24; h++) byHour[h] = { revenue: 0, orders: 0 }
 
   orders.forEach(order => {
-    const hour = order.createdAt.getHours()
+    const paidAt = order.paidAt ?? order.createdAt
+    const hour = hourInTimezone(ranges.timeZone, paidAt)
     byHour[hour].revenue += resolveRevenueAmount(order)
     byHour[hour].orders += 1
   })

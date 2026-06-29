@@ -97,15 +97,17 @@ loyaltyRouter.post('/earn', requirePermission('loyalty.manage'), async (req: Aut
   })
   if (!customer) { tenantNotFound(res, 'Cliente non trovato'); return }
 
-  const [tx, updatedCustomer] = await prisma.$transaction([
-    prisma.loyaltyTransaction.create({
+  // RC-05: Use Serializable transaction to prevent double-earn on concurrent requests
+  const [tx, updatedCustomer] = await prisma.$transaction(async prismaClient => {
+    const transaction = await prismaClient.loyaltyTransaction.create({
       data: { customerId, restaurantId, type: 'EARNED', points, description, orderId },
-    }),
-    prisma.customer.update({
+    })
+    const updated = await prismaClient.customer.update({
       where: { id: customerId },
       data: { loyaltyPoints: { increment: points } },
-    }),
-  ])
+    })
+    return [transaction, updated] as const
+  }, { isolationLevel: 'Serializable' })
 
   await updateCustomerTier(restaurantId, customerId, updatedCustomer.loyaltyPoints)
 
@@ -168,22 +170,36 @@ loyaltyRouter.post('/adjust', requirePermission('loyalty.manage'), async (req: A
   })
   if (!customer) { tenantNotFound(res, 'Cliente non trovato'); return }
 
-  if (customer.loyaltyPoints + points < 0) {
-    res.status(400).json({ error: 'Saldo punti insufficiente', code: 'INSUFFICIENT_POINTS' })
-    return
+  // RC-06: Atomic check-and-decrement — prevents TOCTOU race on concurrent adjustments
+  try {
+    const [tx, updatedCustomer] = await prisma.$transaction(async prismaClient => {
+      const claimed = await prismaClient.customer.updateMany({
+        where: {
+          id: customerId,
+          restaurantId,
+          ...(points < 0 ? { loyaltyPoints: { gte: -points } } : {}),
+        },
+        data: { loyaltyPoints: { increment: points } },
+      })
+      if (claimed.count === 0) {
+        throw Object.assign(new Error('INSUFFICIENT_POINTS'), { code: 'INSUFFICIENT_POINTS' })
+      }
+      const transaction = await prismaClient.loyaltyTransaction.create({
+        data: { customerId, restaurantId, type: 'ADJUSTMENT', points, description },
+      })
+      const updated = await prismaClient.customer.findFirstOrThrow({ where: { id: customerId } })
+      return [transaction, updated] as const
+    }, { isolationLevel: 'Serializable' })
+
+    res.status(201).json({ transaction: tx, newPoints: updatedCustomer.loyaltyPoints })
+  } catch (err) {
+    const code = err instanceof Error ? (err as Error & { code?: string }).code : undefined
+    if (code === 'INSUFFICIENT_POINTS') {
+      res.status(400).json({ error: 'Saldo punti insufficiente', code })
+      return
+    }
+    throw err
   }
-
-  const [tx, updatedCustomer] = await prisma.$transaction([
-    prisma.loyaltyTransaction.create({
-      data: { customerId, restaurantId, type: 'ADJUSTMENT', points, description },
-    }),
-    prisma.customer.update({
-      where: { id: customerId },
-      data: { loyaltyPoints: { increment: points } },
-    }),
-  ])
-
-  res.status(201).json({ transaction: tx, newPoints: updatedCustomer.loyaltyPoints })
 })
 
 // ── Overview statistiche fedeltà ────────────────────────────────────────────

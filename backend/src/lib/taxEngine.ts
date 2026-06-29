@@ -103,8 +103,9 @@ export function resolveTaxRegion(
   countryCode: CountryCode,
   taxRegion?: TaxRegion | null,
 ): TaxRegion {
-  const identity = resolveTenantFiscalIdentity({ countryCode, taxRegion })
-  return identity.taxRegion
+  if (countryCode === 'IT') return 'IT_MAIN'
+  if (taxRegion === 'ES_CANARIAS') return 'ES_CANARIAS'
+  return 'ES_PENINSULA'
 }
 
 export function buildFiscalConfig(settings?: RestaurantSettingsLike | null): FiscalConfig {

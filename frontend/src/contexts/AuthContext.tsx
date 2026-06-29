@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import i18n from '../i18n'
+import toast from 'react-hot-toast'
 import { api, setTenantHeader } from '../lib/api'
 import { connectSocket, disconnectSocket } from '../lib/socket'
 import { bootstrapSessionToken, clearSessionToken, getSessionToken, setSessionToken } from '../lib/sessionToken'
@@ -209,7 +210,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         commitRestaurant(normalized, false)
         writeAuthCache(res.data.user, normalized)
       })
-      .catch(() => logout())
+      .catch((error: { response?: { status?: number } }) => {
+        const status = error?.response?.status
+        if (status === 401 || status === 403) {
+          logout()
+          return
+        }
+        // Keep cached session on transient failures to avoid forced logout during service.
+        toast.error('Connessione temporaneamente non disponibile. Riprova tra poco.')
+      })
       .finally(() => setIsLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

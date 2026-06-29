@@ -48,13 +48,13 @@ export default function LandingHero() {
             {t('landing.hero.badge')}
           </div>
           <h1 
-            className="lux-heading text-4xl font-display font-medium tracking-tight sm:text-5xl lg:text-7xl lg:leading-[1.1] drop-shadow-2xl"
+            className="lux-heading text-[#C5A059] text-4xl font-display font-medium tracking-tight sm:text-5xl lg:text-7xl lg:leading-[1.1] drop-shadow-2xl"
             style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '150ms' }}
           >
             {t('landing.hero.title')}
           </h1>
           <p 
-            className="mt-6 max-w-xl text-base leading-relaxed lux-text-soft sm:text-lg font-light"
+            className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg font-light"
             style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '300ms' }}
           >
             {t('landing.hero.subtitle', { brand: BRAND.name })}

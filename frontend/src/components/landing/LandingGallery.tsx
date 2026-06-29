@@ -113,10 +113,10 @@ export default function LandingGallery() {
             {data.eyebrow}
           </p>
         )}
-        <h2 className="lux-heading font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
+        <h2 className="lux-heading text-[#C5A059] font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
           {data.title}
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed lux-text-soft sm:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-slate-300 sm:text-lg">
           {data.subtitle}
         </p>
       </div>
@@ -141,10 +141,10 @@ export default function LandingGallery() {
                 </div>
 
                 <div className="flex flex-1 flex-col p-7 sm:p-8">
-                  <h3 className="font-display text-xl font-medium tracking-tight text-[#F0D78C] transition-colors duration-300 group-hover:text-[#E8C872]">
+                  <h3 className="font-display text-xl font-medium tracking-tight text-slate-100 transition-colors duration-300 group-hover:text-white">
                     {problem.title}
                   </h3>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-[#C5A059]/70">
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-300">
                     {problem.desc}
                   </p>
                 </div>

@@ -5,30 +5,80 @@
 const BASE = (process.argv[2] || 'https://aura-syncro-s98ae.ondigitalocean.app').replace(/\/$/, '')
 const EMAIL = 'aurasyncro@gmail.com'
 const PASSWORD = 'AuraSyncro2026!'
+const REQUEST_TIMEOUT_MS = 120_000
 
 async function api(
   path: string,
-  opts: { method?: string; token?: string; body?: unknown } = {},
+  opts: { method?: string; token?: string; body?: unknown; idempotencyKey?: string } = {},
 ) {
-  const res = await fetch(`${BASE}/api${path}`, {
-    method: opts.method ?? (opts.body ? 'POST' : 'GET'),
-    headers: {
-      'Content-Type': 'application/json',
-      ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
-    },
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-  })
-  const text = await res.text()
-  let data: unknown
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   try {
-    data = text ? JSON.parse(text) : null
-  } catch {
-    data = text
+    const res = await fetch(`${BASE}/api${path}`, {
+      method: opts.method ?? (opts.body ? 'POST' : 'GET'),
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+        ...(opts.idempotencyKey ? { 'X-Idempotency-Key': opts.idempotencyKey } : {}),
+      },
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    })
+    const text = await res.text()
+    let data: unknown
+    try {
+      data = text ? JSON.parse(text) : null
+    } catch {
+      data = text
+    }
+    if (!res.ok) {
+      throw new Error(`${opts.method ?? 'GET'} ${path} → ${res.status}: ${JSON.stringify(data)}`)
+    }
+    return data
+  } finally {
+    clearTimeout(timer)
   }
-  if (!res.ok) {
-    throw new Error(`${opts.method ?? 'GET'} ${path} → ${res.status}: ${JSON.stringify(data)}`)
+}
+
+async function ensureCashSessionOpen(token: string): Promise<void> {
+  const current = (await api('/cash/session/current', { token })) as { id: string } | null
+  if (current?.id) return
+  await api('/cash/session/open', {
+    token,
+    method: 'POST',
+    body: { openingBalance: 100 },
+  })
+  console.log('✓ Cassa aperta per test pagamento contanti')
+}
+
+async function finalizeWithRetry(
+  token: string,
+  orderId: string,
+  idempotencyKey: string,
+) {
+  const body = {
+    orderId,
+    paymentMethod: 'CASH',
+    tipAmount: 0,
+    applyLoyaltyDiscount: true,
   }
-  return data
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await api('/payments/finalize', {
+        token,
+        method: 'POST',
+        body,
+        idempotencyKey: `${idempotencyKey}:${attempt}`,
+      }) as { success: boolean; order: { status: string; discount?: number } }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      const retryable = /→ (502|503|504):/.test(message) || message.includes('abort')
+      if (!retryable || attempt === 3) throw err
+      console.warn(`⚠ finalize tentativo ${attempt} fallito, retry...`)
+      await new Promise(r => setTimeout(r, 2000 * attempt))
+    }
+  }
+  throw new Error('finalize retry exhausted')
 }
 
 async function main() {
@@ -42,7 +92,7 @@ async function main() {
 
   const token = login.token
 
-  const summary = await api('/analytics/summary', { token })
+  await api('/analytics/summary', { token })
   console.log('✓ Analytics summary OK')
 
   const categories = (await api('/menu/categories', { token })) as Array<{ id: string; name: string }>
@@ -97,6 +147,7 @@ async function main() {
       customerId: customer.id,
       items: [{ menuItemId, quantity: 1 }],
     },
+    idempotencyKey: `test-flow-order-${Date.now()}`,
   })) as { id: string; total: number; status: string }
   console.log(`✓ Ordine creato — €${order.total.toFixed(2)} (${order.status})`)
 
@@ -106,19 +157,11 @@ async function main() {
     body: { status: 'READY' },
   })
 
-  const paid = (await api('/payments/finalize', {
-    token,
-    method: 'POST',
-    body: {
-      orderId: order.id,
-      paymentMethod: 'CASH',
-      tipAmount: 0,
-      applyLoyaltyDiscount: true,
-    },
-  })) as { success: boolean; order: { status: string; discount?: number } }
+  await ensureCashSessionOpen(token)
+
+  const paid = await finalizeWithRetry(token, order.id, `test-flow-pay-${order.id}`)
   console.log('✓ Pagamento finalizzato — status', paid.order.status)
 
-  // Loyalty discount path (customer linked at create)
   const orderWithDiscount = (await api('/orders', {
     token,
     method: 'POST',
@@ -127,6 +170,7 @@ async function main() {
       customerId: customer.id,
       items: [{ menuItemId, quantity: 2 }],
     },
+    idempotencyKey: `test-flow-order-discount-${Date.now()}`,
   })) as { id: string; total: number; discount?: number }
   if ((orderWithDiscount.discount ?? 0) <= 0) {
     console.warn('⚠ Sconto fedeltà non applicato — verificare tier Gold sul cliente demo')

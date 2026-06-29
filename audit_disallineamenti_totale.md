@@ -55,7 +55,7 @@
 - **File 2:** `backend/src/lib/publicCheckout.ts` L121–122 (deduct after payment)
 - **File 3:** `backend/src/lib/orderPayment.ts` L131 (deduct in finalize)
 - **Comportamento:** Race: ultimo pezzo venduto via pay-at-table mentre checkout Stripe in corso → webhook può fallire post-addebito.
-- **Stato:** ⚠️ RESIDUO — richiede soft-reservation stock al create checkout (non implementato per minimizzare scope)
+- **Stato:** ✅ MITIGATO — deduct atomico in transazione (`inventoryDeduction.ts`); race TOCTOU chiusa a livello DB; soft-reservation opzionale futura
 
 ### A-04 — Tavolo inesistente accettato silenziosamente (MEDIO)
 - **File 1:** `backend/src/lib/publicOrder.ts` L93–98
@@ -142,7 +142,7 @@
 
 ### B-07 — `order:new` socket morto (BASSO)
 - **File:** `backend/src/lib/stripePaymentIntentWebhook.ts` L15
-- **Stato:** ⚠️ RESIDUO — evento legacy; PI metadata non popolato in Connect path
+- **Stato:** ✅ RISOLTO — emit `order:created` (allineato a `completePayment.ts`)
 
 ### B-08 — Finalize pagamento non idempotente su timeout client (CRITICO)
 - **File 1:** `backend/src/routes/payments.ts` L157–168
@@ -166,7 +166,7 @@
 ### B-12 — Pagamento POS non atomico (charge → discount → DB) (CRITICO architetturale)
 - **File:** `backend/src/lib/completePayment.ts` L50–80
 - **Comportamento:** Carta addebitata, finalize fallisce → soldi presi, ordine aperto.
-- **Stato:** ⚠️ RESIDUO — richiede saga/idempotency key su `/payments/finalize`
+- **Stato:** ✅ MITIGATO — auto-refund best-effort su finalize failure (CARD + STRIPE webhook); saga completa opzionale futura
 
 ---
 
@@ -209,12 +209,12 @@
 - **File 1:** `backend/src/lib/dates.ts` L81–115 (`buildDateRange`)
 - **File 2:** `backend/src/routes/reports.ts` L490 (zeta usa timezone)
 - **Comportamento:** Report "oggi" diverso tra dashboard e chiusura Zeta a cavallo di mezzanotte.
-- **Stato:** ⚠️ RESIDUO — allineamento a `dayRangeInTimezone` su `/reports/fiscal`
+- **Stato:** ✅ RISOLTO — `reports.ts` `/fiscal` e `/fiscal/vat-breakdown` usano `buildDateRangeForTimezone`; analytics dashboard/revenue/hourly allineati (RZ4-01)
 
 ### C-04 — P&L daily bucket UTC (MEDIO)
 - **File:** `backend/src/routes/reports.ts` L146–147
 - **Comportamento:** Pagamenti serali IT bucketati su giorno UTC sbagliato.
-- **Stato:** ⚠️ RESIDUO
+- **Stato:** ✅ RISOLTO — P&L usa `calendarDateInTimezone` per bucket giornalieri; analytics revenue chart tenant-aware (RZ4-01)
 
 ### C-05 — Float monetary fields in Prisma (STRUTTURALE)
 - **File:** `backend/prisma/schema.prisma` L396–403
@@ -227,7 +227,7 @@
 
 ### C-07 — IT electronicTipsTotal include CASH (MEDIO semantico)
 - **File:** `backend/src/lib/fiscal/tipTracking.ts`, `ItaliaFiscalStrategy.ts`
-- **Stato:** ⚠️ RESIDUO — naming/legal review
+- **Stato:** ✅ RISOLTO — `sumElectronicTips` traccia solo CARD/DIGITAL/STRIPE (esclude CASH)
 
 ### C-08 — Guest Stripe checkout tipAmount sempre 0 (MEDIO)
 - **File:** `backend/src/lib/publicCheckout.ts` L103
@@ -239,7 +239,7 @@
 
 ### C-10 — Filtro "ordini oggi" UTC in OrdersPage (ALTO — sessione precedente)
 - **File:** `frontend/src/pages/OrdersPage.tsx` L67
-- **Stato:** ✅ RISOLTO — `toLocalDateInput()`
+- **Stato:** ✅ RISOLTO — `OrdersPage` + `ReportFiscal` usano `toDateInputInTimezone` con timezone tenant
 
 ---
 
@@ -286,7 +286,7 @@
 - **File 1:** `backend/src/lib/permissions.ts` (HOST: no orders.create)
 - **File 2:** `frontend/src/components/orders/OrderModal.tsx`
 - **Comportamento:** HOST invia ordine → 403 con toast (non silenzioso).
-- **Stato:** ⚠️ RESIDUO — decidere se HOST deve creare ordini o nascondere UI
+- **Stato:** ✅ RISOLTO — `TablesPage`/`OrderModal` bloccano HOST su tavoli liberi; view-only su ordini attivi
 
 ### D-06 — Pagine Pro (Analytics, CRM, Loyalty) senza guard permission FE (MEDIO)
 - **File:** `frontend/src/App.tsx` L143–145 (solo RequireProPlan)
@@ -295,7 +295,7 @@
 
 ### D-07 — Mutazioni senza onError toast (MEDIO UX)
 - **File:** CashDrawerPage, InventoryPage, TablesPage (parziale), MenuPage, etc.
-- **Stato:** ⚠️ RESIDUO PARZIALE — ReservationsPage/MarketingPage/OrdersPage migliorati
+- **Stato:** ✅ RISOLTO — `MenuPage`, `CashDrawerPage`, `InventoryPage`, `TablesPage` con `onError` toast
 
 ### D-10 — OrderModal omette modifiers in lineItems (CRITICO)
 - **File:** `frontend/src/components/orders/OrderModal.tsx` L114–119
@@ -411,12 +411,7 @@
 
 # RESIDUI ACCETTATI (non bug di disallineamento operativo immediato)
 
-1. **B-12** — Atomicità pagamento POS (parzialmente mitigato da payment lock idempotency)
-2. **A-03** — Soft-reservation stock checkout Stripe (feature)
-3. **C-03/C-04** — Timezone bucket report (allineamento tenant TZ)
-4. **C-05** — Float → Decimal Prisma (migration DB)
-5. **D-05** — UX ruolo HOST vs orders.create (403 con toast, by design?)
-6. **D-07** — onError toast su CashDrawer/Inventory/Menu (UX residuo)
+1. **C-05** — Float → Decimal Prisma (migration DB)
 
 ---
 

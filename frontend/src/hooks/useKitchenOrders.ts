@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
-import { getSocket, connectSocket } from '../lib/socket'
+import { getSocket } from '../lib/socket'
 import { useTenantQueryKey } from '../contexts/AuthContext'
 import { tq } from '../lib/queryKeys'
 import {
@@ -17,7 +17,7 @@ import {
   orderActionKey,
 } from '../lib/kitchenOrders'
 
-const SOCKET_FALLBACK_REFETCH_MS = 120_000
+const SOCKET_FALLBACK_REFETCH_MS = 30_000
 
 export function useKitchenOrders() {
   const { t } = useTranslation()
@@ -53,11 +53,6 @@ export function useKitchenOrders() {
     },
     [patchCache],
   )
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) connectSocket(token)
-  }, [])
 
   useEffect(() => {
     const socket = getSocket()

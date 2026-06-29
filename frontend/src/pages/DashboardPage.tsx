@@ -136,7 +136,7 @@ export default function DashboardPage() {
     refetchInterval: 30_000,
     enabled: canAnalytics,
   })
-  const showSummarySkeleton = canAnalytics && useShowQuerySkeleton(summaryLoading, dashboard != null)
+  const showSummarySkeleton = useShowQuerySkeleton(summaryLoading, dashboard != null)
 
   const { data: revenueData, isError: revenueError } = useQuery({
     queryKey: tq(tk, 'analytics', 'revenue', '7d'),

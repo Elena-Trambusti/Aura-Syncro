@@ -9,10 +9,12 @@ import {
   buildDateRange,
   buildDateRangeForTimezone,
   buildMonthRange,
+  buildMonthRangeInTimezone,
   calendarDateInTimezone,
   dayRangeInTimezone,
   effectivePaidAt,
   endOfLocalDay,
+  startOfLocalDay,
   paidOrdersInPeriodWhere,
 } from '../lib/dates'
 import { FISCAL_REGION_GENESIS } from '../lib/fiscal/fiscalRegion'
@@ -90,7 +92,7 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
 
   const y = Number(year)
   const m = Number(month)
-  const { start: startDate, end: endDate } = buildMonthRange(y, m)
+  const { start: startDate, end: endDate } = buildMonthRangeInTimezone(y, m, timeZone)
   const orderWhere = paidOrdersInPeriodWhere(restaurantId, startDate, endDate)
 
   // Ricavi da ordini pagati
@@ -192,6 +194,12 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
 
 reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  const fiscal = buildFiscalConfig(restaurant?.settings)
+  const timeZone = restaurant?.timezone ?? fiscal.timezone
 
   const menuItems = await prisma.menuItem.findMany({
     where: { restaurantId },
@@ -201,10 +209,14 @@ reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: A
     },
   })
 
-  // Vendite ultimi 30 giorni (per data incasso)
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const thirtyDaysEnd = endOfLocalDay(new Date())
+  // Vendite ultimi 30 giorni sul calendario tenant.
+  const todayKey = calendarDateInTimezone(timeZone, new Date())
+  const thirtyDaysAgoRef = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000)
+  const fromKey = calendarDateInTimezone(timeZone, thirtyDaysAgoRef)
+  const { start: thirtyDaysAgo, end: thirtyDaysEnd } = buildDateRangeForTimezone(
+    { mode: 'range', from: fromKey, to: todayKey },
+    timeZone,
+  ) ?? { start: startOfLocalDay(new Date()), end: endOfLocalDay(new Date()) }
 
   const salesData = await prisma.orderItem.groupBy({
     by: ['menuItemId'],
@@ -254,9 +266,20 @@ reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: A
 reportsRouter.get('/categories', requirePermission('reports.read'), async (req: AuthRequest, res: Response): Promise<void> => {
   const { days = 30 } = req.query
   const restaurantId = req.restaurantId!
-  const since = new Date()
-  since.setDate(since.getDate() - Number(days))
-  const until = endOfLocalDay(new Date())
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  const fiscal = buildFiscalConfig(restaurant?.settings)
+  const timeZone = restaurant?.timezone ?? fiscal.timezone
+  const dayCount = Math.max(1, Number(days) || 30)
+  const toKey = calendarDateInTimezone(timeZone, new Date())
+  const fromRef = new Date(Date.now() - (dayCount - 1) * 24 * 60 * 60 * 1000)
+  const fromKey = calendarDateInTimezone(timeZone, fromRef)
+  const { start: since, end: until } = buildDateRangeForTimezone(
+    { mode: 'range', from: fromKey, to: toKey },
+    timeZone,
+  ) ?? { start: startOfLocalDay(new Date()), end: endOfLocalDay(new Date()) }
 
   const orderItems = await prisma.orderItem.findMany({
     where: {
@@ -308,7 +331,8 @@ reportsRouter.get('/yearly', requirePermission('reports.read'), async (req: Auth
 
   const months = []
   for (let m = 1; m <= 12; m++) {
-    const { start, end } = buildMonthRange(y, m)
+    const yearTimeZone = restaurant?.timezone ?? fiscal.timezone
+    const { start, end } = buildMonthRangeInTimezone(y, m, yearTimeZone)
 
     const agg = await prisma.order.aggregate({
       where: paidOrdersInPeriodWhere(restaurantId, start, end),
@@ -449,7 +473,15 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
 
 reportsRouter.get('/fiscal/vat-breakdown', requireRole('OWNER', 'MANAGER'), requireProPlan, async (req: AuthRequest, res: Response): Promise<void> => {
   const restaurantId = req.restaurantId!
-  const range = buildDateRange(req.query as Record<string, string | undefined>)
+
+  // RC-04: use tenant timezone for date range (same as /fiscal)
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    include: { settings: true },
+  })
+  const fiscal = buildFiscalConfig(restaurant?.settings)
+  const timeZone = restaurant?.timezone ?? fiscal.timezone
+  const range = buildDateRangeForTimezone(req.query as Record<string, string | undefined>, timeZone)
   if (!range) {
     res.status(400).json({ error: 'Filtro date non valido' })
     return
@@ -506,15 +538,16 @@ reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, asy
   }
 
   const fiscal = buildFiscalConfig(restaurant.settings)
+  const zetaTimeZone = restaurant.timezone ?? fiscal.timezone
   if (fiscal.countryCode !== 'IT') {
     res.status(400).json({ error: 'Chiusura Zeta disponibile solo per tenant Italia' })
     return
   }
 
-  const { start: startOfDay, end: endOfDay } = dayRangeInTimezone(fiscal.timezone)
+  const { start: startOfDay, end: endOfDay } = dayRangeInTimezone(zetaTimeZone)
 
   // 1. Controlla se c'è già una chiusura oggi (calendario tenant)
-  const dayKey = calendarDateInTimezone(fiscal.timezone)
+  const dayKey = calendarDateInTimezone(zetaTimeZone)
   const existing = await prisma.fiscalClosure.findFirst({
     where: {
       restaurantId,

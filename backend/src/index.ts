@@ -56,13 +56,16 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Inizializza Sentry prima di qualsiasi rotta o middleware
+// Profiling Sentry disabilitato di default: su istanze piccole può causare OOM durante transazioni pesanti (finalize).
+const sentryProfilingEnabled = process.env.SENTRY_ENABLE_PROFILING === 'true'
+
 Sentry.init({
   dsn: process.env.SENTRY_BACKEND_DSN,
   environment: process.env.NODE_ENV || 'development',
   enabled: process.env.NODE_ENV === 'production',
   tracesSampleRate: 0.1, // Conservativo per preservare la quota
-  profilesSampleRate: 0.1,
-  integrations: [nodeProfilingIntegration()],
+  profilesSampleRate: sentryProfilingEnabled ? 0.1 : 0,
+  integrations: sentryProfilingEnabled ? [nodeProfilingIntegration()] : [],
   sendDefaultPii: false, // Disabilita invio IP e intestazioni PII per default
   beforeSend(event) {
     if (event.request && event.request.data) {
