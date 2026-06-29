@@ -9,6 +9,7 @@ import { allocateInvoiceNumber } from '../lib/fiscalInvoice'
 import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 import { resolveRevenueAmount } from '../lib/fiscalAmounts'
 import { tenantId } from '../lib/tenant'
+import { moneyNumber } from '../lib/money'
 
 const router = Router()
 
@@ -80,8 +81,8 @@ router.post('/', requireRole('OWNER', 'MANAGER'), async (req: AuthRequest, res: 
       }
       const taxRate = order.taxRateApplied ?? defaultTaxRate
       invoiceItems = order.items.filter(item => item.status !== 'CANCELLED').map(item => {
-        const modifierTotal = item.modifiers.reduce((s, m) => s + m.price, 0)
-        const lineGross = (item.unitPrice + modifierTotal) * item.quantity
+        const modifierTotal = item.modifiers.reduce((s, m) => s + moneyNumber(m.price), 0)
+        const lineGross = (moneyNumber(item.unitPrice) + modifierTotal) * item.quantity
         return {
           description: item.menuItem.name,
           quantity: item.quantity,

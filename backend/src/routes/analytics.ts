@@ -5,11 +5,7 @@ import { requirePermission } from '../middleware/permissions'
 import { calendarDateInTimezone, dayBoundsInTimezone, hourInTimezone, shiftCalendarDate } from '../lib/dates'
 import { resolveRevenueAmount } from '../lib/fiscalAmounts'
 import { loadTenantTimeRanges } from '../lib/analyticsSummary'
-
-function sumFoodFromAggregate(agg: { _sum: { revenueAmount?: number | null; subtotal?: number | null; tax?: number | null; tipAmount?: number | null; total?: number | null } }) {
-  if (agg._sum.revenueAmount && agg._sum.revenueAmount > 0) return agg._sum.revenueAmount
-  return (agg._sum.subtotal || 0) + (agg._sum.tax || 0)
-}
+import { sumFoodFromMoneyAgg, moneyNumber } from '../lib/money'
 
 export const analyticsRouter = Router()
 
@@ -48,8 +44,8 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
     prisma.inventoryItem.count({ where: { restaurantId, quantity: { lte: prisma.inventoryItem.fields.minQuantity } } }),
   ])
 
-  const monthFood = sumFoodFromAggregate(monthRevenue)
-  const lastMonthFood = sumFoodFromAggregate(lastMonthRevenue)
+  const monthFood = sumFoodFromMoneyAgg(monthRevenue)
+  const lastMonthFood = sumFoodFromMoneyAgg(lastMonthRevenue)
   const revenueGrowth = lastMonthFood
     ? ((monthFood - lastMonthFood) / lastMonthFood) * 100
     : 0
@@ -71,16 +67,16 @@ analyticsRouter.get('/dashboard', requirePermission('analytics.read'), async (re
   res.json({
     today: {
       orders: todayOrders,
-      revenue: sumFoodFromAggregate(todayRevenue),
-      tips: todayRevenue._sum.tipAmount || 0,
-      collected: todayRevenue._sum.total || 0,
+      revenue: sumFoodFromMoneyAgg(todayRevenue),
+      tips: moneyNumber(todayRevenue._sum.tipAmount),
+      collected: moneyNumber(todayRevenue._sum.total),
       reservations: todayReservations,
       activeOrders,
     },
     month: {
       revenue: monthFood,
-      tips: monthRevenue._sum.tipAmount || 0,
-      collected: monthRevenue._sum.total || 0,
+      tips: moneyNumber(monthRevenue._sum.tipAmount),
+      collected: moneyNumber(monthRevenue._sum.total),
       revenueGrowth: Math.round(revenueGrowth * 10) / 10,
     },
     totals: { customers: totalCustomers, lowStockAlerts: lowStockItems, avgTurnoverMinutes },
@@ -158,15 +154,16 @@ analyticsRouter.get('/top-items', requirePermission('analytics.read'), async (re
     select: { id: true, name: true, price: true, category: { select: { name: true } } },
   })
 
-  const result = items.map((item: { menuItemId: string; _sum: { quantity: number | null } }) => {
-    const menuItem = menuItems.find((m: { id: string; name: string; price: number; category: { name: string } }) => m.id === item.menuItemId)
+  const result = items.map((item) => {
+    const menuItem = menuItems.find(m => m.id === item.menuItemId)
+    const price = moneyNumber(menuItem?.price)
     return {
       menuItemId: item.menuItemId,
       name: menuItem?.name || 'Sconosciuto',
       category: menuItem?.category.name || '',
-      price: menuItem?.price || 0,
+      price,
       quantity: item._sum.quantity || 0,
-      revenue: (menuItem?.price || 0) * (item._sum.quantity || 0),
+      revenue: price * (item._sum.quantity || 0),
     }
   })
 

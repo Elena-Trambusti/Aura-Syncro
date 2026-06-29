@@ -22,6 +22,7 @@ import { buildFiscalConfig, fiscalConfigPayload } from '../lib/taxEngine'
 import { getFiscalStrategyFromConfig } from '../lib/fiscal/strategies'
 import { buildFiscalSummary, buildFiscalTransactionRow } from '../lib/tipFiscal'
 import { verifyFiscalChainSequence } from '../lib/fiscal/fiscalIntegrityChain'
+import { moneyNumber, sumFoodFromMoneyAgg, toMoney } from '../lib/money'
 
 export const reportsRouter = Router()
 
@@ -117,7 +118,7 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
   let estimatedFoodCost = 0
   for (const item of orderItems) {
     for (const link of item.menuItem.inventoryLinks) {
-      estimatedFoodCost += link.quantity * link.inventoryItem.cost * item.quantity
+      estimatedFoodCost += link.quantity * moneyNumber(link.inventoryItem.cost) * item.quantity
     }
   }
 
@@ -139,9 +140,9 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
     laborCost += Math.max(0, hours) * HOURLY_RATE
   }
 
-  const revenue = revenueData._sum.revenueAmount || revenueData._sum.subtotal! + (revenueData._sum.tax || 0) || 0
-  const tips = revenueData._sum.tipAmount || 0
-  const collected = revenueData._sum.total || 0
+  const revenue = sumFoodFromMoneyAgg(revenueData)
+  const tips = moneyNumber(revenueData._sum.tipAmount)
+  const collected = moneyNumber(revenueData._sum.total)
   const grossProfit = revenue - estimatedFoodCost
   const netProfit = grossProfit - laborCost
   const foodCostPct = revenue > 0 ? (estimatedFoodCost / revenue) * 100 : 0
@@ -159,12 +160,12 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
     const paid = effectivePaidAt(o.paidAt, o.createdAt)
     const key = calendarDateInTimezone(timeZone, paid)
     if (!dailyMap[key]) dailyMap[key] = { revenue: 0, tips: 0, collected: 0, orders: 0, discount: 0 }
-    const food = o.revenueAmount ?? (o.subtotal + o.tax)
+    const food = moneyNumber(o.revenueAmount) || (moneyNumber(o.subtotal) + moneyNumber(o.tax))
     dailyMap[key].revenue += food
-    dailyMap[key].tips += o.tipAmount ?? 0
-    dailyMap[key].collected += o.total
+    dailyMap[key].tips += moneyNumber(o.tipAmount)
+    dailyMap[key].collected += moneyNumber(o.total)
     dailyMap[key].orders += 1
-    dailyMap[key].discount += o.discount
+    dailyMap[key].discount += moneyNumber(o.discount)
   }
 
   const dailyBreakdown = Object.entries(dailyMap).map(([date, v]) => ({ date, ...v }))
@@ -175,9 +176,9 @@ reportsRouter.get('/pl', requirePermission('reports.read'), async (req: AuthRequ
       revenue: Math.round(revenue * 100) / 100,
       tips: Math.round(tips * 100) / 100,
       collected: Math.round(collected * 100) / 100,
-      subtotal: Math.round((revenueData._sum.subtotal || 0) * 100) / 100,
-      tax: Math.round((revenueData._sum.tax || 0) * 100) / 100,
-      totalDiscount: Math.round((revenueData._sum.discount || 0) * 100) / 100,
+      subtotal: Math.round(moneyNumber(revenueData._sum.subtotal) * 100) / 100,
+      tax: Math.round(moneyNumber(revenueData._sum.tax) * 100) / 100,
+      totalDiscount: Math.round(moneyNumber(revenueData._sum.discount) * 100) / 100,
       orders: revenueData._count,
       estimatedFoodCost: Math.round(estimatedFoodCost * 100) / 100,
       laborCost: Math.round(laborCost * 100) / 100,
@@ -229,18 +230,22 @@ reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: A
   const salesMap = new Map(salesData.map(s => [s.menuItemId, s._sum.quantity || 0]))
 
   const items = menuItems.map(item => {
-    const ingredientCost = item.inventoryLinks.reduce((sum, link) => sum + link.quantity * link.inventoryItem.cost, 0)
-    const margin = item.price - ingredientCost
-    const marginPct = item.price > 0 ? (margin / item.price) * 100 : 0
+    const ingredientCost = item.inventoryLinks.reduce(
+      (sum, link) => sum + link.quantity * moneyNumber(link.inventoryItem.cost),
+      0,
+    )
+    const price = moneyNumber(item.price)
+    const margin = price - ingredientCost
+    const marginPct = price > 0 ? (margin / price) * 100 : 0
     const soldQty = salesMap.get(item.id) || 0
-    const totalRevenue = item.price * soldQty
+    const totalRevenue = price * soldQty
     const totalCost = ingredientCost * soldQty
 
     return {
       id: item.id,
       name: item.name,
       category: item.category.name,
-      price: item.price,
+      price,
       ingredientCost: Math.round(ingredientCost * 100) / 100,
       margin: Math.round(margin * 100) / 100,
       marginPct: Math.round(marginPct * 10) / 10,
@@ -251,7 +256,7 @@ reportsRouter.get('/food-cost', requirePermission('reports.read'), async (req: A
         name: l.inventoryItem.name,
         unit: l.inventoryItem.unit,
         qty: l.quantity,
-        cost: l.inventoryItem.cost,
+        cost: moneyNumber(l.inventoryItem.cost),
       })),
     }
   })
@@ -297,8 +302,8 @@ reportsRouter.get('/categories', requirePermission('reports.read'), async (req: 
   const categoryMap: Record<string, { name: string; revenue: number; qty: number }> = {}
   for (const item of orderItems) {
     const catName = item.menuItem.category.name
-    const modifierTotal = item.modifiers.reduce((s, m) => s + m.price, 0)
-    const lineRevenue = (item.unitPrice + modifierTotal) * item.quantity
+    const modifierTotal = item.modifiers.reduce((s, m) => s + moneyNumber(m.price), 0)
+    const lineRevenue = (moneyNumber(item.unitPrice) + modifierTotal) * item.quantity
     if (!categoryMap[catName]) categoryMap[catName] = { name: catName, revenue: 0, qty: 0 }
     categoryMap[catName].qty += item.quantity
     categoryMap[catName].revenue += lineRevenue
@@ -340,14 +345,14 @@ reportsRouter.get('/yearly', requirePermission('reports.read'), async (req: Auth
       _count: true,
     })
 
-    const foodRevenue = agg._sum.revenueAmount ?? ((agg._sum.subtotal || 0) + (agg._sum.tax || 0))
+    const foodRevenue = sumFoodFromMoneyAgg(agg)
 
     months.push({
       month: m,
       monthName: new Date(y, m - 1).toLocaleString(monthLocale, { month: 'short' }),
       revenue: Math.round(foodRevenue * 100) / 100,
-      tips: Math.round((agg._sum.tipAmount || 0) * 100) / 100,
-      collected: Math.round((agg._sum.total || 0) * 100) / 100,
+      tips: Math.round(moneyNumber(agg._sum.tipAmount) * 100) / 100,
+      collected: Math.round(moneyNumber(agg._sum.total) * 100) / 100,
       orders: agg._count,
     })
   }
@@ -422,7 +427,7 @@ reportsRouter.get('/fiscal', requireRole('OWNER', 'MANAGER'), requireProPlan, as
     orders.map(o => ({
       id: o.id,
       fiscalClosedAt: o.fiscalClosedAt,
-      total: o.total,
+      total: moneyNumber(o.total),
       fiscalPrevHash: o.fiscalPrevHash,
       fiscalIntegrityHash: o.fiscalIntegrityHash,
       paidAt: o.paidAt,
@@ -492,8 +497,8 @@ reportsRouter.get('/fiscal/vat-breakdown', requireRole('OWNER', 'MANAGER'), requ
 
   for (const o of orders) {
     const rate = o.taxRateApplied ?? 0
-    const base = o.subtotal ?? 0
-    const tax = o.tax ?? 0
+    const base = moneyNumber(o.subtotal)
+    const tax = moneyNumber(o.tax)
     const bucket = byRate.get(rate) ?? { taxRate: rate, taxableBase: 0, tax: 0, count: 0 }
     bucket.taxableBase = Math.round((bucket.taxableBase + base) * 100) / 100
     bucket.tax = Math.round((bucket.tax + tax) * 100) / 100
@@ -578,24 +583,25 @@ reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, asy
   let totalTip = 0
 
   for (const o of orders) {
-    totalRevenue += o.revenueAmount ?? (o.subtotal + o.tax)
-    totalTax += o.tax
-    totalTip += o.tipAmount ?? 0
+    totalRevenue += moneyNumber(o.revenueAmount) || (moneyNumber(o.subtotal) + moneyNumber(o.tax))
+    totalTax += moneyNumber(o.tax)
+    totalTip += moneyNumber(o.tipAmount)
+    const orderTotal = moneyNumber(o.total)
     switch (o.paymentMethod) {
       case 'CASH':
-        totalCash += o.total
+        totalCash += orderTotal
         break
       case 'STRIPE':
-        totalStripe += o.total
+        totalStripe += orderTotal
         break
       case 'DIGITAL':
-        totalDigital += o.total
+        totalDigital += orderTotal
         break
       case 'VOUCHER':
-        totalVoucher += o.total
+        totalVoucher += orderTotal
         break
       default:
-        if (o.paymentMethod) totalCard += o.total
+        if (o.paymentMethod) totalCard += orderTotal
         break
     }
   }
@@ -608,14 +614,14 @@ reportsRouter.post('/zeta', requireRole('OWNER', 'MANAGER'), requireProPlan, asy
         restaurantId,
         calendarDay: dayKey,
         date: new Date(),
-        totalRevenue,
-        totalTax,
-        totalCash,
-        totalCard,
-        totalStripe,
-        totalDigital,
-        totalVoucher,
-        totalTip,
+        totalRevenue: toMoney(totalRevenue),
+        totalTax: toMoney(totalTax),
+        totalCash: toMoney(totalCash),
+        totalCard: toMoney(totalCard),
+        totalStripe: toMoney(totalStripe),
+        totalDigital: toMoney(totalDigital),
+        totalVoucher: toMoney(totalVoucher),
+        totalTip: toMoney(totalTip),
         orderCount: orders.length,
         status: 'GENERATED',
       },

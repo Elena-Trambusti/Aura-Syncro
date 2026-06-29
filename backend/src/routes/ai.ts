@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { runPredictiveAnalysis } from '../lib/predictiveAI'
+import { moneyNumber } from '../lib/money'
 
 export const aiRouter = Router()
 
@@ -84,10 +85,10 @@ aiRouter.get('/forecast', requirePermission('analytics.read'), async (req: AuthR
       return d === dow && o.createdAt >= weeksAgo(12) && o.createdAt < weeksAgo(4)
     })
     const recentAvg = recent4.length
-      ? recent4.reduce((s, o) => s + o.total, 0) / recent4.length
+      ? recent4.reduce((s, o) => s + moneyNumber(o.total), 0) / recent4.length
       : avgRevenue
     const prevAvg = prev8.length
-      ? prev8.reduce((s, o) => s + o.total, 0) / prev8.length
+      ? prev8.reduce((s, o) => s + moneyNumber(o.total), 0) / prev8.length
       : avgRevenue
 
     const trendPct = prevAvg > 0 ? ((recentAvg - prevAvg) / prevAvg) * 100 : 0
@@ -191,7 +192,7 @@ aiRouter.get('/reorder', requirePermission('analytics.read'), async (req: AuthRe
       urgency,
       reason,
       supplier: item.supplier,
-      estimatedCost: suggestedQty * item.cost,
+      estimatedCost: suggestedQty * moneyNumber(item.cost),
     }
   })
 
@@ -236,14 +237,14 @@ aiRouter.get('/menu-matrix', requirePermission('analytics.read'), async (req: Au
   for (const oi of orderItems) {
     if (!statsMap[oi.menuItemId]) statsMap[oi.menuItemId] = { qty: 0, revenue: 0 }
     statsMap[oi.menuItemId].qty += oi.quantity
-    statsMap[oi.menuItemId].revenue += oi.quantity * oi.unitPrice
+    statsMap[oi.menuItemId].revenue += oi.quantity * moneyNumber(oi.unitPrice)
   }
 
   const enriched = items.map(item => ({
     id: item.id,
     name: item.name,
     category: item.category.name,
-    price: item.price,
+    price: moneyNumber(item.price),
     available: item.available,
     qty30d: statsMap[item.id]?.qty || 0,
     revenue30d: statsMap[item.id]?.revenue || 0,
@@ -360,8 +361,8 @@ aiRouter.get('/alerts', requirePermission('analytics.read'), async (req: AuthReq
   ])
 
   // Alert ricavo settimana
-  const thisW = thisWeekRevenue._sum?.total ?? 0
-  const lastW = lastWeekRevenue._sum?.total ?? 0
+  const thisW = moneyNumber(thisWeekRevenue._sum?.total)
+  const lastW = moneyNumber(lastWeekRevenue._sum?.total)
   if (lastW > 0) {
     const diff = ((thisW - lastW) / lastW) * 100
     if (diff <= -15) {
@@ -448,7 +449,7 @@ aiRouter.get('/alerts', requirePermission('analytics.read'), async (req: AuthReq
     const h = o.createdAt.getHours()
     if (!byHour[h]) byHour[h] = { count: 0, revenue: 0 }
     byHour[h].count++
-    byHour[h].revenue += o.total
+    byHour[h].revenue += moneyNumber(o.total)
   }
   const peakHour = Object.entries(byHour).sort((a, b) => b[1].revenue - a[1].revenue)[0]
   if (peakHour) {
@@ -474,12 +475,12 @@ aiRouter.get('/alerts', requirePermission('analytics.read'), async (req: AuthReq
   })
   if (puzzleItem.length > 0) {
     const mi = await prisma.menuItem.findUnique({ where: { id: puzzleItem[0].menuItemId } })
-    if (mi && mi.price > 0) {
+    if (mi && moneyNumber(mi.price) > 0) {
       alerts.push({
         id: 'hidden-gem',
         type: 'success',
         title: 'Piatto da promuovere',
-        description: `"${mi.name}" è poco ordinato ma ha un buon prezzo (€${mi.price.toFixed(2)}). Mettilo in evidenza sul menu QR.`,
+        description: `"${mi.name}" è poco ordinato ma ha un buon prezzo (€${moneyNumber(mi.price).toFixed(2)}). Mettilo in evidenza sul menu QR.`,
         action: 'Modifica il piatto e attiva "In evidenza"',
       })
     }
@@ -508,7 +509,7 @@ aiRouter.get('/summary', requirePermission('analytics.read'), async (req: AuthRe
 
   const sameDayOrders = tomorrowOrders.filter(o => o.createdAt.getDay() === tomorrowDow)
   const avgRevenue = sameDayOrders.length
-    ? sameDayOrders.reduce((s, o) => s + o.total, 0) / sameDayOrders.length
+    ? sameDayOrders.reduce((s, o) => s + moneyNumber(o.total), 0) / sameDayOrders.length
     : 0
   const avgCovers = sameDayOrders.length
     ? sameDayOrders.reduce((s, o) => s + o.items.reduce((c, i) => c + i.quantity, 0), 0) / sameDayOrders.length

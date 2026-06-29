@@ -104,14 +104,14 @@ model FiscalClosure {
   /** Giorno calendario tenant (YYYY-MM-DD) — vincolo unicità anti-race Zeta */
   calendarDay  String
 
-  totalRevenue Float // Incasso lordo totale
-  totalTax     Float // IVA totale 
-  totalCash    Float // Totale contanti dichiarati o calcolati
-  totalCard    Float // Totale carte POS fisico
-  totalStripe  Float @default(0)
-  totalDigital Float @default(0)
-  totalVoucher Float @default(0)
-  totalTip     Float @default(0) // Mance totali
+  totalRevenue Decimal @default(0) @db.Decimal(12, 2) // Incasso lordo totale
+  totalTax     Decimal @default(0) @db.Decimal(12, 2) // IVA totale
+  totalCash    Decimal @default(0) @db.Decimal(12, 2) // Totale contanti dichiarati o calcolati
+  totalCard    Decimal @default(0) @db.Decimal(12, 2) // Totale carte POS fisico
+  totalStripe  Decimal @default(0) @db.Decimal(12, 2)
+  totalDigital Decimal @default(0) @db.Decimal(12, 2)
+  totalVoucher Decimal @default(0) @db.Decimal(12, 2)
+  totalTip     Decimal @default(0) @db.Decimal(12, 2) // Mance totali
 
   orderCount Int // Numero di ordini chiusi
   status     String  @default("GENERATED") // GENERATED, TRANSMITTED, ERROR
@@ -157,10 +157,10 @@ model RestaurantSettings {
   fiscalRegion            FiscalRegion       @default(ITALIA)
   defaultLocale           String             @default("it")
   taxRate                 Float              @default(10.0)
-  serviceCharge           Float              @default(0.0)
+  serviceCharge           Decimal            @default(0) @db.Decimal(12, 2)
   autoConfirmReservations Boolean            @default(true)
   noShowDepositRequired   Boolean            @default(false)
-  depositAmount           Float              @default(0.0)
+  depositAmount           Decimal            @default(0) @db.Decimal(12, 2)
   taxId                   String?
   /**
    * Ragione sociale per fatturazione elettronica
@@ -338,7 +338,7 @@ model MenuItem {
   category        MenuCategory @relation(fields: [categoryId], references: [id])
   name            String
   description     String?
-  price           Float
+  price           Decimal      @db.Decimal(12, 2)
   /**
    * Aliquota IVA/IGIC applicata al piatto (es. 4, 10, 22 IT). Null = default locale.
    */
@@ -381,7 +381,7 @@ model MenuModifierOption {
   groupId   String
   group     MenuModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   name      String
-  price     Float             @default(0)
+  price     Decimal           @default(0) @db.Decimal(12, 2)
   sortOrder Int               @default(0)
 }
 
@@ -399,14 +399,14 @@ model Order {
   status               OrderStatus    @default(PENDING)
   type                 OrderType      @default(DINE_IN)
   notes                String?
-  subtotal             Float          @default(0)
-  tax                  Float          @default(0)
+  subtotal             Decimal        @default(0) @db.Decimal(12, 2)
+  tax                  Decimal        @default(0) @db.Decimal(12, 2)
   taxRateApplied       Float?
-  serviceCharge        Float          @default(0)
-  discount             Float          @default(0)
-  total                Float          @default(0)
-  revenueAmount        Float
-  tipAmount            Float          @default(0)
+  serviceCharge        Decimal        @default(0) @db.Decimal(12, 2)
+  discount             Decimal        @default(0) @db.Decimal(12, 2)
+  total                Decimal        @default(0) @db.Decimal(12, 2)
+  revenueAmount        Decimal        @default(0) @db.Decimal(12, 2)
+  tipAmount            Decimal        @default(0) @db.Decimal(12, 2)
   tipWaiterId          String?
   tipWaiter            User?          @relation("TipWaiter", fields: [tipWaiterId], references: [id])
   paidAt               DateTime?
@@ -455,7 +455,7 @@ model OrderItem {
   menuItemId        String
   menuItem          MenuItem   @relation(fields: [menuItemId], references: [id])
   quantity          Int        @default(1)
-  unitPrice         Float
+  unitPrice         Decimal    @db.Decimal(12, 2)
   course            Int        @default(1)
   notes             String?
   status            ItemStatus @default(PENDING)
@@ -477,7 +477,7 @@ model OrderItemModifier {
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   optionId    String?
   name        String
-  price       Float
+  price       Decimal   @db.Decimal(12, 2)
 }
 
 enum OrderStatus {
@@ -533,7 +533,7 @@ model Reservation {
   reminderSent           Boolean           @default(false)
   depositPaid            Boolean           @default(false)
   depositStripeSessionId String?
-  depositAmountPaid      Float?
+  depositAmountPaid      Decimal?          @db.Decimal(12, 2)
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
 
@@ -565,7 +565,7 @@ model Customer {
   tags             String[]     @default([])
   loyaltyPoints    Int          @default(0)
   totalVisits      Int          @default(0)
-  totalSpent       Float        @default(0)
+  totalSpent       Decimal      @default(0) @db.Decimal(12, 2)
   lastVisit        DateTime?
   /**
    * P.IVA / NIF cliente (fatturazione B2B)
@@ -637,10 +637,10 @@ model CashRegisterSession {
   status CashSessionStatus @default(OPEN)
 
   // Importi in contanti (tutto in valuta locale)
-  openingBalance  Float  @default(0) // Fondo cassa iniziale
-  closingBalance  Float? // Il contante contato a fine turno (Blind Drop)
-  expectedBalance Float? // Il contante atteso calcolato dal sistema
-  difference      Float? // closingBalance - expectedBalance (se < 0 c'è un ammanco)
+  openingBalance  Decimal  @default(0) @db.Decimal(12, 2) // Fondo cassa iniziale
+  closingBalance  Decimal? @db.Decimal(12, 2) // Il contante contato a fine turno (Blind Drop)
+  expectedBalance Decimal? @db.Decimal(12, 2) // Il contante atteso calcolato dal sistema
+  difference      Decimal? @db.Decimal(12, 2) // closingBalance - expectedBalance (se < 0 c'è un ammanco)
 
   notes String?
 
@@ -663,7 +663,7 @@ model CashTransaction {
   user      User                @relation(fields: [userId], references: [id])
 
   type   CashTransactionType // PAYIN, PAYOUT, SALE, REFUND
-  amount Float // Deve essere positivo
+  amount Decimal @db.Decimal(12, 2) // Deve essere positivo
   reason String?
 
   // Se legato a un ordine specifico
@@ -809,7 +809,7 @@ model InventoryItem {
   unit         String
   quantity     Float      @default(0)
   minQuantity  Float      @default(0)
-  cost         Float      @default(0)
+  cost         Decimal    @default(0) @db.Decimal(12, 2)
   supplier     String?
   category     String?
   createdAt    DateTime   @default(now())
@@ -882,7 +882,7 @@ model Invoice {
   clienteRagioneSociale String?
   clienteIndirizzo      String?
 
-  importoTotale Float   @default(0)
+  importoTotale Decimal   @default(0) @db.Decimal(12, 2)
   statoSdi      String  @default("pending") // pending, sent, delivered, rejected
   xmlBlob       String? @db.Text
   arubaUploadId String?
@@ -946,9 +946,9 @@ model SaasElectronicInvoice {
   sdiRecipientCode    String?
   pec                 String?
   billingAddress      Json
-  netAmount           Float
-  taxAmount           Float
-  grossAmount         Float
+  netAmount           Decimal @db.Decimal(12, 2)
+  taxAmount           Decimal @db.Decimal(12, 2)
+  grossAmount         Decimal @db.Decimal(12, 2)
   taxRate             Float
   vatNature           String?
   currency            String                      @default("EUR")

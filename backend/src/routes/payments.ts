@@ -20,6 +20,7 @@ import { GUEST_ORDERING_DISABLED, isGuestOrderingEnabled } from '../lib/guestOrd
 import { applyDiscountToOrder, resolveCampaignDiscount, resolveLoyaltyDiscount, resolveDiscountForOrder, validateOrderDiscountOptions } from '../lib/orderDiscount'
 import { loadRestaurantPosConfig, serializePosStatusForCheckout } from '../lib/posIntegration'
 import { verifyDepositReceiptToken, verifyOrderReceiptToken } from '../lib/paymentReceiptToken'
+import { moneyNumber } from '../lib/money'
 
 export const paymentsRouter = Router()
 
@@ -205,7 +206,7 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
     throw err
   }
 
-  let orderTotalForCheckout = refreshedOrder.total
+  let orderTotalForCheckout = moneyNumber(refreshedOrder.total)
   if (discountOptions) {
     const { totals } = await resolveDiscountForOrder(req.restaurantId!, refreshedOrder, discountOptions)
     orderTotalForCheckout = totals.total
@@ -220,8 +221,8 @@ paymentsRouter.post('/finalize', authenticate, requireDashboardAccess, requirePe
         .map(i => ({
           id: i.id,
           quantity: i.quantity,
-          unitPrice: i.unitPrice,
-          modifierTotal: i.modifiers?.reduce((s, m) => s + m.price, 0) ?? 0,
+          unitPrice: moneyNumber(i.unitPrice),
+          modifierTotal: i.modifiers?.reduce((s, m) => s + moneyNumber(m.price), 0) ?? 0,
         })),
       totalWithTip,
       split,
@@ -672,7 +673,7 @@ paymentsRouter.get('/overview', authenticate, requirePermission('payments.overvi
     if (!order.paidAt) continue
     const key = `${order.paidAt.getFullYear()}-${String(order.paidAt.getMonth() + 1).padStart(2, '0')}`
     if (monthlyData[key]) {
-      monthlyData[key].amount += order.total
+      monthlyData[key].amount += moneyNumber(order.total)
       monthlyData[key].count += 1
     }
   }

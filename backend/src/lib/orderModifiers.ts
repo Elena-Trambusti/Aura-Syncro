@@ -1,7 +1,10 @@
+import type { MoneyInput } from './money'
+import { moneyNumber } from './money'
+
 export type ModifierOptionRow = {
   id: string
   name: string
-  price: number
+  price: MoneyInput
 }
 
 export type ModifierGroupRow = {
@@ -15,7 +18,7 @@ export type ModifierGroupRow = {
 }
 
 export type MenuItemWithModifiers = {
-  price: number
+  price: MoneyInput
   taxRate?: number | null
   modifierGroups: ModifierGroupRow[]
 }
@@ -48,7 +51,7 @@ export function resolveMenuItemLine(
   modifierIds?: string[],
 ): ResolvedMenuLine {
   const selectedIds = [...new Set(modifierIds ?? [])]
-  let unitPrice = menuItem.price
+  let unitPrice = moneyNumber(menuItem.price)
   const selectedOptions: ResolvedModifierOption[] = []
 
   const allOptions = menuItem.modifierGroups.flatMap(g => g.options)
@@ -86,8 +89,8 @@ export function resolveMenuItemLine(
     if (!opt) {
       throw new ModifierValidationError('Modificatore non valido', 'INVALID_MODIFIER')
     }
-    unitPrice += opt.price
-    selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
+    unitPrice += moneyNumber(opt.price)
+    selectedOptions.push({ optionId: opt.id, name: opt.name, price: moneyNumber(opt.price) })
   }
 
   return {

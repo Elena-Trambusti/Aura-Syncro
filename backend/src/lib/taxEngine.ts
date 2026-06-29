@@ -1,5 +1,7 @@
 import { CountryCode, FiscalRegion, TaxRegion } from '@prisma/client'
 import { prisma } from './prisma'
+import { roundMoney, moneyNumber, type MoneyInput } from './money'
+export { roundMoney } from './money'
 import {
   defaultTaxRateForFiscalRegion,
   fiscalRegionToCountry,
@@ -158,7 +160,7 @@ export function getTipTaxTreatment(taxRegion: TaxRegion): TipTaxTreatment {
 
 export type OrderLineForTax = {
   quantity: number
-  unitPrice: number
+  unitPrice: MoneyInput
   /** Aliquota piatto; se assente usa default locale */
   taxRate?: number | null
 }
@@ -182,7 +184,7 @@ export function computeOrderTaxFromLines(
   let maxGross = 0
 
   for (const line of lines) {
-    const gross = roundMoney(line.quantity * line.unitPrice)
+    const gross = roundMoney(line.quantity * moneyNumber(line.unitPrice))
     const rate = validateTaxRateForRegion(
       config.fiscalRegion,
       line.taxRate != null && line.taxRate > 0 ? line.taxRate : config.taxRate,
@@ -220,10 +222,6 @@ export function computeOrderTaxForRegime(
     grossFoodAmount,
     tipAmount,
   )
-}
-
-export function roundMoney(n: number): number {
-  return Math.round(n * 100) / 100
 }
 
 export function fiscalConfigPayload(config: FiscalConfig, taxId?: string | null) {

@@ -6,19 +6,7 @@ import {
 } from './dates'
 import { buildFiscalConfig } from './taxEngine'
 import { kitchenActiveOrdersWhere } from './orderSession'
-
-function sumFoodFromAggregate(agg: {
-  _sum: {
-    revenueAmount?: number | null
-    subtotal?: number | null
-    tax?: number | null
-    tipAmount?: number | null
-    total?: number | null
-  }
-}) {
-  if (agg._sum.revenueAmount && agg._sum.revenueAmount > 0) return agg._sum.revenueAmount
-  return (agg._sum.subtotal || 0) + (agg._sum.tax || 0)
-}
+import { sumFoodFromMoneyAgg, moneyNumber } from './money'
 
 function paidInRange(start: Date, end: Date) {
   return {
@@ -111,23 +99,23 @@ export async function buildDashboardSummary(restaurantId: string) {
     }),
   ])
 
-  const monthFood = sumFoodFromAggregate(monthRevenue)
-  const lastMonthFood = sumFoodFromAggregate(lastMonthRevenue)
+  const monthFood = sumFoodFromMoneyAgg(monthRevenue)
+  const lastMonthFood = sumFoodFromMoneyAgg(lastMonthRevenue)
   const revenueGrowth = lastMonthFood ? ((monthFood - lastMonthFood) / lastMonthFood) * 100 : 0
 
   return {
     today: {
       orders: todayOrders,
-      revenue: sumFoodFromAggregate(todayRevenue),
-      tips: todayRevenue._sum.tipAmount || 0,
-      collected: todayRevenue._sum.total || 0,
+      revenue: sumFoodFromMoneyAgg(todayRevenue),
+      tips: moneyNumber(todayRevenue._sum.tipAmount),
+      collected: moneyNumber(todayRevenue._sum.total),
       reservations: todayReservations,
       activeOrders,
     },
     month: {
       revenue: monthFood,
-      tips: monthRevenue._sum.tipAmount || 0,
-      collected: monthRevenue._sum.total || 0,
+      tips: moneyNumber(monthRevenue._sum.tipAmount),
+      collected: moneyNumber(monthRevenue._sum.total),
       revenueGrowth: Math.round(revenueGrowth * 10) / 10,
     },
     totals: { customers: totalCustomers, lowStockAlerts: lowStockItems },

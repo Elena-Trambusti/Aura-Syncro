@@ -7,6 +7,7 @@ import { applyPostPaymentEffects } from './postPayment'
 import { issueInvoiceForOrder, snapshotOrderBillingFromCustomer } from './fiscalInvoice'
 import { decrementInventoryForUnpaidItems } from './inventoryDeduction'
 import { releaseTableIfSessionComplete } from './orderSession'
+import { toMoney } from './money'
 
 export interface FinalizePaymentInput {
   orderId: string
@@ -133,10 +134,10 @@ export async function finalizeOrderPayment(
         status: 'PAID',
         paymentMethod: input.paymentMethod,
         paidAt,
-        revenueAmount: split.revenueAmount,
-        tipAmount: split.tipAmount,
+        revenueAmount: toMoney(split.revenueAmount),
+        tipAmount: toMoney(split.tipAmount),
         tipWaiterId: input.tipWaiterId,
-        total: split.total,
+        total: toMoney(split.total),
         taxRateApplied: order.taxRateApplied ?? fiscal.taxRate,
         fiscalRegionSnapshot: fiscal.fiscalRegion,
         fiscalIntegrityHash: chainLink.integrityHash,
@@ -171,7 +172,7 @@ export async function finalizeOrderPayment(
           sessionId: openSession.id,
           userId: resolvedUserId,
           type: 'SALE',
-          amount: split.total,
+          amount: toMoney(split.total),
           reason: `Incasso contanti Ordine #${order.id.slice(-6).toUpperCase()}`,
           orderId: order.id
         }

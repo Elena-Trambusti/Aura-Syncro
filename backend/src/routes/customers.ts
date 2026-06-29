@@ -6,6 +6,8 @@ import { requirePermission } from '../middleware/permissions'
 import { buildCustomerName, splitCustomerName } from '../lib/crmCustomer'
 import { ensureDefaultLoyaltyTiers, ensureLoyaltyEnrollment } from '../lib/loyaltyHelpers'
 import { scopedWhere, tenantNotFound } from '../lib/tenant'
+import type { MoneyInput } from '../lib/money'
+import { moneyNumber } from '../lib/money'
 
 export const customersRouter = Router()
 
@@ -23,7 +25,7 @@ function serializeCustomer(customer: {
   tags: string[]
   loyaltyPoints: number
   totalVisits: number
-  totalSpent: number
+  totalSpent: MoneyInput
   lastVisit: Date | null
   loyaltyTierId: string | null
   taxId: string | null
@@ -41,6 +43,7 @@ function serializeCustomer(customer: {
     lastName,
     name: buildCustomerName(firstName, lastName) || customer.name,
     tags: customer.tags ?? [],
+    totalSpent: moneyNumber(customer.totalSpent),
     birthDate: customer.birthdate,
   }
 }
@@ -55,10 +58,10 @@ customersRouter.get('/stats', requirePermission('customers.read'), async (req: A
   const total = customers.length
   const vipCount = customers.filter(c => {
     const tags = c.tags ?? []
-    return tags.includes('VIP') || c.totalVisits >= 10 || c.totalSpent >= 500
+    return tags.includes('VIP') || c.totalVisits >= 10 || moneyNumber(c.totalSpent) >= 500
   }).length
   const avgSpent = total
-    ? customers.reduce((sum, c) => sum + c.totalSpent, 0) / total
+    ? customers.reduce((sum, c) => sum + moneyNumber(c.totalSpent), 0) / total
     : 0
 
   res.json({ total, vipCount, avgSpent: Math.round(avgSpent * 100) / 100 })

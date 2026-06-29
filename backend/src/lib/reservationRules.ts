@@ -82,9 +82,12 @@ export async function validateReservationSlot(
   return { status: autoConfirm ? 'CONFIRMED' : 'PENDING' }
 }
 
+import type { MoneyInput } from './money'
+import { moneyNumber } from './money'
+
 export function requiresDeposit(settings: {
   noShowDepositRequired?: boolean | null
-  depositAmount?: number | null
+  depositAmount?: MoneyInput | null
 } | null | undefined): boolean {
-  return Boolean(settings?.noShowDepositRequired && (settings.depositAmount ?? 0) > 0)
+  return Boolean(settings?.noShowDepositRequired && moneyNumber(settings.depositAmount) > 0)
 }

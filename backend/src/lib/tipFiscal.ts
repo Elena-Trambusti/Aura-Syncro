@@ -16,12 +16,15 @@ export { sumElectronicTips } from './fiscal/tipTracking'
  * pagamento via computePaymentSplit e non aumentano mai base imponibile o tax.
  */
 
+import type { MoneyInput } from './money'
+import { moneyNumber } from './money'
+
 export type OrderAmounts = {
-  revenueAmount: number | null
-  total: number
-  subtotal: number
-  tax: number
-  tipAmount?: number | null
+  revenueAmount: MoneyInput | null
+  total: MoneyInput
+  subtotal: MoneyInput
+  tax: MoneyInput
+  tipAmount?: MoneyInput | null
 }
 
 export type PaymentSplit = {
@@ -86,13 +89,13 @@ export function buildFiscalTransactionRow(order: {
   id: string
   paidAt: Date | null
   createdAt: Date
-  subtotal: number
-  tax: number
+  subtotal: MoneyInput
+  tax: MoneyInput
   taxRateApplied?: number | null
-  revenueAmount: number | null
-  tipAmount?: number | null
-  total: number
-  discount?: number
+  revenueAmount: MoneyInput | null
+  tipAmount?: MoneyInput | null
+  total: MoneyInput
+  discount?: MoneyInput | number | null
   paymentMethod?: string | null
   fiscalIntegrityHash?: string | null
   fiscalPrevHash?: string | null
@@ -100,14 +103,15 @@ export function buildFiscalTransactionRow(order: {
   const revenueAmount = roundMoney(resolveRevenueAmount(order))
   const tipAmount = roundMoney(resolveTipAmount(order.tipAmount))
   const taxRate = order.taxRateApplied ?? 10
-  const foodGross = roundMoney(order.subtotal + order.tax)
-  const useRevenueSplit = (order.discount ?? 0) > 0 || Math.abs(foodGross - revenueAmount) > 0.02
+  const foodGross = roundMoney(moneyNumber(order.subtotal) + moneyNumber(order.tax))
+  const discount = moneyNumber(order.discount)
+  const useRevenueSplit = discount > 0 || Math.abs(foodGross - revenueAmount) > 0.02
   const baseImponible = useRevenueSplit
     ? scorporoTaxFromGross(revenueAmount, taxRate).subtotal
-    : roundMoney(order.subtotal)
+    : roundMoney(moneyNumber(order.subtotal))
   const tax = useRevenueSplit
     ? scorporoTaxFromGross(revenueAmount, taxRate).tax
-    : roundMoney(order.tax)
+    : roundMoney(moneyNumber(order.tax))
   return {
     fecha: paidAt,
     orderId: order.id,

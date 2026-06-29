@@ -10,10 +10,11 @@ import { occupyTableForSessionOrder } from './orderSession'
 import { chargePosCard } from './posCharge'
 import { sendEmail } from './email'
 import { loadRestaurantFiscalConfig } from './taxEngine'
-import { computePosPaymentAmounts } from './tipFiscal'
+import { computePosPaymentAmounts, type OrderAmounts } from './tipFiscal'
 import { applyDiscountToOrder, resolveDiscountForOrder } from './orderDiscount'
 import { acquireIdempotencyLock, releaseIdempotencyLock, saveIdempotentResponse } from './apiIdempotency'
 import { stripe } from './stripe'
+import { moneyNumber } from './money'
 
 const posOrderInclude = {
   table: true,
@@ -72,14 +73,20 @@ export async function completeOrderPayment(input: {
     throw new Error('PAYMENT_IN_PROGRESS')
   }
 
-  let chargeOrder = orderPreview
+  let orderAmounts: OrderAmounts = orderPreview
   if (input.discountOptions) {
     const { totals } = await resolveDiscountForOrder(
       input.finalize.restaurantId,
       orderPreview,
       input.discountOptions,
     )
-    chargeOrder = { ...orderPreview, ...totals }
+    orderAmounts = {
+      revenueAmount: totals.revenueAmount,
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      total: totals.total,
+      tipAmount: orderPreview.tipAmount,
+    }
   }
 
   let posResult: Awaited<ReturnType<typeof chargePosCard>> | null = null
@@ -87,7 +94,7 @@ export async function completeOrderPayment(input: {
 
   try {
     if (input.finalize.paymentMethod === 'CARD') {
-      const posAmounts = computePosPaymentAmounts(fiscal, chargeOrder, input.finalize.tipAmount)
+      const posAmounts = computePosPaymentAmounts(fiscal, orderAmounts, input.finalize.tipAmount)
       chargedAmount = posAmounts.totalCustomerAmount
 
       posResult = await chargePosCard(
@@ -108,11 +115,6 @@ export async function completeOrderPayment(input: {
         input.finalize.restaurantId,
         input.discountOptions,
       )
-      const refreshed = await prisma.order.findFirst({
-        where: { id: input.finalize.orderId, restaurantId: input.finalize.restaurantId },
-        include: { items: true },
-      })
-      if (refreshed) chargeOrder = refreshed
     }
 
     const result = await finalizeOrderPayment(input.finalize, {
@@ -234,7 +236,7 @@ export async function completeGuestStripePayment(
   if (stripeAmountTotalCents != null) {
     // RC-09: double-round before converting to cents to prevent IEEE-754 drift
     // (e.g. order.total = 49.999999... → Math.round(49.999999 * 100) = 4999 instead of 5000)
-    const expectedCents = Math.round(Math.round(order.total * 100) / 100 * 100)
+    const expectedCents = Math.round(Math.round(moneyNumber(order.total) * 100) / 100 * 100)
     if (stripeAmountTotalCents < expectedCents) {
       throw new Error('STRIPE_AMOUNT_MISMATCH')
     }
@@ -255,7 +257,7 @@ export async function completeGuestStripePayment(
       orderId,
       restaurantId: order.restaurantId,
       paymentMethod: 'STRIPE',
-      tipAmount: order.tipAmount ?? 0,
+      tipAmount: moneyNumber(order.tipAmount),
     },
     serveItemsOnPayment: false,
     stripePaymentIntentId: paymentIntentId ?? undefined,

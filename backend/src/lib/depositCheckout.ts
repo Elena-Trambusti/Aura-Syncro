@@ -2,6 +2,7 @@ import { prisma } from './prisma'
 import { stripe, STRIPE_ENABLED, STRIPE_APPLICATION_FEE_PCT } from './stripe'
 import { resolvePrimaryFrontendUrl } from './frontendUrl'
 import { signDepositReceiptToken } from './paymentReceiptToken'
+import { moneyNumber } from './money'
 
 export async function createDepositCheckoutSession(
   reservationId: string,
@@ -43,7 +44,7 @@ export async function createDepositCheckoutSession(
     where: { restaurantId: reservation.restaurantId },
   })
 
-  const depositAmount = settings?.depositAmount || 10
+  const depositAmount = moneyNumber(settings?.depositAmount) || 10
   const connectAccountId = settings?.stripeConnectAccountId
   const frontendUrl = resolvePrimaryFrontendUrl()
 

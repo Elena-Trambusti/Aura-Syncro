@@ -11,6 +11,7 @@ import { createDepositCheckoutSession } from '../lib/depositCheckout'
 import { scopedWhere, tenantId, tenantNotFound, tenantWhere } from '../lib/tenant'
 import { createReservation } from '../lib/createReservation'
 import { dayBoundsInTimezone } from '../lib/romeDate'
+import { moneyNumber, toMoney } from '../lib/money'
 import {
   confirmReservationWithTable,
   getAvailableTablesForReservation,
@@ -356,7 +357,7 @@ reservationsRouter.post('/:id/charge-no-show', requirePermission('reservations.m
     return
   }
 
-  if (reservation.depositAmountPaid != null && reservation.depositAmountPaid > 0) {
+  if (reservation.depositAmountPaid != null && moneyNumber(reservation.depositAmountPaid) > 0) {
     res.status(409).json({ error: 'Penale già addebitata in precedenza.', code: 'ALREADY_CHARGED' })
     return
   }
@@ -368,7 +369,7 @@ reservationsRouter.post('/:id/charge-no-show', requirePermission('reservations.m
       status: 'NO_SHOW',
       OR: [{ depositAmountPaid: null }, { depositAmountPaid: 0 }],
     },
-    data: { depositAmountPaid: 0 },
+    data: { depositAmountPaid: toMoney(0) },
   })
   if (claimed.count === 0) {
     res.status(409).json({ error: 'Penale già in elaborazione o addebitata.', code: 'ALREADY_CHARGED' })
@@ -402,7 +403,7 @@ reservationsRouter.post('/:id/charge-no-show', requirePermission('reservations.m
       where: { restaurantId: tenantId(req) },
     })
 
-    const penaltyAmount = (settings?.depositAmount || 10) * reservation.covers
+    const penaltyAmount = moneyNumber(settings?.depositAmount || 10) * reservation.covers
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: penaltyAmount * 100,
@@ -424,7 +425,7 @@ reservationsRouter.post('/:id/charge-no-show', requirePermission('reservations.m
       try {
         const updated = await prisma.reservation.update({
           where: { id: reservation.id },
-          data: { depositAmountPaid: penaltyAmount },
+          data: { depositAmountPaid: toMoney(penaltyAmount) },
         })
         io.to(tenantId(req)).emit('reservation:updated', updated)
         res.json(updated)

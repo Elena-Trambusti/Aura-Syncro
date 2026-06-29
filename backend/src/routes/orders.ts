@@ -28,6 +28,7 @@ import {
   kitchenActiveOrdersWhere,
   syncOrderStatusFromItemsTx,
 } from '../lib/orderSession'
+import { moneyNumber, toMoney } from '../lib/money'
 
 export const ordersRouter = Router()
 
@@ -221,7 +222,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
       const menuItem = menuItems.find(m => m.id === item.menuItemId)
       if (!menuItem) throw Object.assign(new Error('not found'), { code: 'MENU_ITEM_NOT_FOUND' })
       assertMenuItemOrderable(menuItem, item.quantity)
-      let unitPrice = menuItem.price
+      let unitPrice = moneyNumber(menuItem.price)
       const selectedOptions: Array<{ optionId: string, name: string, price: number }> = []
       
       if (item.modifiers?.length) {
@@ -229,8 +230,8 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
          for (const optId of item.modifiers) {
            const opt = allOptions.find(o => o.id === optId)
            if (!opt) throw Object.assign(new Error('invalid modifier'), { code: 'INVALID_MODIFIER' })
-           unitPrice += opt.price
-           selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
+           unitPrice += moneyNumber(opt.price)
+           selectedOptions.push({ optionId: opt.id, name: opt.name, price: moneyNumber(opt.price) })
          }
       }
       return { ...item, unitPrice, selectedOptions, menuTaxRate: menuItem.taxRate }
@@ -279,12 +280,12 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
         data: {
           restaurantId: req.restaurantId!,
           waiterId: req.userId,
-          subtotal,
-          tax,
-          total,
+          subtotal: toMoney(subtotal),
+          tax: toMoney(tax),
+          total: toMoney(total),
           taxRateApplied,
-          revenueAmount: total,
-          tipAmount: 0,
+          revenueAmount: toMoney(total),
+          tipAmount: toMoney(0),
           ...orderData,
           customerId: resolvedCustomerId,
           items: {
@@ -292,13 +293,13 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
               menuItemId: item.menuItemId,
               quantity: item.quantity,
               course: item.course,
-              unitPrice: item.unitPrice,
+              unitPrice: toMoney(item.unitPrice),
               notes: item.notes,
               modifiers: {
                 create: item.selectedOptions.map(opt => ({
                    optionId: opt.optionId,
                    name: opt.name,
-                   price: opt.price
+                   price: toMoney(opt.price)
                 }))
               }
             })),
@@ -347,7 +348,7 @@ ordersRouter.post('/', requirePermission('orders.create'), async (req: AuthReque
   void broadcastNewOrderNotification(
     req.restaurantId!,
     finalOrder.id,
-    `Nuovo ordine da ${tableLabel} — ${formatOrderCurrency(finalOrder.total)}`,
+    `Nuovo ordine da ${tableLabel} — ${formatOrderCurrency(moneyNumber(finalOrder.total))}`,
   )
 
   if (idempotencyKey && req.restaurantId) {
@@ -477,14 +478,20 @@ ordersRouter.patch('/:orderId/items/:itemId/status', requirePermission('orders.k
         include: { items: true },
       })
       if (fetchedOrder) {
-        const grossTotal = active.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
+        const grossTotal = active.reduce((s, i) => s + moneyNumber(i.unitPrice) * i.quantity, 0)
         const { subtotal, tax, total, taxRateApplied } = await computeTaxForOrderItems(
           req.restaurantId!,
           active.map(i => ({ quantity: i.quantity, unitPrice: i.unitPrice, menuItemId: i.menuItemId, status: i.status })),
         )
         await tx.order.updateMany({
           where: { id: req.params.orderId },
-          data: { subtotal, tax, total, taxRateApplied, revenueAmount: total },
+          data: {
+            subtotal: toMoney(subtotal),
+            tax: toMoney(tax),
+            total: toMoney(total),
+            taxRateApplied,
+            revenueAmount: toMoney(total),
+          },
         })
       }
     }
@@ -501,7 +508,7 @@ ordersRouter.patch('/:orderId/items/:itemId/status', requirePermission('orders.k
   // Apply discounts again if totals changed (never on fiscal-closed PAID orders)
   if (targetStatus === 'CANCELLED' && order.status !== 'PAID') {
     const orderToDiscount = await prisma.order.findUnique({ where: { id: req.params.orderId } })
-    if (orderToDiscount && (orderToDiscount.customerId || orderToDiscount.discount > 0)) {
+    if (orderToDiscount && (orderToDiscount.customerId || moneyNumber(orderToDiscount.discount) > 0)) {
       await applyDiscountToOrder(req.params.orderId, req.restaurantId!, { applyLoyalty: true })
     }
   }
@@ -745,7 +752,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     throw e
   }
 
-  let unitPrice = menuItem.price
+  let unitPrice = moneyNumber(menuItem.price)
   const selectedOptions: Array<{ optionId: string, name: string, price: number }> = []
 
   if (result.data.modifiers?.length) {
@@ -757,8 +764,8 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
          res.status(400).json({ error: 'Modificatore non valido' })
          return
        }
-       unitPrice += opt.price
-       selectedOptions.push({ optionId: opt.id, name: opt.name, price: opt.price })
+       unitPrice += moneyNumber(opt.price)
+       selectedOptions.push({ optionId: opt.id, name: opt.name, price: moneyNumber(opt.price) })
      }
   }
 
@@ -772,13 +779,13 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
           menuItemId: result.data.menuItemId,
           quantity: result.data.quantity,
           course: result.data.course,
-          unitPrice: unitPrice,
+          unitPrice: toMoney(unitPrice),
           notes: result.data.notes,
           modifiers: {
             create: selectedOptions.map(opt => ({
                optionId: opt.optionId,
                name: opt.name,
-               price: opt.price
+               price: toMoney(opt.price)
             }))
           }
         },
@@ -803,7 +810,13 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
         
         await tx.order.updateMany({
           where: scopedWhere(req, req.params.id),
-          data: { subtotal, tax, total, taxRateApplied, revenueAmount: total },
+          data: {
+            subtotal: toMoney(subtotal),
+            tax: toMoney(tax),
+            total: toMoney(total),
+            taxRateApplied,
+            revenueAmount: toMoney(total),
+          },
         })
       }
       
@@ -823,7 +836,7 @@ ordersRouter.post('/:id/items', requirePermission('orders.items'), async (req: A
     throw e
   }
 
-  if (orderWithItems && (orderWithItems.customerId || orderWithItems.discount > 0)) {
+  if (orderWithItems && (orderWithItems.customerId || moneyNumber(orderWithItems.discount) > 0)) {
     await applyDiscountToOrder(req.params.id, tenantId(req), { applyLoyalty: true })
   }
 

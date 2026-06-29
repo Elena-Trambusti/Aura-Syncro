@@ -48,6 +48,7 @@ import { validateEnv, isPosSimulationAllowed } from './lib/env'
 import { getVapidPublicKey } from './lib/webPush'
 import { globalApiLimiter, vapidPublicKeyLimiter } from './middleware/rateLimit'
 import { startInvoicePoller } from './lib/invoicePoller'
+import { decimalJsonReplacer } from './lib/money'
 
 // In produzione (DigitalOcean) le variabili sono iniettate dalla piattaforma;
 // in locale carichiamo backend/.env tramite dotenv.
@@ -116,6 +117,16 @@ app.use('/api/sentry-tunnel', sentryTunnelRouter)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+/** Prisma.Decimal → number nelle risposte JSON (compat frontend). */
+app.use((_req, res, next) => {
+  const originalJson = res.json.bind(res)
+  res.json = (body: unknown) => {
+    if (body === undefined) return originalJson(body)
+    return originalJson(JSON.parse(JSON.stringify(body, decimalJsonReplacer)))
+  }
+  next()
+})
 
 /** Chiave VAPID pubblica — endpoint pubblico (necessaria prima della subscribe push) */
 app.get('/api/push/vapid-public-key', vapidPublicKeyLimiter, (_req, res) => {

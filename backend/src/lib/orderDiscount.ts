@@ -1,5 +1,7 @@
 import { prisma } from './prisma'
 import { computeTaxForExistingOrder, computeTaxForRestaurant } from './orderTax'
+import type { MoneyInput } from './money'
+import { moneyNumber, toMoney } from './money'
 
 export type DiscountSource = 'LOYALTY' | 'CAMPAIGN' | 'NONE'
 
@@ -127,11 +129,11 @@ export async function validateOrderDiscountOptions(
 
 export async function resolveDiscountForOrder(
   restaurantId: string,
-  order: { customerId: string | null; taxRateApplied: number | null; items: { status: string; unitPrice: number; quantity: number }[] },
+  order: { customerId: string | null; taxRateApplied: number | null; items: { status: string; unitPrice: MoneyInput; quantity: number }[] },
   options: { applyLoyalty?: boolean; discountCode?: string },
 ) {
   const activeItems = order.items.filter(i => i.status !== 'CANCELLED')
-  const grossTotal = activeItems.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
+  const grossTotal = activeItems.reduce((s, i) => s + moneyNumber(i.unitPrice) * i.quantity, 0)
 
   let discount = { source: 'NONE' as DiscountSource, discountPct: 0, discountAmount: 0 }
   if (options.discountCode) {
@@ -174,12 +176,12 @@ export async function applyDiscountToOrder(
   return prisma.order.update({
     where: { id: orderId },
     data: {
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      discount: totals.discountAmount,
+      subtotal: toMoney(totals.subtotal),
+      tax: toMoney(totals.tax),
+      total: toMoney(totals.total),
+      discount: toMoney(totals.discountAmount),
       taxRateApplied: totals.taxRateApplied,
-      revenueAmount: totals.revenueAmount,
+      revenueAmount: toMoney(totals.revenueAmount),
     },
     include: {
       table: true,

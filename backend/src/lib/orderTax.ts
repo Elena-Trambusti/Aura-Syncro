@@ -6,6 +6,7 @@ import {
   scorporoTaxFromGross,
   type OrderLineForTax,
 } from './taxEngine'
+import type { MoneyInput } from './money'
 
 /** @param grossAmount Somma prezzi menu IVA/IGIC inclusa (senza mancia) */
 export async function computeTaxForRestaurant(restaurantId: string, grossAmount: number) {
@@ -24,7 +25,7 @@ export async function computeTaxFromGrossLines(
 
 type OrderItemForTax = {
   quantity: number
-  unitPrice: number
+  unitPrice: MoneyInput
   menuItemId: string
   status?: string
 }

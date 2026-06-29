@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { tenantId, tenantNotFound } from '../lib/tenant'
+import { moneyNumber, toMoney } from '../lib/money'
 
 export const cashRouter = Router()
 
@@ -41,7 +42,7 @@ cashRouter.post('/session/open', requirePermission('orders.pay'), async (req: Au
         data: {
           restaurantId: tenantId(req),
           openedById: req.userId!,
-          openingBalance: result.data.openingBalance,
+          openingBalance: toMoney(result.data.openingBalance),
           notes: result.data.notes,
           status: 'OPEN',
         },
@@ -86,12 +87,13 @@ cashRouter.post('/session/close', requirePermission('orders.pay'), async (req: A
     where: { sessionId: session.id },
   })
 
-  let expectedBalance = session.openingBalance
+  let expectedBalance = moneyNumber(session.openingBalance)
   for (const tx of txs) {
+    const amt = moneyNumber(tx.amount)
     if (tx.type === 'SALE' || tx.type === 'PAYIN') {
-      expectedBalance += tx.amount
+      expectedBalance += amt
     } else if (tx.type === 'PAYOUT' || tx.type === 'REFUND') {
-      expectedBalance -= tx.amount
+      expectedBalance -= amt
     }
   }
 
@@ -103,9 +105,9 @@ cashRouter.post('/session/close', requirePermission('orders.pay'), async (req: A
       status: 'CLOSED',
       closedAt: new Date(),
       closedById: req.userId!,
-      closingBalance: result.data.closingBalance,
-      expectedBalance,
-      difference,
+      closingBalance: toMoney(result.data.closingBalance),
+      expectedBalance: toMoney(expectedBalance),
+      difference: toMoney(difference),
       notes: result.data.notes ? `${session.notes ? session.notes + '\n' : ''}Chiusura: ${result.data.notes}` : session.notes,
     },
   })
@@ -150,7 +152,7 @@ cashRouter.post('/transactions', requirePermission('orders.pay'), async (req: Au
       sessionId: session.id,
       userId: req.userId!,
       type: result.data.type,
-      amount: result.data.amount,
+      amount: toMoney(result.data.amount),
       reason: result.data.reason,
     },
   })

@@ -1,5 +1,6 @@
 import { PrismaClient, CountryCode, TaxRegion } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { moneyNumber, toMoney } from './lib/money'
 
 const prisma = new PrismaClient()
 
@@ -226,17 +227,20 @@ async function main() {
       const items = await prisma.menuItem.findMany({ where: { restaurantId: restaurant.id } })
       
       if (items.length > 2 && tables.length > 1) {
+        const p0 = moneyNumber(items[0].price)
+        const p1 = moneyNumber(items[1].price)
+        const p2 = moneyNumber(items[2].price)
         await prisma.order.create({
           data: {
             restaurantId: restaurant.id,
             tableId: tables[0].id,
             status: 'PREPARING',
-            subtotal: items[0].price + items[1].price, 
-            total: items[0].price + items[1].price,
-            revenueAmount: items[0].price + items[1].price,
+            subtotal: toMoney(p0 + p1),
+            total: toMoney(p0 + p1),
+            revenueAmount: toMoney(p0 + p1),
             items: { create: [
-              { menuItemId: items[0].id, quantity: 1, unitPrice: items[0].price },
-              { menuItemId: items[1].id, quantity: 1, unitPrice: items[1].price }
+              { menuItemId: items[0].id, quantity: 1, unitPrice: toMoney(p0) },
+              { menuItemId: items[1].id, quantity: 1, unitPrice: toMoney(p1) }
             ]}
           }
         })
@@ -245,12 +249,12 @@ async function main() {
             restaurantId: restaurant.id,
             tableId: tables[1].id,
             status: 'PAID',
-            subtotal: items[2].price * 2, 
-            total: items[2].price * 2,
-            revenueAmount: items[2].price * 2,
+            subtotal: toMoney(p2 * 2),
+            total: toMoney(p2 * 2),
+            revenueAmount: toMoney(p2 * 2),
             createdAt: new Date(Date.now() - 3600000), // 1 ora fa
             items: { create: [
-              { menuItemId: items[2].id, quantity: 2, unitPrice: items[2].price }
+              { menuItemId: items[2].id, quantity: 2, unitPrice: toMoney(p2) }
             ]}
           }
         })
