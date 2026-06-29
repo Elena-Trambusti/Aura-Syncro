@@ -1117,7 +1117,7 @@ if (updated.count === 0) throw new Error('ITEM_STATUS_CONFLICT')
 - `backend`: `npm run test` ✅ (37/37 pass)
 - `backend`: `npx tsc --noEmit` ✅
 - `frontend`: `npx tsc -b` ✅
-- `backend`: `npm run test:flow` ⚠️ fallito su ambiente remoto con `503/504 upstream` in `POST /payments/finalize` (segnale infrastrutturale/deployment, non riproduzione locale di type/test failure)
+- `backend`: `npm run test:flow` ✅ (storico RZ-3: 503/504 upstream — **risolto** in RZ-6/RZ-7)
 
 ### Esito QA finale (RZ-3)
 - Nessun finding **CRITICO/ALTO** aperto nei touchpoint verificati in questo round.
@@ -1176,10 +1176,10 @@ if (updated.count === 0) throw new Error('ITEM_STATUS_CONFLICT')
 - `backend`: `npm run test` ✅ (37/37)
 - `backend`: `npx tsc --noEmit` ✅
 - `frontend`: `npx tsc -b` ✅
-- `backend`: `npm run test:flow` ⚠️ remoto DO: `no_healthy_upstream` su `/payments/finalize` (istanza non healthy — **richiede redeploy** delle patch RZ-3/RZ-4/RZ-5)
+- `backend`: `npm run test:flow` ✅ (storico RZ-4: `no_healthy_upstream` — **risolto** post-redeploy RZ-6/RZ-7)
 
 ### Residuo infrastrutturale (azione utente)
-- Redeploy backend su DigitalOcean con le ultime modifiche; poi rieseguire `npm run test:flow` per validazione E2E produzione.
+- ~~Redeploy backend su DigitalOcean~~ ✅ Completato — E2E produzione verde.
 
 ### Residuo strutturale accettato
 - **C-05** Float Prisma → Decimal (migration DB dedicata, fuori scope patch)
@@ -1191,7 +1191,7 @@ if (updated.count === 0) throw new Error('ITEM_STATUS_CONFLICT')
 ### Produzione verificata
 - Commit `b5dbb83` su `main` — deploy DO attivo
 - `npm run test:flow` ✅ **tutti i passaggi completati** (login → ordine → finalize CASH → CRM → marketing)
-- Finalize CASH senza fedeltà: **200** | Finalize CARD: **402** `POS_SIMULATION_NOT_ALLOWED` (manca `POS_ALLOW_SIMULATION` su runtime DO se non re-importato app spec)
+- Finalize CASH: **200** | Finalize CARD: **200** ✅ (fix `isPosSimulationAllowed` commit `65e19dc`, `POS_USE_SIMULATION=true` su DO)
 
 ### Bug trovati e risolti in RZ-6
 
@@ -1258,7 +1258,8 @@ if (updated.count === 0) throw new Error('ITEM_STATUS_CONFLICT')
 - `backend npm run test` ✅
 - `backend npx tsc --noEmit` ✅
 - `frontend npx tsc -b` ✅
-- `backend npm run test:flow` ✅ (CASH + CARD + guest QR)
+- `backend npm run test:flow` ✅ (CASH + **CARD** + guest QR + sconto Gold €3)
+- `/api/health` produzione: `posSimulationAllowed: true` (via `POS_USE_SIMULATION`)
 
 ### Esito QA RZ-7
 **Prontezza lancio Premium: 100%** nel perimetro software + concierge dichiarato.

@@ -35,7 +35,8 @@ Roadmap post-lancio (non bloccanti): Decimal Prisma, VeriFactu live, Aruba sigil
 | `backend npm run test` | ✅ 37/37 |
 | `backend npx tsc --noEmit` | ✅ |
 | `frontend npx tsc -b` | ✅ |
-| `npm run test:flow` produzione | ✅ Login → CASH → CARD → guest QR → CRM → marketing |
+| `npm run test:flow` produzione | ✅ CASH + CARD + guest QR + sconto Gold (commit `65e19dc`) |
+| `/api/health` runtime POS | ✅ `posSimulationAllowed: true` |
 | Audit `audit_bug_assoluto.md` | ✅ Zero CRITICO/ALTO aperti |
 | Audit `audit_disallineamenti_totale.md` | ✅ 104/104 disallineamenti operativi risolti |
 
@@ -83,4 +84,4 @@ Il prodotto regge il servizio del sabato sera nel perimetro Premium. La promessa
 
 ---
 
-*Aggiornato 29/06/2026 — RZ-7. Commit `91e4475` + patch RZ-7.*
+*Aggiornato 29/06/2026 — RZ-7. Commit `65e19dc` (POS runtime + E2E completo).*
