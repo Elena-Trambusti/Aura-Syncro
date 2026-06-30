@@ -12,7 +12,7 @@ export default function LandingNav() {
   const { user, isLoading } = useAuth()
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-black/40 backdrop-blur-2xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.5)] pt-[env(safe-area-inset-top,0px)]">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.08] bg-black/40 pt-[env(safe-area-inset-top,0px)] shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md md:backdrop-blur-2xl">
       {/* Premium glowing top line */}
       <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-aura-gold/50 to-transparent" />
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">

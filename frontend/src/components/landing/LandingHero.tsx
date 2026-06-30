@@ -40,8 +40,8 @@ export default function LandingHero() {
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div>
-          <div 
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-aura-gold/20 bg-aura-gold/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold backdrop-blur-md"
+          <div
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-aura-gold/20 bg-aura-gold/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-aura-gold md:backdrop-blur-md motion-reduce:animate-none"
             style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both' }}
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -64,16 +64,16 @@ export default function LandingHero() {
             style={{ animation: 'reveal-blur 1.4s cubic-bezier(0.16, 1, 0.3, 1) both', animationDelay: '450ms' }}
           >
             <RegisterLink
-              className="relative overflow-hidden inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#d4af37] to-[#aa8c2c] px-8 py-4 text-xs uppercase tracking-[0.15em] font-bold text-black shadow-[0_0_40px_rgba(212,175,55,0.4)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_rgba(212,175,55,0.6)] group ring-1 ring-white/40"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-[#d4af37] to-[#aa8c2c] px-8 py-4 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_40px_rgba(212,175,55,0.4)] ring-1 ring-white/40 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_60px_rgba(212,175,55,0.6)]"
             >
-              <div className="absolute inset-0 w-[50%] bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer-sweep_3s_ease-in-out_infinite]" />
+              <div className="absolute inset-0 hidden w-[50%] bg-gradient-to-r from-transparent via-white/40 to-transparent motion-safe:md:block motion-safe:md:animate-[shimmer-sweep_3s_ease-in-out_infinite]" />
               <span className="relative">{t('landing.hero.ctaPrimary')}</span>
               <ArrowRight className="relative h-4 w-4" />
             </RegisterLink>
             <button
               onClick={handleDemoLogin}
               disabled={isDemoLoading}
-              className="inline-flex items-center justify-center gap-3 rounded-full border border-[#D4AF37]/20 bg-black/40 backdrop-blur-xl px-8 py-4 text-xs uppercase tracking-[0.15em] font-bold lux-text-bright transition-all duration-500 hover:-translate-y-1 hover:bg-[#D4AF37]/5 hover:border-aura-gold/50 hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]"
+              className="inline-flex items-center justify-center gap-3 rounded-full border border-[#D4AF37]/20 bg-black/40 px-8 py-4 text-xs font-bold uppercase tracking-[0.15em] lux-text-bright transition-all duration-500 hover:-translate-y-1 hover:border-aura-gold/50 hover:bg-[#D4AF37]/5 hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] md:backdrop-blur-xl"
             >
               {isDemoLoading ? <Loader2 className="h-4 w-4 animate-spin text-aura-gold" /> : <Zap className="h-4 w-4 text-aura-gold" />}
               {t('landing.hero.ctaDemo')}

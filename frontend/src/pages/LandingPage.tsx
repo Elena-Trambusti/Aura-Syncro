@@ -1,12 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePageMeta } from '../lib/usePageMeta'
 import LandingNav from '../components/landing/LandingNav'
 import LandingHero from '../components/landing/LandingHero'
 import LandingTrustBar from '../components/landing/LandingTrustBar'
 import LandingFeatures from '../components/landing/LandingFeatures'
-import LandingGallery from '../components/landing/LandingGallery'
-import LandingPricing from '../components/landing/LandingPricing'
-import LandingFooter from '../components/landing/LandingFooter'
+
+const LandingGallery = lazy(() => import('../components/landing/LandingGallery'))
+const LandingPricing = lazy(() => import('../components/landing/LandingPricing'))
+const LandingFooter = lazy(() => import('../components/landing/LandingFooter'))
 
 export default function LandingPage() {
   const { t, i18n } = useTranslation()
@@ -18,9 +20,9 @@ export default function LandingPage() {
       {/* Pure black base */}
       <div className="fixed inset-0 z-[-4] bg-black" />
       
-      {/* Luxury glowing orbs - Increased visibility */}
-      <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-aura-gold/20 mix-blend-screen blur-[120px] pointer-events-none animate-[float_15s_ease-in-out_infinite]" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-amber-600/15 mix-blend-screen blur-[120px] pointer-events-none animate-[float_20s_ease-in-out_infinite_reverse]" />
+      {/* Effetti visuali pesanti: solo desktop per ridurre paint mobile */}
+      <div className="pointer-events-none fixed top-[-10%] left-[-10%] hidden h-[50vw] w-[50vw] rounded-full bg-aura-gold/20 blur-[120px] md:block motion-safe:md:animate-[float_15s_ease-in-out_infinite]" />
+      <div className="pointer-events-none fixed right-[-10%] bottom-[-10%] hidden h-[40vw] w-[40vw] rounded-full bg-amber-600/15 blur-[120px] md:block motion-safe:md:animate-[float_20s_ease-in-out_infinite_reverse]" />
       
       {/* Top gold spotlight */}
       <div className="fixed inset-0 z-[-3] pointer-events-none bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(212,175,55,0.15),rgba(0,0,0,0))]" />
@@ -40,10 +42,14 @@ export default function LandingPage() {
         <LandingHero />
         <LandingTrustBar />
         <LandingFeatures />
-        <LandingGallery />
-        <LandingPricing />
+        <Suspense fallback={<div className="h-24" aria-hidden />}>
+          <LandingGallery />
+          <LandingPricing />
+        </Suspense>
       </main>
-      <LandingFooter />
+      <Suspense fallback={null}>
+        <LandingFooter />
+      </Suspense>
     </div>
   )
 }
