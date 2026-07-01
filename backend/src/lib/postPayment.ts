@@ -1,7 +1,7 @@
 import type { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { resolveRevenueAmount } from './fiscalAmounts'
-import { earnLoyaltyPointsForOrder, updateCustomerTier } from './loyaltyHelpers'
+import { earnLoyaltyPointsForOrder } from './loyaltyHelpers'
 import { moneyNumber } from './money'
 
 type DbClient = Prisma.TransactionClient | typeof prisma
@@ -72,7 +72,7 @@ export async function reversePostPaymentEffects(
   orderId: string,
   restaurantId: string,
   db: DbClient = prisma,
-): Promise<void> {
+): Promise<{ customerId: string; loyaltyPoints: number } | null> {
   const order = await db.order.findFirst({
     where: { id: orderId, restaurantId, status: 'PAID' },
     select: {
@@ -85,7 +85,7 @@ export async function reversePostPaymentEffects(
       tipAmount: true,
     },
   })
-  if (!order?.customerId) return
+  if (!order?.customerId) return null
 
   const customerId = order.customerId
   const revenue = resolveRevenueAmount(order)
@@ -103,7 +103,7 @@ export async function reversePostPaymentEffects(
     where: { id: customerId, restaurantId },
     select: { totalSpent: true, totalVisits: true, loyaltyPoints: true },
   })
-  if (!customer) return
+  if (!customer) return null
 
   const spentDecrement = Math.min(moneyNumber(customer.totalSpent), revenue)
   const visitsDecrement =
@@ -147,13 +147,6 @@ export async function reversePostPaymentEffects(
         description: `Storno punti rimborso ordine ${orderId.slice(-6)}`,
       },
     })
-    const updated = await db.customer.findFirst({
-      where: { id: customerId, restaurantId },
-      select: { loyaltyPoints: true },
-    })
-    if (updated) {
-      await updateCustomerTier(restaurantId, customerId, updated.loyaltyPoints)
-    }
   }
 
   if (crmMarker) {
@@ -161,4 +154,13 @@ export async function reversePostPaymentEffects(
       where: { id: crmMarker.id, restaurantId },
     })
   }
+
+  const updated = await db.customer.findFirst({
+    where: { id: customerId, restaurantId },
+    select: { loyaltyPoints: true },
+  })
+
+  return updated
+    ? { customerId, loyaltyPoints: updated.loyaltyPoints }
+    : { customerId, loyaltyPoints: customer.loyaltyPoints - pointsDecrement }
 }

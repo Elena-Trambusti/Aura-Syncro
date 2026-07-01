@@ -2,6 +2,7 @@ import type { PaymentMethod, Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { moneyNumber, toMoney } from './money'
 import { reversePostPaymentEffects } from './postPayment'
+import { updateCustomerTier } from './loyaltyHelpers'
 import { stripe, STRIPE_ENABLED } from './stripe'
 
 type DbClient = Prisma.TransactionClient | typeof prisma
@@ -38,7 +39,7 @@ export async function markOrderRefunded(
   restaurantId: string,
   amount: number,
   db: DbClient = prisma,
-): Promise<void> {
+): Promise<{ customerId: string; loyaltyPoints: number } | null> {
   const order = await db.order.findFirst({
     where: { id: orderId, restaurantId, status: 'PAID' },
     select: { id: true, total: true, refundedAt: true },
@@ -58,7 +59,15 @@ export async function markOrderRefunded(
       refundAmount: toMoney(refundAmount),
     },
   })
-  await reversePostPaymentEffects(orderId, restaurantId, db)
+  return reversePostPaymentEffects(orderId, restaurantId, db)
+}
+
+async function syncTierAfterRefund(
+  restaurantId: string,
+  reversal: { customerId: string; loyaltyPoints: number } | null,
+): Promise<void> {
+  if (!reversal) return
+  await updateCustomerTier(restaurantId, reversal.customerId, reversal.loyaltyPoints)
 }
 
 export type ExecuteOrderRefundInput = {
@@ -105,9 +114,10 @@ export async function executeOrderRefund(input: ExecuteOrderRefundInput): Promis
       restaurantId: input.restaurantId,
       reason: input.reason ?? 'staff_refund',
     })
-    await prisma.$transaction(async tx => {
-      await markOrderRefunded(order.id, input.restaurantId, refundAmount, tx)
-    })
+    const reversal = await prisma.$transaction(async tx =>
+      markOrderRefunded(order.id, input.restaurantId, refundAmount, tx),
+    )
+    await syncTierAfterRefund(input.restaurantId, reversal)
     return { refundAmount }
   }
 
@@ -117,8 +127,8 @@ export async function executeOrderRefund(input: ExecuteOrderRefundInput): Promis
     }
     const cashSessionId = input.cashSessionId
     const userId = input.userId
-    await prisma.$transaction(async tx => {
-      await markOrderRefunded(order.id, input.restaurantId, refundAmount, tx)
+    const reversal = await prisma.$transaction(async tx => {
+      const rev = await markOrderRefunded(order.id, input.restaurantId, refundAmount, tx)
       await tx.cashTransaction.create({
         data: {
           sessionId: cashSessionId,
@@ -129,7 +139,9 @@ export async function executeOrderRefund(input: ExecuteOrderRefundInput): Promis
           orderId: order.id,
         },
       })
+      return rev
     })
+    await syncTierAfterRefund(input.restaurantId, reversal)
     return { refundAmount }
   }
 
