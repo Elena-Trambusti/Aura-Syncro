@@ -40,7 +40,28 @@ async function api(
   }
 }
 
-async function ensureCashSessionOpen(token: string): Promise<void> {
+async function refundWithRetry(
+  token: string,
+  orderId: string,
+): Promise<{ success: boolean; refundAmount: number }> {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      return await api(`/payments/orders/${orderId}/refund`, {
+        token,
+        method: 'POST',
+        body: {},
+      }) as { success: boolean; refundAmount: number }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      const retryable = /→ (502|503|504|409):/.test(message) || message.includes('abort')
+      if (!retryable || attempt === 3) throw err
+      console.warn(`⚠ refund tentativo ${attempt} fallito, retry...`)
+      await new Promise(r => setTimeout(r, 2000 * attempt))
+    }
+  }
+  throw new Error('refund retry exhausted')
+}
+
   const current = (await api('/cash/session/current', { token })) as { id: string } | null
   if (current?.id) return
   await api('/cash/session/open', {
@@ -178,11 +199,7 @@ async function main() {
   const paidCash = await finalizeWithRetry(token, order.id, `test-flow-pay-cash-${order.id}`, 'CASH')
   console.log('✓ Pagamento CASH finalizzato — status', paidCash.order.status)
 
-  const refundCash = (await api(`/payments/orders/${order.id}/refund`, {
-    token,
-    method: 'POST',
-    body: {},
-  })) as { success: boolean; refundAmount: number }
+  const refundCash = await refundWithRetry(token, order.id)
   console.log(`✓ Rimborso CASH — €${refundCash.refundAmount.toFixed(2)}`)
 
   const customersAfterRefund = (await api('/customers', { token })) as Array<{
