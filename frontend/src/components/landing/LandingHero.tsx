@@ -1,11 +1,14 @@
-
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, BarChart3 } from 'lucide-react'
 import AuraIcon from '../ui/AuraIcon'
 import { BRAND } from '../../lib/brand'
+import DemoBookingModal from './DemoBookingModal'
+
 export default function LandingHero() {
   const { t } = useTranslation()
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false)
 
   return (
     <section
@@ -46,13 +49,13 @@ export default function LandingHero() {
           <div 
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start motion-reduce:animate-none motion-safe:animate-[reveal-blur_0.8s_cubic-bezier(0.16,1,0.3,1)_150ms_both]"
           >
-            <Link
-              to="/login"
+            <button
+              onClick={() => setIsDemoModalOpen(true)}
               className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full bg-neutral-950/90 backdrop-blur-md border border-[#C5A059]/40 px-8 py-4 text-[#C5A059] font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:border-[#C5A059] hover:shadow-[0_0_15px_rgba(197,160,89,0.2)] w-full sm:w-auto"
             >
-              Accedi
+              Riserva una Demo Privata
               <AuraIcon icon={ArrowRight} size="md" className="group-hover:translate-x-1 transition-all duration-300" />
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -103,6 +106,7 @@ export default function LandingHero() {
           </div>
         </div>
       </div>
+      <DemoBookingModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />
     </section>
   )
 }
