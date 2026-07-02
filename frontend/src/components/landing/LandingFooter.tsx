@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ExternalLink, Mail } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { BRAND } from '../../lib/brand'
 import BrandLogo from '../brand/BrandLogo'
 import { formatIssuerFooterLine } from '../../config/fiscal'
-import { LEGAL_ENTITY, LEGAL_URLS } from '../../config/legal'
+import { LEGAL_URLS } from '../../config/legal'
 import { SITE_SOCIAL } from '../../lib/siteUrl'
 import { LandingSectionDecor } from './landingLuxury'
 
