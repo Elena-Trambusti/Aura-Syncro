@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, BarChart3 } from 'lucide-react'
 import AuraIcon from '../ui/AuraIcon'
